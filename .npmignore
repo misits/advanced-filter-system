@@ -1,0 +1,7 @@
+src/
+tests/
+examples/
+.gitignore
+rollup.config.js
+*.log
+coverage/

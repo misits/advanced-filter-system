@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Filter System - Basic Example</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Filter Controls */
+        .filter-controls {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-search {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+
+        .btn-filter {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-filter:hover {
+            background: #f0f0f0;
+        }
+
+        .btn-filter.active {
+            background: #007bff;
+            color: white;
+            border-color: #0056b3;
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        .card-title {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .card-category {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .card-price {
+            font-weight: bold;
+            color: #007bff;
+            margin-top: 10px;
+        }
+
+        /* Counter */
+        .filter-counter {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Filter Controls -->
+        <div class="filter-controls">
+            <input type="text" class="filter-search" placeholder="Search...">
+
+            <button class="btn-filter" data-filter="*">All</button>
+            <button class="btn-filter" data-filter="category:tech">Technology</button>
+            <button class="btn-filter" data-filter="category:fashion">Fashion</button>
+            <button class="btn-filter" data-filter="category:food">Food</button>
+
+            <div class="filter-counter"></div>
+        </div>
+
+        <!-- Grid of Items -->
+        <div class="grid">
+            <!-- Tech Items -->
+            <div class="card filter-item" data-categories="category:tech" data-price="999" data-title="Smartphone Pro">
+                <img src="https://via.placeholder.com/300x200?text=Smartphone" alt="Smartphone">
+                <div class="card-content">
+                    <h3 class="card-title">Smartphone Pro</h3>
+                    <div class="card-category">Technology</div>
+                    <div class="card-price">$999</div>
+                </div>
+            </div>
+
+            <div class="card filter-item" data-categories="category:tech" data-price="1299" data-title="Laptop Ultra">
+                <img src="https://via.placeholder.com/300x200?text=Laptop" alt="Laptop">
+                <div class="card-content">
+                    <h3 class="card-title">Laptop Ultra</h3>
+                    <div class="card-category">Technology</div>
+                    <div class="card-price">$1299</div>
+                </div>
+            </div>
+
+            <!-- Fashion Items -->
+            <div class="card filter-item" data-categories="category:fashion" data-price="89" data-title="Designer Jeans">
+                <img src="https://via.placeholder.com/300x200?text=Jeans" alt="Jeans">
+                <div class="card-content">
+                    <h3 class="card-title">Designer Jeans</h3>
+                    <div class="card-category">Fashion</div>
+                    <div class="card-price">$89</div>
+                </div>
+            </div>
+
+            <div class="card filter-item" data-categories="category:fashion" data-price="59" data-title="Casual Shirt">
+                <img src="https://via.placeholder.com/300x200?text=Shirt" alt="Shirt">
+                <div class="card-content">
+                    <h3 class="card-title">Casual Shirt</h3>
+                    <div class="card-category">Fashion</div>
+                    <div class="card-price">$59</div>
+                </div>
+            </div>
+
+            <!-- Food Items -->
+            <div class="card filter-item" data-categories="category:food" data-price="25" data-title="Gourmet Pizza">
+                <img src="https://via.placeholder.com/300x200?text=Pizza" alt="Pizza">
+                <div class="card-content">
+                    <h3 class="card-title">Gourmet Pizza</h3>
+                    <div class="card-category">Food</div>
+                    <div class="card-price">$25</div>
+                </div>
+            </div>
+
+            <div class="card filter-item" data-categories="category:food" data-price="15" data-title="Organic Salad">
+                <img src="https://via.placeholder.com/300x200?text=Salad" alt="Salad">
+                <div class="card-content">
+                    <h3 class="card-title">Organic Salad</h3>
+                    <div class="card-category">Food</div>
+                    <div class="card-price">$15</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { AFS } from '../dist/AFS.esm.js';
+        
+        // Initialize Filter
+        const filter = new AFS({
+            containerSelector: '.grid',
+            itemSelector: '.filter-item',
+            filterButtonSelector: '.btn-filter',
+            searchInputSelector: '.filter-search',
+            counterSelector: '.filter-counter',
+            searchKeys: ['title', 'categories'],
+            animationDuration: 300
+        });
+    </script>
+</body>
+
+</html>
