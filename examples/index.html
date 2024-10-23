@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Advanced Filter System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css">
+</head>
+
+<body class="font-mono bg-white text-gray-900">
+    <!-- Header with navigation -->
+    <header class="sticky top-0 bg-white border-b border-gray-200 z-[1000]">
+        <div class="container mx-auto px-6 py-4">
+            <nav class="flex justify-between items-center">
+                <div class="text-xl font-bold">AFS</div>
+                <div class="flex gap-6">
+                    <a href="#features" class="hover:text-gray-600">Features</a>
+                    <a href="#installation" class="hover:text-gray-600">Installation</a>
+                    <a href="#usage" class="hover:text-gray-600">Usage</a>
+                    <a href="https://github.com/misits/advanced-filter-system" class="hover:text-gray-600">GitHub</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="pt-8">
+        <!-- Hero Section -->
+        <section class="container mx-auto px-6 mb-16">
+            <h1 class="text-6xl font-bold mb-6">Advanced Filter System</h1>
+            <p class="text-xl text-gray-600 mb-8">
+                A flexible and powerful JavaScript library for filtering DOM elements with search and sorting
+                capabilities.
+            </p>
+            <div class="flex gap-4">
+                <a href="#installation"
+                    class="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
+                    Get Started
+                </a>
+                <a href="https://github.com/misits/advanced-filter-system"
+                    class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    View on GitHub
+                </a>
+            </div>
+        </section>
+
+        <!-- Live Demo -->
+        <section class="container mx-auto px-6 mb-16">
+            <h2 class="text-3xl font-bold mb-8">Live Demo</h2>
+            <div class="container mx-auto  mb-16">
+                <!-- Filter Controls -->
+                <div class="filter-controls mb-8 flex gap-4 items-center flex-wrap">
+                    <input type="text" class="filter-search p-2 border border-gray-300 rounded-md w-52"
+                        placeholder="Search...">
+
+                    <button
+                        class="btn-filter px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors"
+                        data-filter="*">All</button>
+                    <button
+                        class="btn-filter px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors"
+                        data-filter="category:tech">Technology</button>
+                    <button
+                        class="btn-filter px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors"
+                        data-filter="category:fashion">Fashion</button>
+                    <button
+                        class="btn-filter px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors"
+                        data-filter="category:food">Food</button>
+
+                    <div class="filter-counter text-gray-500 text-sm"></div>
+                </div>
+
+                <!-- Grid of Items -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <!-- Tech Items -->
+                    <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden"
+                        data-categories="category:tech" data-price="999" data-title="Smartphone Pro">
+                        <div class="card-content">
+                            <h3 class="card-title mb-2 text-lg font-semibold">Smartphone Pro</h3>
+                            <div class="card-category text-gray-500 text-sm">Technology</div>
+                            <div class="card-price mt-2 text-gray-500 font-bold">$999</div>
+                        </div>
+                    </div>
+
+                    <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden"
+                        data-categories="category:tech" data-price="1299" data-title="Laptop Ultra">
+                        <div class="card-content">
+                            <h3 class="card-title mb-2 text-lg font-semibold">Laptop Ultra</h3>
+                            <div class="card-category text-gray-500 text-sm">Technology</div>
+                            <div class="card-price mt-2 text-gray-500 font-bold">$1299</div>
+                        </div>
+                    </div>
+
+                    <!-- Fashion Items -->
+                    <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden"
+                        data-categories="category:fashion" data-price="89" data-title="Designer Jeans">
+                        <div class="card-content">
+                            <h3 class="card-title mb-2 text-lg font-semibold">Designer Jeans</h3>
+                            <div class="card-category text-gray-500 text-sm">Fashion</div>
+                            <div class="card-price mt-2 text-gray-500 font-bold">$89</div>
+                        </div>
+                    </div>
+
+                    <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden"
+                        data-categories="category:fashion" data-price="59" data-title="Casual Shirt">
+                        <div class="card-content">
+                            <h3 class="card-title mb-2 text-lg font-semibold">Casual Shirt</h3>
+                            <div class="card-category text-gray-500 text-sm">Fashion</div>
+                            <div class="card-price mt-2 text-gray-500 font-bold">$59</div>
+                        </div>
+                    </div>
+
+                    <!-- Food Items -->
+                    <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden"
+                        data-categories="category:food" data-price="25" data-title="Gourmet Pizza">
+                        <div class="card-content">
+                            <h3 class="card-title mb-2 text-lg font-semibold">Gourmet Pizza</h3>
+                            <div class="card-category text-gray-500 text-sm">Food</div>
+                            <div class="card-price mt-2 text-gray-500 font-bold">$25</div>
+                        </div>
+                    </div>
+
+                    <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden"
+                        data-categories="category:food" data-price="15" data-title="Organic Salad">
+                        <div class="card-content">
+                            <h3 class="card-title mb-2 text-lg font-semibold">Organic Salad</h3>
+                            <div class="card-category text-gray-500 text-sm">Food</div>
+                            <div class="card-price mt-2 text-gray-500 font-bold">$15</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section id="features" class="container mx-auto px-4 sm:px-6 mb-16">
+            <h2 class="text-3xl font-bold mb-8">Features</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="p-6 bg-white rounded-lg border border-gray-200">
+                    <div class="text-2xl mb-4">🔍</div>
+                    <h3 class="font-bold mb-2">Multiple Typed Filters</h3>
+                    <p class="text-gray-600">Support for category, price, and custom filter types</p>
+                </div>
+                
+                <div class="p-6 bg-white rounded-lg border border-gray-200">
+                    <div class="text-2xl mb-4">🔎</div>
+                    <h3 class="font-bold mb-2">Text Search</h3>
+                    <p class="text-gray-600">Debounced search with multiple key support</p>
+                </div>
+                
+                <div class="p-6 bg-white rounded-lg border border-gray-200">
+                    <div class="text-2xl mb-4">📊</div>
+                    <h3 class="font-bold mb-2">Multi-criteria Sorting</h3>
+                    <p class="text-gray-600">Sort items by multiple criteria simultaneously</p>
+                </div>
+                
+                <div class="p-6 bg-white rounded-lg border border-gray-200">
+                    <div class="text-2xl mb-4">🔗</div>
+                    <h3 class="font-bold mb-2">URL State Management</h3>
+                    <p class="text-gray-600">Filter state persists in URL for sharing</p>
+                </div>
+                
+                <div class="p-6 bg-white rounded-lg border border-gray-200">
+                    <div class="text-2xl mb-4">✨</div>
+                    <h3 class="font-bold mb-2">Smooth Animations</h3>
+                    <p class="text-gray-600">Fluid transitions between filter states</p>
+                </div>
+                
+                <div class="p-6 bg-white rounded-lg border border-gray-200">
+                    <div class="text-2xl mb-4">🔢</div>
+                    <h3 class="font-bold mb-2">Results Counter</h3>
+                    <p class="text-gray-600">Live count of filtered items displayed</p>
+                </div>
+                
+                <div class="p-6 bg-white rounded-lg border border-gray-200">
+                    <div class="text-2xl mb-4">📱</div>
+                    <h3 class="font-bold mb-2">Responsive</h3>
+                    <p class="text-gray-600">Fully adaptive to all screen sizes</p>
+                </div>
+                
+                <div class="p-6 bg-white rounded-lg border border-gray-200">
+                    <div class="text-2xl mb-4">⚡</div>
+                    <h3 class="font-bold mb-2">High Performance</h3>
+                    <p class="text-gray-600">Optimized for large datasets</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Installation -->
+        <section id="installation" class="container mx-auto px-6 mb-16">
+            <h2 class="text-3xl font-bold mb-8">Installation</h2>
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Via npm</h3>
+                    <pre
+                        class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-bash">npm install advanced-filter-system</code></pre>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Direct Download</h3>
+                    <p>Download <code class="bg-gray-100 px-2 py-1 rounded">src/AFS.js</code> from this repository and
+                        include it in your project.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Usage -->
+        <section id="usage" class="container mx-auto px-6 mb-16">
+            <h2 class="text-3xl font-bold mb-8">Basic Usage</h2>
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">HTML Structure</h3>
+                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-html">&lt;div class="products filter-container"&gt;
+    &lt;!-- Filters --&gt;
+    &lt;div class="filters"&gt;
+        &lt;button class="btn-filter" data-filter="*"&gt;All&lt;/button&gt;
+        &lt;button class="btn-filter" data-filter="category:electronics"&gt;Electronics&lt;/button&gt;
+        &lt;button class="btn-filter" data-filter="price:low"&gt;Low Price&lt;/button&gt;
+    &lt;/div&gt;
+                        
+    &lt;input type="text" class="filter-search" placeholder="Search..."&gt;
+
+    &lt;div class="filter-counter"&gt;&lt;/div&gt;
+
+    &lt;div class="product-grid"&gt;
+        &lt;div class="filter-item" 
+                data-categories="category:electronics price:low" 
+                data-title="Smartphone"
+                data-price="599"&gt;
+                &lt;!-- Product content --&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">JavaScript Initialization</h3>
+                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">const portfolioFilter = new AFS({
+    containerSelector: '.products',
+    itemSelector: '.filter-item',
+    filterButtonSelector: '.btn-filter',
+    filterMode: 'AND' // Must match all selected filters (OR by default)
+});</code></pre>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="py-12">
+        <div class="container mx-auto px-6">
+            <div class="text-center text-gray-400">
+                <p>Released under the MIT License.</p>
+                <p class="mt-2">Created by <a href="https://github.com/misits" class="hover:text-gray-600">@misits</a></p>
+            </div>
+        </div>
+    </footer>
+    <script type="module">
+        import { AFS } from '../dist/AFS.esm.js';
+
+        // Initialize Filter
+        const filter = new AFS({
+            containerSelector: '.grid',
+            itemSelector: '.filter-item',
+            filterButtonSelector: '.btn-filter',
+            searchInputSelector: '.filter-search',
+            counterSelector: '.filter-counter',
+            searchKeys: ['title', 'categories'],
+            animationDuration: 300
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-javascript.min.js"></script>
+</body>
+
+</html>

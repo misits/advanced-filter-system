@@ -8,7 +8,6 @@ A flexible and powerful JavaScript library for filtering DOM elements with searc
 - 🔍 Multiple typed filters (category, price, etc.)
 - 🔎 Text search with debouncing
 - 📊 Multi-criteria sorting
-- 📏 Range filtering
 - 🔗 URL state management
 - ✨ Smooth animations
 - 🔢 Results counter
