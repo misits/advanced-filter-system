@@ -105,6 +105,16 @@ filter.removeFilter('category', 'web');
 
 // Get active filters by type
 const activeCategories = filter.getActiveFiltersByType('category');
+
+// Add filter groups
+filter.addFilterGroup('categories', ['category:tech', 'category:fashion'], 'OR');
+filter.addFilterGroup('price', ['price:low', 'price:medium'], 'AND');
+
+// Set how groups combine
+filter.setGroupMode('AND'); // Items must match both category AND price groups
+
+// Remove a group
+filter.removeFilterGroup('price');
 ```
 
 ### URL State Management
