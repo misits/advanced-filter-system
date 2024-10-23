@@ -54,6 +54,14 @@
                     <input type="text" class="filter-search p-2 border border-gray-300 rounded-md w-52"
                         placeholder="Search...">
 
+                    <!-- Add this toggle button -->
+                    <button class="filter-logic-toggle px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors flex items-center gap-2">
+                        <span class="logic-text">OR</span>
+                        <div class="toggle-indicator w-8 h-4 bg-gray-300 rounded-full relative">
+                            <div class="toggle-dot absolute w-3 h-3 bg-white rounded-full top-0.5 left-0.5 transition-transform"></div>
+                        </div>
+                    </button>
+
                     <button
                         class="btn-filter px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors"
                         data-filter="*">All</button>
@@ -255,7 +263,7 @@
     <script type="module">
         import { AFS } from '../dist/AFS.esm.js';
 
-        // Initialize Filter
+       // Initialize Filter with OR as default
         const filter = new AFS({
             containerSelector: '.grid',
             itemSelector: '.filter-item',
@@ -263,7 +271,43 @@
             searchInputSelector: '.filter-search',
             counterSelector: '.filter-counter',
             searchKeys: ['title', 'categories'],
-            animationDuration: 300
+            animationDuration: 300,
+            filterMode: 'OR'  // Set default to OR
+        });
+
+        // Toggle button handler
+        const toggleButton = document.querySelector('.filter-logic-toggle');
+        const toggleDot = toggleButton.querySelector('.toggle-dot');
+        const logicText = toggleButton.querySelector('.logic-text');
+
+        // Initialize with OR (isAnd = false)
+        let isAnd = false;
+        updateToggleState(isAnd);
+
+        // Add click event listener
+        toggleButton.addEventListener('click', () => {
+            isAnd = !isAnd;
+            updateToggleState(isAnd);
+            filter.setLogic(isAnd);
+        });
+
+        // Function to update toggle visual state
+        function updateToggleState(isAndMode) {
+            if (isAndMode) {
+                toggleDot.style.transform = 'translateX(16px)';
+                logicText.textContent = 'AND';
+                toggleButton.setAttribute('aria-label', 'Switch to OR mode');
+            } else {
+                toggleDot.style.transform = 'translateX(0)';
+                logicText.textContent = 'OR';
+                toggleButton.setAttribute('aria-label', 'Switch to AND mode');
+            }
+        }
+
+        // Listen for mode changes
+        filter.container.addEventListener('filterModeChange', (event) => {
+            isAnd = event.detail.mode === 'AND';
+            updateToggleState(isAnd);
         });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>

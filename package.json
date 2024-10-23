@@ -1,10 +1,24 @@
 {
     "name": "advanced-filter-system",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "Advanced filtering system for DOM elements with multiple features",
     "main": "dist/AFS.js",
     "module": "dist/AFS.esm.js",
     "browser": "dist/AFS.min.js",
+    "private": false,
+    "type": "module",
+    "publishConfig": {
+        "access": "public"
+    },
+    "sideEffects": false,
+    "homepage": "https://misits.github.io/advanced-filter-system",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/misits/advanced-filter-system.git"
+    },
+    "bugs": {
+        "url": "https://github.com/misits/advanced-filter-system/issues"
+    },
     "scripts": {
         "build": "rollup -c",
         "test": "jest",
@@ -20,7 +34,12 @@
         "javascript",
         "dom",
         "sorting",
-        "searching"
+        "searching",
+        "frontend",
+        "browser",
+        "manipulation",
+        "element-filter",
+        "web"
     ],
     "author": "misits",
     "license": "MIT",
@@ -28,13 +47,13 @@
         "@babel/core": "^7.25.9",
         "@babel/preset-env": "^7.25.9",
         "@rollup/plugin-babel": "^6.0.4",
-        "@rollup/plugin-commonjs": "^25.0.8",
+        "@rollup/plugin-commonjs": "^28.0.1",
         "@rollup/plugin-node-resolve": "^15.3.0",
         "@rollup/plugin-terser": "^0.4.4",
         "babel-jest": "^29.7.0",
         "jest": "^29.7.0",
         "jest-environment-jsdom": "^29.7.0",
-        "rollup": "^2.79.2"
+        "rollup": "^4.24.0"
     },
     "directories": {
         "example": "examples",
