@@ -447,6 +447,25 @@
       }
 
       /**
+       * Set filter logic mode (alias for setFilterMode)
+       * @public
+       * @param {string} logic - New filter logic ('AND' or 'OR')
+       */
+      setLogic(logic) {
+        if (typeof logic === 'boolean') {
+          // Handle boolean input (true = AND, false = OR)
+          this.options.filterMode = logic ? 'AND' : 'OR';
+          this.filter();
+          return;
+        }
+        const mode = logic.toUpperCase();
+        if (['OR', 'AND'].includes(mode)) {
+          this.options.filterMode = mode;
+          this.filter();
+        }
+      }
+
+      /**
        * Change filter mode
        * @public
        * @param {string} mode - New filter mode ('OR' or 'AND')
@@ -495,8 +514,6 @@
     }
 
     exports.AFS = AFS;
-
-    Object.defineProperty(exports, '__esModule', { value: true });
 
 }));
 //# sourceMappingURL=AFS.js.map
