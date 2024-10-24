@@ -1,6 +1,6 @@
 /**
  * @fileoverview Advanced Filter System for DOM elements
- * @version 1.0.0
+ * @version 1.0.5
  *
  * A flexible and customizable filtering system that supports:
  * - Multiple filtering modes (OR/AND)
@@ -864,6 +864,32 @@ class AFS {
    */
   getActiveFiltersByType(type) {
     return [...this.currentFilters].filter(filter => filter.startsWith(`${type}:`)).map(filter => filter.split(":")[1]);
+  }
+
+  /**
+   * Clear all filters, url and search
+   * 
+   * @public
+   */
+  clearAllFilters() {
+    this.currentFilters.clear();
+    this.currentFilters.add("*");
+    this.filter();
+    this.updateURL();
+
+    // Uncheck all checkboxes if any with activeClass
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+      if (checkbox.classList.contains(this.options.activeClass)) {
+        checkbox.checked = false;
+        checkbox.classList.remove(this.options.activeClass);
+      }
+    });
+
+    // Clear active on buttons
+    this.filterButtons.forEach(btn => {
+      btn.classList.remove(this.options.activeClass);
+    });
   }
 }
 
