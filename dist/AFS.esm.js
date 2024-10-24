@@ -79,6 +79,9 @@ class AFS {
     this.currentFilters = new Set(["*"]);
     this.currentSearch = "";
     this.visibleItems = new Set(this.items);
+    this.filterGroups = new Map();
+    this.groupMode = "OR"; // Default group mode
+
     this.init();
   }
 
@@ -189,8 +192,12 @@ class AFS {
     if (button.classList.contains(this.options.activeClass)) {
       button.classList.remove(this.options.activeClass);
       this.currentFilters.delete(filterValue);
+
+      // If no filters are selected, reset to default state and clear URL
       if (this.currentFilters.size === 0) {
         this.resetFilters();
+        window.history.pushState({}, "", window.location.pathname);
+        return;
       }
     } else {
       button.classList.add(this.options.activeClass);
@@ -202,27 +209,157 @@ class AFS {
    * Apply current filters to items
    * @public
    */
+  /**
+   * Apply current filters to items
+   * @public
+   */
   filter() {
-    this.visibleItems.clear(); // Start with an empty set
-
-    this.items.forEach(item => {
-      if (this.currentFilters.has("*")) {
-        this.showItem(item);
-        this.visibleItems.add(item); // Add visible item to the set
-      } else {
-        const itemCategories = new Set(item.dataset.categories?.split(" ") || []);
-        const matchesFilter = this.options.filterMode === "OR" ? this.matchesAnyFilter(itemCategories) : this.matchesAllFilters(itemCategories);
-        if (matchesFilter) {
+    // Store the original filter logic
+    const standardFilter = () => {
+      this.visibleItems.clear();
+      this.items.forEach(item => {
+        if (this.currentFilters.has("*")) {
           this.showItem(item);
-          this.visibleItems.add(item); // Add visible item to the set
+          this.visibleItems.add(item);
         } else {
-          this.hideItem(item);
+          const itemCategories = new Set(item.dataset.categories?.split(" ") || []);
+          const matchesFilter = this.options.filterMode === "OR" ? this.matchesAnyFilter(itemCategories) : this.matchesAllFilters(itemCategories);
+          if (matchesFilter) {
+            this.showItem(item);
+            this.visibleItems.add(item);
+          } else {
+            this.hideItem(item);
+          }
         }
-      }
-    });
+      });
+    };
+
+    // Check if we should use group filtering or standard filtering
+    if (this.filterGroups.size === 0) {
+      standardFilter();
+    } else {
+      this.visibleItems.clear();
+      this.items.forEach(item => {
+        if (this.currentFilters.has("*")) {
+          this.showItem(item);
+          this.visibleItems.add(item);
+        } else {
+          const itemCategories = new Set(item.dataset.categories?.split(" ") || []);
+          const matchesGroups = this.matchesFilterGroups(itemCategories);
+          if (matchesGroups) {
+            this.showItem(item);
+            this.visibleItems.add(item);
+          } else {
+            this.hideItem(item);
+          }
+        }
+      });
+    }
     setTimeout(() => {
       this.updateCounter();
     }, this.options.animationDuration);
+  }
+
+  /**
+   * Add or update a filter group
+   * @public
+   * @param {string} groupId - Group identifier
+   * @param {string[]} filters - Array of filter values
+   * @param {string} [operator='OR'] - Operator within group ('AND' or 'OR')
+   * @returns {boolean} Success status
+   */
+  addFilterGroup(groupId, filters) {
+    let operator = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "OR";
+    try {
+      // Validate inputs
+      if (!groupId || !Array.isArray(filters)) {
+        console.warn("Invalid group parameters");
+        return false;
+      }
+      const validOperator = operator.toUpperCase();
+      if (!["AND", "OR"].includes(validOperator)) {
+        console.warn('Invalid operator. Using default "OR"');
+        operator = "OR";
+      }
+
+      // Create or update group
+      this.filterGroups.set(groupId, {
+        filters: new Set(filters),
+        operator: validOperator
+      });
+
+      // Only update if we have active groups
+      if (this.filterGroups.size > 0) {
+        this.updateFiltersFromGroups();
+        this.filter();
+        this.updateURL();
+      }
+      return true;
+    } catch (error) {
+      console.error("Error adding filter group:", error);
+      return false;
+    }
+  }
+
+  /**
+   * Set how groups combine with each other
+   * @public
+   * @param {string} mode - Mode for combining groups ('AND' or 'OR')
+   */
+  setGroupMode(mode) {
+    const validMode = mode.toUpperCase();
+    if (["AND", "OR"].includes(validMode)) {
+      this.groupMode = validMode;
+      if (this.filterGroups.size > 0) {
+        this.filter();
+      }
+    }
+  }
+
+  /**
+   * Remove a filter group
+   * @public
+   * @param {string} groupId - Group identifier
+   * @returns {boolean} Success status
+   */
+  removeFilterGroup(groupId) {
+    if (this.filterGroups.has(groupId)) {
+      this.filterGroups.delete(groupId);
+
+      // If no groups left, revert to normal filtering
+      if (this.filterGroups.size === 0) {
+        this.resetFilters();
+      } else {
+        this.updateFiltersFromGroups();
+      }
+      this.filter();
+      this.updateURL();
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Update filters based on groups
+   * @private
+   */
+  updateFiltersFromGroups() {
+    // Only process if we have groups
+    if (this.filterGroups.size === 0) return;
+
+    // Clear current filters except '*'
+    if (!this.currentFilters.has("*")) {
+      this.currentFilters.clear();
+    }
+
+    // Combine all group filters
+    for (const group of this.filterGroups.values()) {
+      group.filters.forEach(filter => {
+        if (filter !== "*") {
+          this.currentFilters.add(filter);
+        }
+      });
+    }
   }
 
   /**
@@ -348,13 +485,42 @@ class AFS {
   }
 
   /**
+   * Check if item matches filter groups
+   * @private
+   * @param {Set} itemCategories - Item's categories
+   * @returns {boolean} Whether item matches the group filters
+   */
+  matchesFilterGroups(itemCategories) {
+    const groupMatches = [...this.filterGroups.values()].map(group => {
+      const groupFilters = [...group.filters];
+      if (groupFilters.length === 0) return true;
+      return group.operator === "OR" ? groupFilters.some(filter => itemCategories.has(filter)) : groupFilters.every(filter => itemCategories.has(filter));
+    });
+    return this.groupMode === "OR" ? groupMatches.some(matches => matches) : groupMatches.every(matches => matches);
+  }
+
+  /**
    * Update URL with current filter state
    * @private
    */
   updateURL() {
-    const params = new URLSearchParams();
+    // If only "*" filter is active or no filters are active, clear the URL
+    if (this.currentFilters.size === 0 || this.currentFilters.size === 1 && this.currentFilters.has("*")) {
+      window.history.pushState({}, "", window.location.pathname);
+      return;
+    }
+    const params = new URLSearchParams(window.location.search);
 
-    // Séparer les filtres par type
+    // Add groups to URL if they exist
+    if (this.filterGroups.size > 0) {
+      for (const [groupId, group] of this.filterGroups.entries()) {
+        params.set(`group_${groupId}`, [...group.filters].join(","));
+        params.set(`groupOp_${groupId}`, group.operator.toLowerCase());
+      }
+      params.set("groupMode", this.groupMode.toLowerCase());
+    }
+
+    // Separate filters by type
     const filtersByType = {};
     for (const filter of this.currentFilters) {
       if (filter !== "*") {
@@ -366,7 +532,7 @@ class AFS {
       }
     }
 
-    // Ajouter chaque type de filtre à l'URL
+    // Add each filter type to the URL
     Object.entries(filtersByType).forEach(_ref => {
       let [type, values] = _ref;
       params.set(type, Array.from(values).join(","));
@@ -384,6 +550,23 @@ class AFS {
    */
   loadFromURL() {
     const params = new URLSearchParams(window.location.search);
+
+    // Load groups if they exist
+    this.filterGroups.clear();
+    for (const [key, value] of params.entries()) {
+      if (key.startsWith("group_")) {
+        const groupId = key.replace("group_", "");
+        const operator = params.get(`groupOp_${groupId}`)?.toUpperCase() || "OR";
+        const filters = value.split(",");
+        this.addFilterGroup(groupId, filters, operator);
+      }
+    }
+
+    // Set group mode if present
+    const groupMode = params.get("groupMode")?.toUpperCase();
+    if (groupMode && ["AND", "OR"].includes(groupMode)) {
+      this.groupMode = groupMode;
+    }
     this.currentFilters.clear();
 
     // Si aucun filtre n'est présent, utiliser '*'
@@ -441,19 +624,196 @@ class AFS {
   }
 
   /**
+   * Set animation options
+   * @public
+   * @param {Object} options - Animation options
+   */
+  setAnimationOptions() {
+    let options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    this.options.animationDuration = options.duration || this.options.animationDuration;
+    this.options.animationType = options.type || "ease-out";
+    this.addStyles(); // Refresh styles with new options
+  }
+
+  /**
+   * Event handling system
+   */
+  addEventSystem() {
+    this.events = {};
+    this.on = (eventName, callback) => {
+      if (!this.events[eventName]) {
+        this.events[eventName] = [];
+      }
+      this.events[eventName].push(callback);
+    };
+    this.emit = (eventName, data) => {
+      if (this.events[eventName]) {
+        this.events[eventName].forEach(callback => callback(data));
+      }
+    };
+  }
+
+  /**
+   * Add pagination
+   * @public
+   * @param {number} itemsPerPage - Number of items per page
+   */
+  setPagination(itemsPerPage) {
+    this.pagination = {
+      currentPage: 1,
+      itemsPerPage: itemsPerPage,
+      totalPages: Math.ceil(this.visibleItems.size / itemsPerPage)
+    };
+    this.updatePagination();
+  }
+  updatePagination() {
+    const start = (this.pagination.currentPage - 1) * this.pagination.itemsPerPage;
+    const end = start + this.pagination.itemsPerPage;
+    [...this.visibleItems].forEach((item, index) => {
+      if (index >= start && index < end) {
+        this.showItem(item);
+      } else {
+        this.hideItem(item);
+      }
+    });
+  }
+
+  /**
+   * Enable analytics tracking
+   * @public
+   * @param {Function} callback - Analytics callback function
+   */
+  enableAnalytics(callback) {
+    this.analyticsCallback = callback;
+    this.on("filter", data => {
+      this.analyticsCallback({
+        type: "filter",
+        filters: [...this.currentFilters],
+        visibleItems: this.visibleItems.size,
+        timestamp: new Date().toISOString()
+      });
+    });
+  }
+
+  /**
+   * Sort with custom comparator
+   * @public
+   * @param {string} key - Data attribute key
+   * @param {Function} comparator - Custom comparison function
+   */
+  sortWithComparator(key, comparator) {
+    const items = [...this.items];
+    items.sort((a, b) => {
+      const valueA = a.dataset[key];
+      const valueB = b.dataset[key];
+      return comparator(valueA, valueB);
+    });
+    items.forEach(item => this.container.appendChild(item));
+  }
+
+  /**
+   * Add responsive behavior
+   * @public
+   * @param {Object} breakpoints - Breakpoint configurations
+   */
+  setResponsiveOptions(breakpoints) {
+    window.addEventListener("resize", debounce(() => {
+      const width = window.innerWidth;
+      for (const [breakpoint, options] of Object.entries(breakpoints)) {
+        if (width <= parseInt(breakpoint)) {
+          Object.assign(this.options, options);
+          this.filter();
+          break;
+        }
+      }
+    }, 250));
+  }
+
+  /**
+   * Enable keyboard navigation
+   * @public
+   */
+  enableKeyboardNavigation() {
+    document.addEventListener("keydown", e => {
+      if (e.key === "Enter" && document.activeElement.classList.contains(this.options.filterButtonSelector.slice(1))) {
+        document.activeElement.click();
+      }
+    });
+  }
+
+  /**
+   * Export current filter state
+   * @public
+   * @returns {Object} Filter state
+   */
+  exportState() {
+    return {
+      filters: [...this.currentFilters],
+      search: this.currentSearch,
+      mode: this.options.filterMode,
+      timestamp: new Date().toISOString()
+    };
+  }
+
+  /**
+   * Import filter state
+   * @public
+   * @param {Object} state - Filter state to import
+   */
+  importState(state) {
+    if (state.filters) {
+      this.currentFilters = new Set(state.filters);
+      this.currentSearch = state.search || "";
+      this.options.filterMode = state.mode || "OR";
+      this.filter();
+      this.updateURL();
+    }
+  }
+
+  /**
+   * Save current filter state as preset
+   * @public
+   * @param {string} presetName - Name of the preset
+   */
+  savePreset(presetName) {
+    const preset = {
+      filters: [...this.currentFilters],
+      search: this.currentSearch,
+      mode: this.options.filterMode
+    };
+    localStorage.setItem(`afs_preset_${presetName}`, JSON.stringify(preset));
+  }
+
+  /**
+   * Load filter preset
+   * @public
+   * @param {string} presetName - Name of the preset to load
+   */
+  loadPreset(presetName) {
+    const preset = JSON.parse(localStorage.getItem(`afs_preset_${presetName}`));
+    if (preset) {
+      this.currentFilters = new Set(preset.filters);
+      this.currentSearch = preset.search;
+      this.options.filterMode = preset.mode;
+      this.filter();
+      this.updateURL();
+    }
+  }
+
+  /**
    * Set filter logic mode (alias for setFilterMode)
    * @public
    * @param {string} logic - New filter logic ('AND' or 'OR')
    */
   setLogic(logic) {
-    if (typeof logic === 'boolean') {
+    if (typeof logic === "boolean") {
       // Handle boolean input (true = AND, false = OR)
-      this.options.filterMode = logic ? 'AND' : 'OR';
+      this.options.filterMode = logic ? "AND" : "OR";
       this.filter();
       return;
     }
     const mode = logic.toUpperCase();
-    if (['OR', 'AND'].includes(mode)) {
+    if (["OR", "AND"].includes(mode)) {
       this.options.filterMode = mode;
       this.filter();
     }
