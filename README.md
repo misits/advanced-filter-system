@@ -224,6 +224,22 @@ filter.on('filter', (data) => {
 filter.enableKeyboardNavigation();
 ```
 
+### 13. Sort asc/desc
+
+```javascript
+filter.sortWithComparator('price', (a, b) => parseFloat(a) - parseFloat(b), 'asc');
+
+// or
+
+filter.sortWithOrder('price');
+```
+
+### 13. Shuffle
+
+```javascript
+filter.shuffle();
+```
+
 ## Browser Compatibility
 
 - ✅ Chrome
@@ -249,7 +265,9 @@ const filter = new AFS({
     animationDuration: 300,
     filterMode: 'OR',
     searchKeys: ['title'],
-    debounceTime: 300
+    debounceTime: 300,
+    debug: false, // Enable console logs
+    logLevel: 'info', // 'info', 'warn', 'error', 'debug'
 });
 ```
 
@@ -275,6 +293,8 @@ const filter = new AFS({
 - `sortMultiple(criteria)`
 - `sortWithComparator(key, comparator)`
 - `addRangeFilter(key, min, max)`
+- `shuffle()`
+- `sortWithOrder(key)`
 
 ### State Management
 

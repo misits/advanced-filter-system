@@ -15,35 +15,41 @@
         <div class="container mx-auto px-6 py-4">
             <nav class="flex justify-between items-center">
                 <div class="text-xl font-bold">AFS</div>
-                
+
                 <!-- Mobile Menu Button (Hamburger) -->
-                <button class="md:hidden flex items-center px-3 py-2 border rounded hover:bg-gray-100" 
-                        id="mobile-menu-button" 
-                        aria-label="Toggle menu">
+                <button class="md:hidden flex items-center px-3 py-2 border rounded hover:bg-gray-100"
+                    id="mobile-menu-button" aria-label="Toggle menu">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" 
-                              strokeLinejoin="round" 
-                              strokeWidth="2" 
-                              d="M4 6h16M4 12h16M4 18h16"/>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
-    
+
                 <!-- Desktop Navigation -->
                 <div class="flex-none max-sm:hidden md:flex items-center gap-6">
                     <a href="#features" class="hover:text-gray-600">Features</a>
                     <a href="#installation" class="hover:text-gray-600">Installation</a>
                     <a href="#usage" class="hover:text-gray-600">Usage</a>
-                    <a href="https://github.com/misits/advanced-filter-system" class="text-white flex items-center px-2 py-1.5 bg-black rounded-lg hover:bg-gray-800 transition-colors"><svg class="mr-2 flex items-center" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6.517 17.113c.395.578 1.592 1.81 3.225 2.12M9.864 22C8.836 21.83 2 19.606 2 12.093C2 5.063 8.002 2 12 2c4 0 10 3.063 10 10.093c0 7.513-6.836 9.738-7.864 9.907c0 0-.21-3.417-.087-4.003c.122-.586-.294-1.528-.294-1.528c.971-.364 2.45-.884 2.945-2.282c.385-1.084.627-2.658-.45-4.138c0 0 .282-2.39-.25-2.484c-.533-.092-2.1.947-2.1.947c-.457-.13-1.476-.377-1.898-.333c-.423-.044-1.445.203-1.902.333c0 0-1.568-1.04-2.1-.947s-.25 2.484-.25 2.484c-1.077 1.48-.835 3.054-.45 4.138c.496 1.398 1.974 1.918 2.945 2.282c0 0-.416.942-.294 1.528S9.864 22 9.864 22" color="currentColor"/></svg>GitHub</a>
+                    <a href="https://github.com/misits/advanced-filter-system"
+                        class="text-white flex items-center px-2 py-1.5 bg-black rounded-lg hover:bg-gray-800 transition-colors"><svg
+                            class="mr-2 flex items-center" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24">
+                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="1.5"
+                                d="M6.517 17.113c.395.578 1.592 1.81 3.225 2.12M9.864 22C8.836 21.83 2 19.606 2 12.093C2 5.063 8.002 2 12 2c4 0 10 3.063 10 10.093c0 7.513-6.836 9.738-7.864 9.907c0 0-.21-3.417-.087-4.003c.122-.586-.294-1.528-.294-1.528c.971-.364 2.45-.884 2.945-2.282c.385-1.084.627-2.658-.45-4.138c0 0 .282-2.39-.25-2.484c-.533-.092-2.1.947-2.1.947c-.457-.13-1.476-.377-1.898-.333c-.423-.044-1.445.203-1.902.333c0 0-1.568-1.04-2.1-.947s-.25 2.484-.25 2.484c-1.077 1.48-.835 3.054-.45 4.138c.496 1.398 1.974 1.918 2.945 2.282c0 0-.416.942-.294 1.528S9.864 22 9.864 22"
+                                color="currentColor" />
+                        </svg>GitHub</a>
                 </div>
-    
+
                 <!-- Mobile Navigation -->
-                <div class="hidden absolute top-full left-0 right-0 bg-white border-b border-gray-200 md:hidden" 
-                     id="mobile-menu">
+                <div class="hidden absolute top-full left-0 right-0 bg-white border-b border-gray-200 md:hidden"
+                    id="mobile-menu">
                     <div class="container mx-auto px-6 py-4 flex flex-col gap-4">
                         <a href="#features" class="hover:text-gray-600 py-2">Features</a>
                         <a href="#installation" class="hover:text-gray-600 py-2">Installation</a>
                         <a href="#usage" class="hover:text-gray-600 py-2">Usage</a>
-                        <a href="https://github.com/misits/advanced-filter-system" class="hover:text-gray-600 py-2">GitHub</a>
+                        <a href="https://github.com/misits/advanced-filter-system"
+                            class="hover:text-gray-600 py-2">GitHub</a>
                     </div>
                 </div>
             </nav>
@@ -79,6 +85,18 @@
                     <input type="text" class="filter-search p-2 border border-gray-300 rounded-md w-52"
                         placeholder="Search...">
 
+                        <!-- Sort Controls -->
+                        <div class="order-controls flex gap-4 items-center flex-wrap">
+                            <!-- Sort by Title ASC -->
+                            <button id="sort-title" class="btn-sort px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors">Sort Title</button>
+                            
+                            <!-- Sort by Price DESC -->
+                            <button id="sort-price" class="btn-sort px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors">Sort Price</button>
+
+                            <!-- Suffle -->
+                            <button id="sort-shuffle" class="btn-sort px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors">Shuffle</button>
+                        </div>
+
                     <!-- Add this toggle button -->
                     <button
                         class="filter-logic-toggle px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors flex items-center gap-2">
@@ -90,6 +108,18 @@
                         </div>
                     </button>
 
+                    <!-- Add this toggle button -->
+                    <button
+                        class="filter-type-toggle px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors flex items-center gap-2">
+                        <span class="type-text">BUTTON</span>
+                        <div class="type-indicator w-8 h-4 bg-gray-300 rounded-full relative">
+                            <div
+                                class="type-dot absolute w-3 h-3 bg-white rounded-full top-0.5 left-0.5 transition-transform">
+                            </div>
+                        </div>
+                    </button>
+
+                    <div class="btn-filters">
                     <button
                         class="btn-filter px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors"
                         data-filter="*">All</button>
@@ -102,9 +132,42 @@
                     <button
                         class="btn-filter px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors"
                         data-filter="category:food">Food</button>
+                    </div>
+                    <!-- Dropdown Multi-select -->
+                    <div class="relative inline-block text-left select-filters">
+                        <button type="button"
+                            class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white hover:bg-gray-50"
+                            id="dropdownMultiSelectButton">
+                            Categories <span class="selected-filter-counter"></span>
+                            <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+
+                        <div id="dropdownMultiSelect"
+                            class="hidden absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-[100]">
+                            <div class="py-1" role="none">
+                                <label class="flex items-center px-4 py-2 text-sm text-gray-700">
+                                    <input type="checkbox" class="btn-filter mr-2" value="category:tech" data-filter="category:tech">
+                                    Technology
+                                </label>
+                                <label class="flex items-center px-4 py-2 text-sm text-gray-700">
+                                    <input type="checkbox" class="btn-filter mr-2" value="category:fashion" data-filter="category:fashion">
+                                    Fashion
+                                </label>
+                                <label class="flex items-center px-4 py-2 text-sm text-gray-700">
+                                    <input type="checkbox" class="btn-filter mr-2" value="category:food" data-filter="category:food">
+                                    Food
+                                </label>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="filter-counter text-gray-500 text-sm"></div>
                 </div>
+
 
                 <!-- Grid of Items -->
                 <div id="item-grid"></div>
@@ -174,7 +237,7 @@
     &lt;/div&gt;
 &lt;/div&gt;</code></pre>
                         </div>
-        
+
                         <div>
                             <h4 class="text-xl font-semibold mb-3">Basic JavaScript Initialization</h4>
                             <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">import { AFS } from 'advanced-filter-system';
@@ -194,15 +257,30 @@ const filter = new AFS({
     searchKeys: ['title', 'tags'],
     debounceTime: 300,
     animationDuration: 300
+    debug: false, // Enable console logs
+    logLevel: 'info', // 'info', 'warn', 'error', 'debug'
 });</code></pre>
                         </div>
                     </div>
                 </div>
-        
                 <!-- Advanced Features -->
                 <div>
                     <h3 class="text-2xl font-bold mb-4">Advanced Features</h3>
                     <div class="space-y-6">
+                        <div>
+                            <h4 class="text-xl font-semibold mb-3">Auto-detect ASC/DESC Sorting</h4>
+                            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">// Auto-detect ascending or descending sort order
+document.getElementById('sort-title').addEventListener('click', () => {
+    filter.sortWithOrder('title');
+});</code></pre>
+</div>
+<div>
+    <h4 class="text-xl font-semibold mb-3">Shuffle Sorting</h4>
+    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">// Shuffle items randomly
+document.getElementById('sort-shuffle').addEventListener('click', () => {
+    filter.shuffle();
+});</code></pre>
+</div>
                         <div>
                             <h4 class="text-xl font-semibold mb-3">Filter Groups & Logic</h4>
                             <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">// Create filter groups with independent logic
@@ -213,7 +291,7 @@ filter.addFilterGroup('pricing', ['price:low', 'price:medium'], 'AND');
 filter.setGroupMode('AND'); // Must match all groups
 filter.setLogic(true);      // Alternative way (true = AND, false = OR)</code></pre>
                         </div>
-        
+
                         <div>
                             <h4 class="text-xl font-semibold mb-3">Sorting & Range Filtering</h4>
                             <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">// Multi-criteria sorting
@@ -225,7 +303,7 @@ filter.sortMultiple([
 // Range filtering
 filter.addRangeFilter('price', 0, 1000);</code></pre>
                         </div>
-        
+
                         <div>
                             <h4 class="text-xl font-semibold mb-3">State Management & Presets</h4>
                             <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">// Save current state
@@ -238,7 +316,7 @@ filter.importState(state);
 filter.savePreset('myFilters');
 filter.loadPreset('myFilters');</code></pre>
                         </div>
-        
+
                         <div>
                             <h4 class="text-xl font-semibold mb-3">Responsive Behavior</h4>
                             <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">filter.setResponsiveOptions({
@@ -252,7 +330,7 @@ filter.loadPreset('myFilters');</code></pre>
     }
 });</code></pre>
                         </div>
-        
+
                         <div>
                             <h4 class="text-xl font-semibold mb-3">Events & Analytics</h4>
                             <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">// Listen for filter changes
@@ -284,7 +362,7 @@ filter.enableAnalytics((data) => {
         import { AFS } from '../dist/AFS.esm.js';
         import { createFeatureSection } from './js/features.js';
         import { createItemGrid } from './js/item-grid.js';
-    
+
         // Use default features
         createFeatureSection();
         // Use default items
@@ -299,13 +377,15 @@ filter.enableAnalytics((data) => {
             counterSelector: '.filter-counter',
             searchKeys: ['title', 'categories'],
             animationDuration: 300,
-            filterMode: 'OR'  // Set default to OR
+            filterMode: 'OR',  // Set default to OR
+            debug: true
         });
 
-        // Toggle button handler
+        // Toggle button handler for OR/AND logic
         const toggleButton = document.querySelector('.filter-logic-toggle');
         const toggleDot = toggleButton.querySelector('.toggle-dot');
         const logicText = toggleButton.querySelector('.logic-text');
+
 
         // Initialize with OR (isAnd = false)
         let isAnd = false;
@@ -336,6 +416,79 @@ filter.enableAnalytics((data) => {
             isAnd = event.detail.mode === 'AND';
             updateToggleState(isAnd);
         });
+
+        // Toggle button handler for Button/Checkbox type
+        const typeButton = document.querySelector('.filter-type-toggle');
+        const typeDot = typeButton.querySelector('.type-dot');
+        const typeText = typeButton.querySelector('.type-text');
+        const btnFilters = document.querySelector('.btn-filters');
+        const selectFilters = document.querySelector('.select-filters');
+
+        // Initialize with Button (isCheckbox = false)
+        let isCheckbox = false;
+        updateTypeState(isCheckbox);
+        toggleType();
+
+        // Add click event listener
+        typeButton.addEventListener('click', () => {
+            // Reset filter state to show all items & url
+            filter.clearAllFilters();
+            isCheckbox = !isCheckbox;
+            updateTypeState(isCheckbox);
+            toggleType();
+        });
+
+        function toggleType() {
+            if (isCheckbox) {
+                btnFilters.classList.add('hidden');
+                selectFilters.classList.remove('hidden');
+            } else {
+                btnFilters.classList.remove('hidden');
+                selectFilters.classList.add('hidden');
+            }
+        }
+
+        // Function to update type visual state
+        function updateTypeState(isCheckboxType) {
+            if (isCheckboxType) {
+                typeDot.style.transform = 'translateX(16px)';
+                typeText.textContent = 'DROPDOWN';
+                typeButton.setAttribute('aria-label', 'Switch to BUTTON type');
+            } else {
+                typeDot.style.transform = 'translateX(0)';
+                typeText.textContent = 'BUTTON';
+                typeButton.setAttribute('aria-label', 'Switch to DROPDOWN type');
+            }
+        }
+
+        // Listen for type changes
+        filter.container.addEventListener('filterTypeChange', (event) => {
+            isCheckbox = event.detail.type === 'DROPDOWN';
+            updateTypeState(isCheckbox);
+        });
+
+        // Dropdown Multi-Select logic
+        document.getElementById('dropdownMultiSelectButton').addEventListener('click', function () {
+            const dropdown = document.getElementById('dropdownMultiSelect');
+            dropdown.classList.toggle('hidden');
+        });
+
+        // Event listener for sorting buttons
+       // Example usage for sorting based on the 'title' attribute in ascending order
+        document.getElementById('sort-title').addEventListener('click', () => {
+            filter.sortWithOrder('title');
+        });
+
+        // Example usage for sorting based on the 'price' attribute in descending order
+        document.getElementById('sort-price').addEventListener('click', () => {
+            filter.sortWithOrder('price');
+        });
+
+        // Example usage for sorting based on the 'price' attribute in descending order
+        document.getElementById('sort-shuffle').addEventListener('click', () => {
+            filter.shuffle();
+        });
+
 
         // Mobile menu functionality
         const mobileMenuButton = document.getElementById('mobile-menu-button');
