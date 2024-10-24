@@ -1,6 +1,6 @@
 /**
  * @fileoverview Advanced Filter System for DOM elements
- * @version 1.0.0
+ * @version 1.0.5
  *
  * A flexible and customizable filtering system that supports:
  * - Multiple filtering modes (OR/AND)
@@ -203,8 +203,11 @@ class AFS {
       button.classList.remove(this.options.activeClass);
       this.currentFilters.delete(filterValue);
 
+      // If no filters are selected, reset to default state and clear URL
       if (this.currentFilters.size === 0) {
         this.resetFilters();
+        window.history.pushState({}, "", window.location.pathname);
+        return;
       }
     } else {
       button.classList.add(this.options.activeClass);
@@ -217,65 +220,67 @@ class AFS {
    * @public
    */
   /**
- * Apply current filters to items
- * @public
- */
-filter() {
+   * Apply current filters to items
+   * @public
+   */
+  filter() {
     // Store the original filter logic
     const standardFilter = () => {
-        this.visibleItems.clear();
-        
-        this.items.forEach((item) => {
-            if (this.currentFilters.has("*")) {
-                this.showItem(item);
-                this.visibleItems.add(item);
-            } else {
-                const itemCategories = new Set(
-                    item.dataset.categories?.split(" ") || [],
-                );
-                const matchesFilter =
-                    this.options.filterMode === "OR"
-                        ? this.matchesAnyFilter(itemCategories)
-                        : this.matchesAllFilters(itemCategories);
+      this.visibleItems.clear();
 
-                if (matchesFilter) {
-                    this.showItem(item);
-                    this.visibleItems.add(item);
-                } else {
-                    this.hideItem(item);
-                }
-            }
-        });
+      this.items.forEach((item) => {
+        if (this.currentFilters.has("*")) {
+          this.showItem(item);
+          this.visibleItems.add(item);
+        } else {
+          const itemCategories = new Set(
+            item.dataset.categories?.split(" ") || [],
+          );
+          const matchesFilter =
+            this.options.filterMode === "OR"
+              ? this.matchesAnyFilter(itemCategories)
+              : this.matchesAllFilters(itemCategories);
+
+          if (matchesFilter) {
+            this.showItem(item);
+            this.visibleItems.add(item);
+          } else {
+            this.hideItem(item);
+          }
+        }
+      });
     };
 
     // Check if we should use group filtering or standard filtering
     if (this.filterGroups.size === 0) {
-        standardFilter();
+      standardFilter();
     } else {
-        this.visibleItems.clear();
+      this.visibleItems.clear();
 
-        this.items.forEach(item => {
-            if (this.currentFilters.has("*")) {
-                this.showItem(item);
-                this.visibleItems.add(item);
-            } else {
-                const itemCategories = new Set(item.dataset.categories?.split(" ") || []);
-                const matchesGroups = this.matchesFilterGroups(itemCategories);
+      this.items.forEach((item) => {
+        if (this.currentFilters.has("*")) {
+          this.showItem(item);
+          this.visibleItems.add(item);
+        } else {
+          const itemCategories = new Set(
+            item.dataset.categories?.split(" ") || [],
+          );
+          const matchesGroups = this.matchesFilterGroups(itemCategories);
 
-                if (matchesGroups) {
-                    this.showItem(item);
-                    this.visibleItems.add(item);
-                } else {
-                    this.hideItem(item);
-                }
-            }
-        });
+          if (matchesGroups) {
+            this.showItem(item);
+            this.visibleItems.add(item);
+          } else {
+            this.hideItem(item);
+          }
+        }
+      });
     }
 
     setTimeout(() => {
-        this.updateCounter();
+      this.updateCounter();
     }, this.options.animationDuration);
-}
+  }
 
   /**
    * Add or update a filter group
@@ -552,6 +557,15 @@ filter() {
    * @private
    */
   updateURL() {
+    // If only "*" filter is active or no filters are active, clear the URL
+    if (
+      this.currentFilters.size === 0 ||
+      (this.currentFilters.size === 1 && this.currentFilters.has("*"))
+    ) {
+      window.history.pushState({}, "", window.location.pathname);
+      return;
+    }
+
     const params = new URLSearchParams(window.location.search);
 
     // Add groups to URL if they exist
@@ -563,7 +577,7 @@ filter() {
       params.set("groupMode", this.groupMode.toLowerCase());
     }
 
-    // Séparer les filtres par type
+    // Separate filters by type
     const filtersByType = {};
     for (const filter of this.currentFilters) {
       if (filter !== "*") {
@@ -575,7 +589,7 @@ filter() {
       }
     }
 
-    // Ajouter chaque type de filtre à l'URL
+    // Add each filter type to the URL
     Object.entries(filtersByType).forEach(([type, values]) => {
       params.set(type, Array.from(values).join(","));
     });

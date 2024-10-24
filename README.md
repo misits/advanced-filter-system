@@ -1,17 +1,33 @@
-
 # Advanced Filter System
 
-A flexible and powerful JavaScript library for filtering DOM elements with search and sorting capabilities.
+A powerful and flexible JavaScript library for filtering DOM elements with comprehensive search, sorting, and filtering capabilities.
 
 ## Features
 
-- 🔍 Multiple typed filters (category, price, etc.)
-- 🔎 Text search with debouncing
+### Core Filtering
+
+- 🔍 Multiple filter types (category, price, status, etc.)
+- 🔀 Flexible filter modes (AND/OR logic)
+- 👥 Filter groups with independent logic
 - 📊 Multi-criteria sorting
-- 🔗 URL state management
-- ✨ Smooth animations
+- 🔎 Text search with debouncing
+- 📱 Responsive design support
+- ✨ Smooth animations and transitions
 - 🔢 Results counter
-- 📱 Responsive
+- 🔗 URL state management
+
+### Advanced Features
+
+- 📑 Pagination support
+- 📊 Range-based filtering
+- 💾 Filter presets (save/load)
+- 📈 Analytics integration
+- ⌨️ Keyboard navigation
+- 🔄 Custom sort comparators
+- 🎯 Event system
+- 📱 Responsive breakpoints
+- 🔍 Multiple search keys
+- 🎨 Customizable animations
 
 ## Installation
 
@@ -21,36 +37,39 @@ A flexible and powerful JavaScript library for filtering DOM elements with searc
 npm install advanced-filter-system
 ```
 
+### Via yarn
+
+```bash
+yarn add advanced-filter-system
+```
+
 ### Direct Download
 
 Download `src/AFS.js` from this repository and include it in your project.
 
-## Basic Usage
+## Usage Guide
 
-### HTML Structure
+### Basic Setup
 
 ```html
 <div class="filter-container">
-    <!-- Filter buttons with types -->
+    <!-- Filter buttons -->
     <div class="filters">
         <button class="btn-filter" data-filter="*">All</button>
         <button class="btn-filter" data-filter="category:web">Web</button>
         <button class="btn-filter" data-filter="category:design">Design</button>
-        <button class="btn-filter" data-filter="price:low">Low Price</button>
     </div>
 
-    <!-- Search (optional) -->
+    <!-- Optional components -->
     <input type="text" class="filter-search" placeholder="Search...">
-
-    <!-- Counter (optional) -->
     <div class="filter-counter"></div>
 
     <!-- Filterable items -->
     <div class="items">
         <div class="filter-item" 
-             data-categories="category:web category:low" 
+             data-categories="category:web" 
              data-title="Project 1"
-             data-price="low"
+             data-price="599"
              data-year="2023">
             <!-- Content -->
         </div>
@@ -58,7 +77,7 @@ Download `src/AFS.js` from this repository and include it in your project.
 </div>
 ```
 
-### JavaScript Initialization
+### Basic JavaScript Initialization
 
 ```javascript
 import { AFS } from 'advanced-filter-system';
@@ -70,9 +89,150 @@ const filter = new AFS({
 });
 ```
 
-## Advanced Configuration
+## Feature Documentation
 
-### Full Options
+### 1. Filter Modes
+
+```javascript
+// Set filter logic mode
+filter.setFilterMode('AND'); // Items must match all selected filters
+filter.setFilterMode('OR');  // Items must match any selected filter
+
+// Alternative method
+filter.setLogic('AND');
+filter.setLogic(true); // true = AND, false = OR
+```
+
+### 2. Filter Groups
+
+Groups allow complex filtering logic with independent AND/OR operations.
+
+```javascript
+// Add filter groups
+filter.addFilterGroup('categories', ['category:tech', 'category:web'], 'OR');
+filter.addFilterGroup('price', ['price:low', 'price:medium'], 'AND');
+
+// Set how groups combine
+filter.setGroupMode('AND'); // Items must match all groups
+filter.setGroupMode('OR');  // Items must match any group
+
+// Remove groups
+filter.removeFilterGroup('price');
+```
+
+### 3. Search Functionality
+
+```javascript
+// Configure search
+const filter = new AFS({
+    searchInputSelector: '.filter-search',
+    searchKeys: ['title', 'description'], // Data attributes to search in
+    debounceTime: 300 // Milliseconds
+});
+
+// Programmatic search
+filter.search('query');
+```
+
+### 4. Sorting
+
+```javascript
+// Multi-criteria sorting
+filter.sortMultiple([
+    { key: 'year', direction: 'desc' },
+    { key: 'title', direction: 'asc' }
+]);
+
+// Custom comparator
+filter.sortWithComparator('price', (a, b) => parseFloat(a) - parseFloat(b));
+```
+
+### 5. Range Filtering
+
+```javascript
+// Filter by numeric range
+filter.addRangeFilter('price', 100, 500);
+```
+
+### 6. Pagination
+
+```javascript
+// Enable pagination
+filter.setPagination(12); // 12 items per page
+```
+
+### 7. State Management
+
+```javascript
+// URL State
+// Automatically managed, creates URLs like:
+// ?category=web,design&price=low,medium&search=project
+
+// Export/Import State
+const state = filter.exportState();
+filter.importState(state);
+
+// Presets
+filter.savePreset('myFilters');
+filter.loadPreset('myFilters');
+```
+
+### 8. Analytics
+
+```javascript
+filter.enableAnalytics((data) => {
+    console.log('Filter event:', data);
+    // { type: 'filter', filters: [...], visibleItems: 10, timestamp: '...' }
+});
+```
+
+### 9. Responsive Design
+
+```javascript
+filter.setResponsiveOptions({
+    '768': {
+        animationDuration: 200,
+        itemsPerPage: 8
+    },
+    '480': {
+        animationDuration: 0,
+        itemsPerPage: 4
+    }
+});
+```
+
+### 10. Animation Configuration
+
+```javascript
+filter.setAnimationOptions({
+    duration: 300,
+    type: 'ease-out'
+});
+```
+
+### 11. Event System
+
+```javascript
+filter.on('filter', (data) => {
+    console.log('Filter changed:', data);
+});
+```
+
+### 12. Keyboard Navigation
+
+```javascript
+filter.enableKeyboardNavigation();
+```
+
+## Browser Compatibility
+
+- ✅ Chrome
+- ✅ Firefox
+- ✅ Safari
+- ✅ Edge
+- ✅ IE11 (with polyfills)
+
+## Full Configuration Options
 
 ```javascript
 const filter = new AFS({
@@ -81,7 +241,7 @@ const filter = new AFS({
     itemSelector: '.filter-item',
     filterButtonSelector: '.btn-filter',
     
-    // Optional (default values)
+    // Optional (with defaults)
     searchInputSelector: '.filter-search',
     counterSelector: '.filter-counter',
     activeClass: 'active',
@@ -93,112 +253,52 @@ const filter = new AFS({
 });
 ```
 
-### Managing Multiple Filters
+## API Methods Reference
 
-```javascript
-// Add filters
-filter.addFilter('category', 'web');
-filter.addFilter('price', 'low');
+### Filter Management
 
-// Remove filters
-filter.removeFilter('category', 'web');
+- `addFilter(type, value)`
+- `removeFilter(type, value)`
+- `getActiveFiltersByType(type)`
+- `setFilterMode(mode)`
+- `resetFilters()`
 
-// Get active filters by type
-const activeCategories = filter.getActiveFiltersByType('category');
+### Filter Groups
 
-// Add filter groups
-filter.addFilterGroup('categories', ['category:tech', 'category:fashion'], 'OR');
-filter.addFilterGroup('price', ['price:low', 'price:medium'], 'AND');
+- `addFilterGroup(groupId, filters, operator)`
+- `removeFilterGroup(groupId)`
+- `setGroupMode(mode)`
 
-// Set how groups combine
-filter.setGroupMode('AND'); // Items must match both category AND price groups
+### Search and Sort
 
-// Remove a group
-filter.removeFilterGroup('price');
-```
+- `search(query)`
+- `sortMultiple(criteria)`
+- `sortWithComparator(key, comparator)`
+- `addRangeFilter(key, min, max)`
 
-### URL State Management
+### State Management
 
-Filters are automatically managed in the URL:
+- `exportState()`
+- `importState(state)`
+- `savePreset(presetName)`
+- `loadPreset(presetName)`
 
-```javascript
-// URL format:
-// ?category=web,design&price=low,medium&search=project
-```
+### UI and Display
 
-## Examples
+- `setPagination(itemsPerPage)`
+- `setAnimationOptions(options)`
+- `setResponsiveOptions(breakpoints)`
+- `enableKeyboardNavigation()`
 
-### Portfolio Filter with Multiple Categories
+### Events and Analytics
 
-```html
-<div class="portfolio filter-container">
-    <div class="filters">
-        <button class="btn-filter" data-filter="*">All</button>
-        <button class="btn-filter" data-filter="type:web">Web</button>
-        <button class="btn-filter" data-filter="type:app">Apps</button>
-        <button class="btn-filter" data-filter="tech:react">React</button>
-        <button class="btn-filter" data-filter="tech:vue">Vue</button>
-    </div>
+- `on(eventName, callback)`
+- `enableAnalytics(callback)`
 
-    <div class="portfolio-items">
-        <div class="filter-item" 
-             data-categories="type:web tech:react"
-             data-title="React Project">
-            <h3>React Web Project</h3>
-            <p>Description...</p>
-        </div>
-    </div>
-</div>
+## Contributing
 
-<script>
-const portfolioFilter = new AFS({
-    containerSelector: '.portfolio',
-    itemSelector: '.filter-item',
-    filterButtonSelector: '.btn-filter',
-    filterMode: 'AND' // Must match all selected filters
-});
-</script>
-```
-
-### Advanced Product Filter
-
-```html
-<div class="products filter-container">
-    <!-- Filters by type -->
-    <div class="filters">
-        <button class="btn-filter" data-filter="*">All</button>
-        <button class="btn-filter" data-filter="category:electronics">Electronics</button>
-        <button class="btn-filter" data-filter="price:low">Low Price</button>
-        <button class="btn-filter" data-filter="price:medium">Medium Price</button>
-        <button class="btn-filter" data-filter="stock:available">In Stock</button>
-    </div>
-
-    <input type="text" class="filter-search" placeholder="Search...">
-    <div class="filter-counter"></div>
-
-    <div class="product-grid">
-        <div class="filter-item" 
-             data-categories="category:electronics price:low stock:available" 
-             data-title="Smartphone"
-             data-price="599">
-            <!-- Product content -->
-        </div>
-    </div>
-</div>
-```
-
-## Browser Compatibility
-
-- Chrome
-- Firefox
-- Safari
-- Edge
-- IE11 (with polyfills)
-
-## Contribution
-
-Contributions are welcome! Feel free to submit a Pull Request.
+Contributions are welcome! Please feel free to submit issues and pull requests.
 
 ## License
 
-MIT License
+MIT License - feel free to use this in your projects!

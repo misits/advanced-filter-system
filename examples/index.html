@@ -107,120 +107,12 @@
                 </div>
 
                 <!-- Grid of Items -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    <!-- Tech Items -->
-                    <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden"
-                        data-categories="category:tech" data-price="999" data-title="Smartphone Pro">
-                        <div class="card-content">
-                            <h3 class="card-title mb-2 text-lg font-semibold">Smartphone Pro</h3>
-                            <div class="card-category text-gray-500 text-sm">Technology</div>
-                            <div class="card-price mt-2 text-gray-500 font-bold">$999</div>
-                        </div>
-                    </div>
-
-                    <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden"
-                        data-categories="category:tech" data-price="1299" data-title="Laptop Ultra">
-                        <div class="card-content">
-                            <h3 class="card-title mb-2 text-lg font-semibold">Laptop Ultra</h3>
-                            <div class="card-category text-gray-500 text-sm">Technology</div>
-                            <div class="card-price mt-2 text-gray-500 font-bold">$1299</div>
-                        </div>
-                    </div>
-
-                    <!-- Fashion Items -->
-                    <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden"
-                        data-categories="category:fashion" data-price="89" data-title="Designer Jeans">
-                        <div class="card-content">
-                            <h3 class="card-title mb-2 text-lg font-semibold">Designer Jeans</h3>
-                            <div class="card-category text-gray-500 text-sm">Fashion</div>
-                            <div class="card-price mt-2 text-gray-500 font-bold">$89</div>
-                        </div>
-                    </div>
-
-                    <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden"
-                        data-categories="category:fashion" data-price="59" data-title="Casual Shirt">
-                        <div class="card-content">
-                            <h3 class="card-title mb-2 text-lg font-semibold">Casual Shirt</h3>
-                            <div class="card-category text-gray-500 text-sm">Fashion</div>
-                            <div class="card-price mt-2 text-gray-500 font-bold">$59</div>
-                        </div>
-                    </div>
-
-                    <!-- Food Items -->
-                    <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden"
-                        data-categories="category:food" data-price="25" data-title="Gourmet Pizza">
-                        <div class="card-content">
-                            <h3 class="card-title mb-2 text-lg font-semibold">Gourmet Pizza</h3>
-                            <div class="card-category text-gray-500 text-sm">Food</div>
-                            <div class="card-price mt-2 text-gray-500 font-bold">$25</div>
-                        </div>
-                    </div>
-
-                    <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden"
-                        data-categories="category:food" data-price="15" data-title="Organic Salad">
-                        <div class="card-content">
-                            <h3 class="card-title mb-2 text-lg font-semibold">Organic Salad</h3>
-                            <div class="card-category text-gray-500 text-sm">Food</div>
-                            <div class="card-price mt-2 text-gray-500 font-bold">$15</div>
-                        </div>
-                    </div>
-                </div>
+                <div id="item-grid"></div>
             </div>
         </section>
 
         <!-- Features -->
-        <section id="features" class="container mx-auto px-4 sm:px-6 mb-16">
-            <h2 class="text-3xl font-bold mb-8">Features</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="p-6 bg-white rounded-lg border border-gray-200">
-                    <div class="text-2xl mb-4">🔍</div>
-                    <h3 class="font-bold mb-2">Multiple Typed Filters</h3>
-                    <p class="text-gray-600">Support for category, price, and custom filter types</p>
-                </div>
-
-                <div class="p-6 bg-white rounded-lg border border-gray-200">
-                    <div class="text-2xl mb-4">🔎</div>
-                    <h3 class="font-bold mb-2">Text Search</h3>
-                    <p class="text-gray-600">Debounced search with multiple key support</p>
-                </div>
-
-                <div class="p-6 bg-white rounded-lg border border-gray-200">
-                    <div class="text-2xl mb-4">📊</div>
-                    <h3 class="font-bold mb-2">Multi-criteria Sorting</h3>
-                    <p class="text-gray-600">Sort items by multiple criteria simultaneously</p>
-                </div>
-
-                <div class="p-6 bg-white rounded-lg border border-gray-200">
-                    <div class="text-2xl mb-4">🔗</div>
-                    <h3 class="font-bold mb-2">URL State Management</h3>
-                    <p class="text-gray-600">Filter state persists in URL for sharing</p>
-                </div>
-
-                <div class="p-6 bg-white rounded-lg border border-gray-200">
-                    <div class="text-2xl mb-4">✨</div>
-                    <h3 class="font-bold mb-2">Smooth Animations</h3>
-                    <p class="text-gray-600">Fluid transitions between filter states</p>
-                </div>
-
-                <div class="p-6 bg-white rounded-lg border border-gray-200">
-                    <div class="text-2xl mb-4">🔢</div>
-                    <h3 class="font-bold mb-2">Results Counter</h3>
-                    <p class="text-gray-600">Live count of filtered items displayed</p>
-                </div>
-
-                <div class="p-6 bg-white rounded-lg border border-gray-200">
-                    <div class="text-2xl mb-4">📱</div>
-                    <h3 class="font-bold mb-2">Responsive</h3>
-                    <p class="text-gray-600">Fully adaptive to all screen sizes</p>
-                </div>
-
-                <div class="p-6 bg-white rounded-lg border border-gray-200">
-                    <div class="text-2xl mb-4">⚡</div>
-                    <h3 class="font-bold mb-2">High Performance</h3>
-                    <p class="text-gray-600">Optimized for large datasets</p>
-                </div>
-            </div>
-        </section>
+        <div id="features"></div>
 
         <!-- Installation -->
         <section id="installation" class="container mx-auto px-6 mb-16">
@@ -230,6 +122,11 @@
                     <h3 class="text-xl font-bold mb-4">Via npm</h3>
                     <pre
                         class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-bash">npm install advanced-filter-system</code></pre>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Via yarn</h3>
+                    <pre
+                        class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-bash">yarn add advanced-filter-system</code></pre>
                 </div>
                 <div>
                     <h3 class="text-xl font-bold mb-4">Direct Download</h3>
@@ -291,6 +188,13 @@
     </footer>
     <script type="module">
         import { AFS } from '../dist/AFS.esm.js';
+        import { createFeatureSection } from './js/features.js';
+        import { createItemGrid } from './js/item-grid.js';
+    
+        // Use default features
+        createFeatureSection();
+        // Use default items
+        createItemGrid();
 
         // Initialize Filter with OR as default
         const filter = new AFS({
