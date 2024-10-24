@@ -85,6 +85,18 @@
                     <input type="text" class="filter-search p-2 border border-gray-300 rounded-md w-52"
                         placeholder="Search...">
 
+                        <!-- Sort Controls -->
+                        <div class="order-controls flex gap-4 items-center flex-wrap">
+                            <!-- Sort by Title ASC -->
+                            <button id="sort-title" class="btn-sort px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors">Sort Title</button>
+                            
+                            <!-- Sort by Price DESC -->
+                            <button id="sort-price" class="btn-sort px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors">Sort Price</button>
+
+                            <!-- Suffle -->
+                            <button id="sort-shuffle" class="btn-sort px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors">Shuffle</button>
+                        </div>
+
                     <!-- Add this toggle button -->
                     <button
                         class="filter-logic-toggle px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors flex items-center gap-2">
@@ -245,15 +257,30 @@ const filter = new AFS({
     searchKeys: ['title', 'tags'],
     debounceTime: 300,
     animationDuration: 300
+    debug: false, // Enable console logs
+    logLevel: 'info', // 'info', 'warn', 'error', 'debug'
 });</code></pre>
                         </div>
                     </div>
                 </div>
-
                 <!-- Advanced Features -->
                 <div>
                     <h3 class="text-2xl font-bold mb-4">Advanced Features</h3>
                     <div class="space-y-6">
+                        <div>
+                            <h4 class="text-xl font-semibold mb-3">Auto-detect ASC/DESC Sorting</h4>
+                            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">// Auto-detect ascending or descending sort order
+document.getElementById('sort-title').addEventListener('click', () => {
+    filter.sortWithOrder('title');
+});</code></pre>
+</div>
+<div>
+    <h4 class="text-xl font-semibold mb-3">Shuffle Sorting</h4>
+    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">// Shuffle items randomly
+document.getElementById('sort-shuffle').addEventListener('click', () => {
+    filter.shuffle();
+});</code></pre>
+</div>
                         <div>
                             <h4 class="text-xl font-semibold mb-3">Filter Groups & Logic</h4>
                             <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">// Create filter groups with independent logic
@@ -350,7 +377,8 @@ filter.enableAnalytics((data) => {
             counterSelector: '.filter-counter',
             searchKeys: ['title', 'categories'],
             animationDuration: 300,
-            filterMode: 'OR'  // Set default to OR
+            filterMode: 'OR',  // Set default to OR
+            debug: true
         });
 
         // Toggle button handler for OR/AND logic
@@ -443,6 +471,22 @@ filter.enableAnalytics((data) => {
         document.getElementById('dropdownMultiSelectButton').addEventListener('click', function () {
             const dropdown = document.getElementById('dropdownMultiSelect');
             dropdown.classList.toggle('hidden');
+        });
+
+        // Event listener for sorting buttons
+       // Example usage for sorting based on the 'title' attribute in ascending order
+        document.getElementById('sort-title').addEventListener('click', () => {
+            filter.sortWithOrder('title');
+        });
+
+        // Example usage for sorting based on the 'price' attribute in descending order
+        document.getElementById('sort-price').addEventListener('click', () => {
+            filter.sortWithOrder('price');
+        });
+
+        // Example usage for sorting based on the 'price' attribute in descending order
+        document.getElementById('sort-shuffle').addEventListener('click', () => {
+            filter.shuffle();
         });
 
 

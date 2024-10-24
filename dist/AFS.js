@@ -6,7 +6,7 @@
 
   /**
    * @fileoverview Advanced Filter System for DOM elements
-   * @version 1.0.5
+   * @version 1.0.6
    *
    * A flexible and customizable filtering system that supports:
    * - Multiple filtering modes (OR/AND)
@@ -71,12 +71,23 @@
         filterMode: "OR",
         searchKeys: ["title"],
         debounceTime: 300,
+        debug: false,
+        logLevel: 'info',
         ...options
+      };
+
+      // Define logging levels hierarchy
+      this.logLevels = {
+        error: 0,
+        warn: 1,
+        info: 2,
+        debug: 3
       };
 
       // Initialize elements
       this.container = document.querySelector(this.options.containerSelector);
       this.items = document.querySelectorAll(this.options.itemSelector);
+      this.sortOrders = {};
       this.filterButtons = document.querySelectorAll(this.options.filterButtonSelector);
       this.searchInput = document.querySelector(this.options.searchInputSelector);
       this.counter = document.querySelector(this.options.counterSelector);
@@ -88,18 +99,78 @@
       this.filterGroups = new Map();
       this.groupMode = "OR"; // Default group mode
 
+      this.log('debug', 'Initializing AFS with options:', this.options);
       this.init();
     }
 
     /**
+     * Internal logging method
+     * Handles debug message output based on current log level
+     * 
+     * @private
+     * @param {string} level - Log level ('error', 'warn', 'info', 'debug')
+     * @param {...any} args - Arguments to log
+     */
+    log(level) {
+      if (!this.options.debug) return;
+      const currentLevelValue = this.logLevels[this.options.logLevel];
+      const messageLevel = this.logLevels[level];
+      if (messageLevel <= currentLevelValue) {
+        const timestamp = new Date().toISOString();
+        const prefix = `[AFS ${level.toUpperCase()}] ${timestamp}`;
+        for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+          args[_key2 - 1] = arguments[_key2];
+        }
+        switch (level) {
+          case 'error':
+            console.error(prefix, ...args);
+            break;
+          case 'warn':
+            console.warn(prefix, ...args);
+            break;
+          case 'info':
+            console.info(prefix, ...args);
+            break;
+          case 'debug':
+            console.debug(prefix, ...args);
+            break;
+        }
+      }
+    }
+
+    /**
+     * Configure debug mode settings
+     * 
+     * @public
+     * @param {boolean} enabled - Enable or disable debug mode
+     * @param {string} [level='info'] - Log level ('error', 'warn', 'info', 'debug')
+     */
+    setDebugMode(enabled) {
+      let level = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'info';
+      this.options.debug = enabled;
+      if (this.logLevels.hasOwnProperty(level)) {
+        this.options.logLevel = level;
+      }
+      this.log('info', `Debug mode ${enabled ? 'enabled' : 'disabled'} with level: ${level}`);
+    }
+
+    /**
      * Initialize the filter system
+     * Sets up styles, events, and initial state
+     * 
      * @private
      */
     init() {
+      this.log('debug', 'Starting initialization');
+      if (!this.container) {
+        this.log('error', `Container not found: ${this.options.containerSelector}`);
+        return;
+      }
       this.addStyles();
       this.bindEvents();
       this.loadFromURL();
       this.updateCounter();
+      this.log('info', 'Initialization complete');
     }
 
     /**
@@ -131,6 +202,7 @@
       const styleSheet = document.createElement("style");
       styleSheet.textContent = styles;
       document.head.appendChild(styleSheet);
+      this.log('debug', 'Styles added to document');
     }
 
     /**
@@ -138,6 +210,7 @@
      * @private
      */
     bindEvents() {
+      this.log('debug', 'Binding events');
       this.filterButtons.forEach(button => {
         button.addEventListener("click", () => this.handleFilterClick(button));
       });
@@ -147,6 +220,7 @@
         }, this.options.debounceTime));
       }
       window.addEventListener("popstate", () => this.loadFromURL());
+      this.log('debug', 'Events bound successfully');
     }
 
     /**
@@ -156,6 +230,7 @@
      */
     handleFilterClick(button) {
       const filterValue = button.dataset.filter;
+      this.log('debug', 'Filter button clicked:', filterValue);
       if (filterValue === "*") {
         this.resetFilters();
       } else {
@@ -170,6 +245,7 @@
      * @private
      */
     resetFilters() {
+      this.log('debug', 'Resetting filters');
       this.filterButtons.forEach(btn => btn.classList.remove(this.options.activeClass));
       this.currentFilters.clear();
       this.currentFilters.add("*");
@@ -193,6 +269,7 @@
      * @param {HTMLElement} button - Filter button element
      */
     toggleFilter(filterValue, button) {
+      this.log('debug', `Toggling filter: ${filterValue}`);
       this.currentFilters.delete("*");
       this.filterButtons[0].classList.remove(this.options.activeClass);
       if (button.classList.contains(this.options.activeClass)) {
@@ -212,6 +289,62 @@
     }
 
     /**
+     * Sort items based on auto-detecting ASC or DESC for each key
+     * @public
+     * @param {string} key - The data attribute key to sort by (e.g., 'title', 'price', 'date')
+     */
+    sortWithOrder(key) {
+      const items = [...this.items];
+
+      // Check if the current sort order is ASC, default to ASC if undefined
+      const currentOrder = this.sortOrders[key] || "asc";
+      const newOrder = currentOrder === "asc" ? "desc" : "asc"; // Toggle order
+
+      // Sort items based on the new order
+      items.sort((a, b) => {
+        let valueA = a.dataset[key];
+        let valueB = b.dataset[key];
+
+        // Check if values are numeric and convert them to numbers if they are
+        const isNumeric = !isNaN(valueA) && !isNaN(valueB);
+        if (isNumeric) {
+          valueA = parseFloat(valueA);
+          valueB = parseFloat(valueB);
+        }
+        if (newOrder === "asc") {
+          return isNumeric ? valueA - valueB : valueA.localeCompare(valueB);
+        } else {
+          return isNumeric ? valueB - valueA : valueB.localeCompare(valueA);
+        }
+      });
+
+      // Update the current sort order for the key
+      this.sortOrders[key] = newOrder;
+
+      // Reorder items in the DOM
+      items.forEach(item => this.container.appendChild(item));
+      this.log('debug', `Sorting items by ${key} in ${newOrder} order`);
+    }
+
+    /**
+     * Shuffle items randomly and display in the container
+     * @public
+     */
+    shuffle() {
+      const itemsArray = [...this.items];
+
+      // Shuffle the itemsArray using Fisher-Yates algorithm
+      for (let i = itemsArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [itemsArray[i], itemsArray[j]] = [itemsArray[j], itemsArray[i]];
+      }
+
+      // Re-append the shuffled items to the container
+      itemsArray.forEach(item => this.container.appendChild(item));
+      this.log('debug', 'Shuffling items');
+    }
+
+    /**
      * Apply current filters to items
      * @public
      */
@@ -222,6 +355,7 @@
     filter() {
       // Store the original filter logic
       const standardFilter = () => {
+        this.log('debug', 'Applying filters');
         this.visibleItems.clear();
         this.items.forEach(item => {
           if (this.currentFilters.has("*")) {
@@ -264,6 +398,7 @@
       setTimeout(() => {
         this.updateCounter();
       }, this.options.animationDuration);
+      this.log('info', `Filter applied. Visible items: ${this.visibleItems.size}`);
     }
 
     /**
@@ -279,12 +414,12 @@
       try {
         // Validate inputs
         if (!groupId || !Array.isArray(filters)) {
-          console.warn("Invalid group parameters");
+          this.log('error', 'Invalid group ID or filters');
           return false;
         }
         const validOperator = operator.toUpperCase();
         if (!["AND", "OR"].includes(validOperator)) {
-          console.warn('Invalid operator. Using default "OR"');
+          this.log('error', 'Invalid operator:', operator);
           operator = "OR";
         }
 
@@ -302,7 +437,7 @@
         }
         return true;
       } catch (error) {
-        console.error("Error adding filter group:", error);
+        this.log('error', 'Error adding filter group:', error);
         return false;
       }
     }
@@ -433,17 +568,21 @@
      * @param {string} query - Search query
      */
     search(query) {
+      this.log('debug', 'Performing search with query:', query);
       this.currentSearch = query.toLowerCase().trim();
+      let matches = 0;
       this.items.forEach(item => {
         const searchText = this.options.searchKeys.map(key => item.dataset[key] || "").join(" ").toLowerCase();
         const matchesSearch = this.currentSearch === "" || searchText.includes(this.currentSearch);
         if (matchesSearch) {
           this.showItem(item);
+          matches++;
         } else {
           this.hideItem(item);
         }
       });
       this.updateURL();
+      this.log('info', `Search complete. Found ${matches} matches`);
       setTimeout(() => {
         this.updateCounter();
       }, this.options.animationDuration);
@@ -466,6 +605,7 @@
         return 0;
       });
       items.forEach(item => this.container.appendChild(item));
+      this.log('debug', 'Sorting items by multiple criteria:', criteria);
     }
 
     /**
@@ -488,6 +628,7 @@
       setTimeout(() => {
         this.updateCounter();
       }, this.options.animationDuration);
+      this.log('debug', `Filtering items by range: ${key} between ${min} and ${max}`);
     }
 
     /**
@@ -510,6 +651,8 @@
      * @private
      */
     updateURL() {
+      this.log('debug', 'Updating URL');
+
       // If only "*" filter is active or no filters are active, clear the URL
       if (this.currentFilters.size === 0 || this.currentFilters.size === 1 && this.currentFilters.has("*")) {
         window.history.pushState({}, "", window.location.pathname);
@@ -548,6 +691,7 @@
       }
       const newURL = `${window.location.pathname}${params.toString() ? "?" + params.toString() : ""}`;
       window.history.pushState({}, "", newURL);
+      this.log('debug', 'URL updated:', newURL);
     }
 
     /**
@@ -555,6 +699,7 @@
      * @private
      */
     loadFromURL() {
+      this.log('debug', 'Loading state from URL');
       const params = new URLSearchParams(window.location.search);
 
       // Load groups if they exist
@@ -610,6 +755,7 @@
       if (search) {
         this.search(search);
       }
+      this.log('info', 'State loaded from URL');
     }
 
     /**
@@ -623,6 +769,7 @@
       if (this.counter) {
         this.counter.textContent = `Showing ${visible} of ${total}`;
       }
+      this.log('debug', `Counter updated: ${visible}/${total}`);
       return {
         total,
         visible
@@ -788,6 +935,7 @@
         mode: this.options.filterMode
       };
       localStorage.setItem(`afs_preset_${presetName}`, JSON.stringify(preset));
+      this.log('info', `Preset saved: ${presetName}`);
     }
 
     /**
@@ -874,7 +1022,7 @@
 
     /**
      * Clear all filters, url and search
-     * 
+     *
      * @public
      */
     clearAllFilters() {
@@ -896,6 +1044,12 @@
       this.filterButtons.forEach(btn => {
         btn.classList.remove(this.options.activeClass);
       });
+
+      // Clear search input
+      if (this.searchInput) {
+        this.searchInput.value = "";
+      }
+      this.log('info', 'All filters cleared');
     }
   }
 
