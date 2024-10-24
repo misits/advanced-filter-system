@@ -136,42 +136,136 @@
             </div>
         </section>
 
-        <!-- Usage -->
         <section id="usage" class="container mx-auto px-6 mb-16">
-            <h2 class="text-3xl font-bold mb-8">Basic Usage</h2>
-            <div class="space-y-6">
+            <h2 class="text-3xl font-bold mb-8">Usage Guide</h2>
+            <div class="space-y-12">
+                <!-- Basic Setup -->
                 <div>
-                    <h3 class="text-xl font-bold mb-4">HTML Structure</h3>
-                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-html">&lt;div class="products filter-container"&gt;
-    &lt;!-- Filters --&gt;
-    &lt;div class="filters"&gt;
-        &lt;button class="btn-filter" data-filter="*"&gt;All&lt;/button&gt;
-        &lt;button class="btn-filter" data-filter="category:electronics"&gt;Electronics&lt;/button&gt;
-        &lt;button class="btn-filter" data-filter="price:low"&gt;Low Price&lt;/button&gt;
+                    <h3 class="text-2xl font-bold mb-4">Basic Setup</h3>
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="text-xl font-semibold mb-3">HTML Structure</h4>
+                            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-html">&lt;div class="filter-container"&gt;
+    &lt;!-- Filter Controls --&gt;
+    &lt;div class="filter-controls"&gt;
+        &lt;!-- Basic Filters --&gt;
+        &lt;div class="basic-filters"&gt;
+            &lt;button class="btn-filter" data-filter="*"&gt;All&lt;/button&gt;
+            &lt;button class="btn-filter" data-filter="category:tech"&gt;Technology&lt;/button&gt;
+            &lt;button class="btn-filter" data-filter="category:design"&gt;Design&lt;/button&gt;
+        &lt;/div&gt;
+        
+        &lt;!-- Search Input --&gt;
+        &lt;input type="text" class="filter-search" placeholder="Search..."&gt;
+        
+        &lt;!-- Results Counter --&gt;
+        &lt;div class="filter-counter"&gt;&lt;/div&gt;
     &lt;/div&gt;
-                        
-    &lt;input type="text" class="filter-search" placeholder="Search..."&gt;
-
-    &lt;div class="filter-counter"&gt;&lt;/div&gt;
-
-    &lt;div class="product-grid"&gt;
+        
+    &lt;!-- Filterable Items --&gt;
+    &lt;div class="filter-items"&gt;
         &lt;div class="filter-item" 
-                data-categories="category:electronics price:low" 
-                data-title="Smartphone"
-                data-price="599"&gt;
-                &lt;!-- Product content --&gt;
+                data-categories="category:tech price:high" 
+                data-title="Premium Laptop"
+                data-price="1299"
+                data-tags="computer electronics premium"&gt;
+            &lt;!-- Item content --&gt;
         &lt;/div&gt;
     &lt;/div&gt;
 &lt;/div&gt;</code></pre>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">JavaScript Initialization</h3>
-                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">const portfolioFilter = new AFS({
-    containerSelector: '.products',
+                        </div>
+        
+                        <div>
+                            <h4 class="text-xl font-semibold mb-3">Basic JavaScript Initialization</h4>
+                            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">import { AFS } from 'advanced-filter-system';
+        
+const filter = new AFS({
+    // Required options
+    containerSelector: '.filter-container',
     itemSelector: '.filter-item',
     filterButtonSelector: '.btn-filter',
-    filterMode: 'AND' // Must match all selected filters (OR by default)
+            
+    // Optional configurations
+    searchInputSelector: '.filter-search',
+    counterSelector: '.filter-counter',
+    activeClass: 'active',
+    hiddenClass: 'hidden',
+    filterMode: 'OR',
+    searchKeys: ['title', 'tags'],
+    debounceTime: 300,
+    animationDuration: 300
 });</code></pre>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- Advanced Features -->
+                <div>
+                    <h3 class="text-2xl font-bold mb-4">Advanced Features</h3>
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="text-xl font-semibold mb-3">Filter Groups & Logic</h4>
+                            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">// Create filter groups with independent logic
+filter.addFilterGroup('categories', ['category:tech', 'category:design'], 'OR');
+filter.addFilterGroup('pricing', ['price:low', 'price:medium'], 'AND');
+        
+// Set how groups combine
+filter.setGroupMode('AND'); // Must match all groups
+filter.setLogic(true);      // Alternative way (true = AND, false = OR)</code></pre>
+                        </div>
+        
+                        <div>
+                            <h4 class="text-xl font-semibold mb-3">Sorting & Range Filtering</h4>
+                            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">// Multi-criteria sorting
+filter.sortMultiple([
+    { key: 'price', direction: 'desc' },
+    { key: 'title', direction: 'asc' }
+]);
+        
+// Range filtering
+filter.addRangeFilter('price', 0, 1000);</code></pre>
+                        </div>
+        
+                        <div>
+                            <h4 class="text-xl font-semibold mb-3">State Management & Presets</h4>
+                            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">// Save current state
+const state = filter.exportState();
+        
+// Load a previous state
+filter.importState(state);
+        
+// Save preset for later use
+filter.savePreset('myFilters');
+filter.loadPreset('myFilters');</code></pre>
+                        </div>
+        
+                        <div>
+                            <h4 class="text-xl font-semibold mb-3">Responsive Behavior</h4>
+                            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">filter.setResponsiveOptions({
+    '768': {
+            filterMode: 'AND',
+            animationDuration: 200
+    },
+    '480': {
+            filterMode: 'OR',
+            animationDuration: 0
+    }
+});</code></pre>
+                        </div>
+        
+                        <div>
+                            <h4 class="text-xl font-semibold mb-3">Events & Analytics</h4>
+                            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">// Listen for filter changes
+filter.on('filter', (data) => {
+    console.log('Filter changed:', data);
+});
+        
+// Enable analytics tracking
+filter.enableAnalytics((data) => {
+    console.log('Filter analytics:', data);
+});</code></pre>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
