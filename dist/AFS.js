@@ -5,121 +5,41 @@
 })(this, (function (exports) { 'use strict';
 
   /**
-   * @fileoverview Advanced Filter System for DOM elements
-   * @version 1.0.6
-   *
-   * A flexible and customizable filtering system that supports:
-   * - Multiple filtering modes (OR/AND)
-   * - Text search with debouncing
-   * - Multiple sorting criteria
-   * - Range filtering
-   * - URL state management
-   * - Animation and transitions
-   * - Results counter
+   * @fileoverview Logging system for AFS
+   * @version 1.0.0
    */
 
-  /**
-   * Utility function for debouncing
-   * @param {Function} func - Function to debounce
-   * @param {number} wait - Delay in milliseconds
-   * @returns {Function} Debounced function
-   */
-  function debounce(func, wait) {
-    let timeout;
-    return function executedFunction() {
-      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
-      }
-      const later = () => {
-        clearTimeout(timeout);
-        func(...args);
-      };
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-    };
-  }
-  class AFS {
+  class Logger {
     /**
-     * @typedef {Object} FilterOptions
-     * @property {string} containerSelector - Main container selector
-     * @property {string} itemSelector - Items to filter selector
-     * @property {string} filterButtonSelector - Filter buttons selector
-     * @property {string} [searchInputSelector] - Search input selector
-     * @property {string} [counterSelector] - Results counter selector
-     * @property {string} [activeClass='active'] - Active state class
-     * @property {string} [hiddenClass='hidden'] - Hidden state class
-     * @property {number} [animationDuration=300] - Animation duration in ms
-     * @property {string} [filterMode='OR'] - Filter mode ('OR' or 'AND')
-     * @property {string[]} [searchKeys=['title']] - Data attributes to search in
-     * @property {number} [debounceTime=300] - Search debounce delay in ms
-     */
-
-    /**
-     * @param {FilterOptions} options - Filter configuration options
+     * @param {boolean} [debug=false] - Enable debug mode
+     * @param {string} [logLevel='info'] - Logging level
      */
     constructor() {
-      let options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      this.options = {
-        containerSelector: ".filter-container",
-        itemSelector: ".filter-item",
-        filterButtonSelector: ".btn-filter",
-        searchInputSelector: ".filter-search",
-        counterSelector: ".filter-counter",
-        activeClass: "active",
-        hiddenClass: "hidden",
-        animationDuration: 300,
-        filterMode: "OR",
-        searchKeys: ["title"],
-        debounceTime: 300,
-        debug: false,
-        logLevel: 'info',
-        ...options
-      };
-
-      // Define logging levels hierarchy
-      this.logLevels = {
+      let debug = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      let logLevel = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'info';
+      this.enabled = debug;
+      this.level = logLevel;
+      this.levels = {
         error: 0,
         warn: 1,
         info: 2,
         debug: 3
       };
-
-      // Initialize elements
-      this.container = document.querySelector(this.options.containerSelector);
-      this.items = document.querySelectorAll(this.options.itemSelector);
-      this.sortOrders = {};
-      this.filterButtons = document.querySelectorAll(this.options.filterButtonSelector);
-      this.searchInput = document.querySelector(this.options.searchInputSelector);
-      this.counter = document.querySelector(this.options.counterSelector);
-
-      // Initialize state
-      this.currentFilters = new Set(["*"]);
-      this.currentSearch = "";
-      this.visibleItems = new Set(this.items);
-      this.filterGroups = new Map();
-      this.groupMode = "OR"; // Default group mode
-
-      this.log('debug', 'Initializing AFS with options:', this.options);
-      this.init();
     }
 
     /**
-     * Internal logging method
-     * Handles debug message output based on current log level
-     * 
+     * Internal log method
      * @private
-     * @param {string} level - Log level ('error', 'warn', 'info', 'debug')
-     * @param {...any} args - Arguments to log
      */
-    log(level) {
-      if (!this.options.debug) return;
-      const currentLevelValue = this.logLevels[this.options.logLevel];
-      const messageLevel = this.logLevels[level];
+    _log(level) {
+      if (!this.enabled) return;
+      const currentLevelValue = this.levels[this.level];
+      const messageLevel = this.levels[level];
       if (messageLevel <= currentLevelValue) {
         const timestamp = new Date().toISOString();
         const prefix = `[AFS ${level.toUpperCase()}] ${timestamp}`;
-        for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-          args[_key2 - 1] = arguments[_key2];
+        for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+          args[_key - 1] = arguments[_key];
         }
         switch (level) {
           case 'error':
@@ -139,368 +59,1427 @@
     }
 
     /**
-     * Configure debug mode settings
-     * 
+     * Log error message
      * @public
-     * @param {boolean} enabled - Enable or disable debug mode
-     * @param {string} [level='info'] - Log level ('error', 'warn', 'info', 'debug')
+     */
+    error() {
+      for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        args[_key2] = arguments[_key2];
+      }
+      this._log('error', ...args);
+    }
+
+    /**
+     * Log warning message
+     * @public
+     */
+    warn() {
+      for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+        args[_key3] = arguments[_key3];
+      }
+      this._log('warn', ...args);
+    }
+
+    /**
+     * Log info message
+     * @public
+     */
+    info() {
+      for (var _len4 = arguments.length, args = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+        args[_key4] = arguments[_key4];
+      }
+      this._log('info', ...args);
+    }
+
+    /**
+     * Log debug message
+     * @public
+     */
+    debug() {
+      for (var _len5 = arguments.length, args = new Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+        args[_key5] = arguments[_key5];
+      }
+      this._log('debug', ...args);
+    }
+
+    /**
+     * Enable or disable debug mode
+     * @public
      */
     setDebugMode(enabled) {
       let level = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'info';
-      this.options.debug = enabled;
-      if (this.logLevels.hasOwnProperty(level)) {
-        this.options.logLevel = level;
+      this.enabled = enabled;
+      if (this.levels.hasOwnProperty(level)) {
+        this.level = level;
       }
-      this.log('info', `Debug mode ${enabled ? 'enabled' : 'disabled'} with level: ${level}`);
+      this._log('info', `Debug mode ${enabled ? 'enabled' : 'disabled'} with level: ${level}`);
     }
+  }
+
+  /**
+   * @fileoverview Configuration management for AFS
+   * @version 1.0.0
+   */
+
+  class Options {
+    /**
+     * @typedef {Object} AFSOptions
+     * @property {string} containerSelector - Main container selector
+     * @property {string} itemSelector - Items to filter selector
+     * @property {string} filterButtonSelector - Filter buttons selector
+     * @property {string} searchInputSelector - Search input selector
+     * @property {string} counterSelector - Results counter selector
+     * @property {string} activeClass - Active state class
+     * @property {string} hiddenClass - Hidden state class
+     * @property {number} animationDuration - Animation duration in ms
+     * @property {string} filterMode - Filter mode ('OR' or 'AND')
+     * @property {string[]} searchKeys - Data attributes to search in
+     * @property {number} debounceTime - Search debounce delay in ms
+     * @property {boolean} debug - Enable debug mode
+     * @property {string} logLevel - Log level
+     * @property {string} dateFormat - Date format
+     * @property {Object} counter - Counter-related options
+     * @property {Object} styles - Style-related options
+     */
 
     /**
-     * Initialize the filter system
-     * Sets up styles, events, and initial state
-     * 
-     * @private
+     * @type {AFSOptions}
      */
-    init() {
-      this.log('debug', 'Starting initialization');
-      if (!this.container) {
-        this.log('error', `Container not found: ${this.options.containerSelector}`);
-        return;
+    static defaults = {
+      // Selectors
+      containerSelector: '.filter-container',
+      itemSelector: '.filter-item',
+      filterButtonSelector: '.btn-filter',
+      searchInputSelector: '.filter-search',
+      counterSelector: '.filter-counter',
+      // Classes
+      activeClass: 'active',
+      hiddenClass: 'hidden',
+      // Animation
+      animationDuration: 300,
+      animationType: 'fade',
+      animationEasing: 'ease-out',
+      // Filtering
+      filterMode: 'OR',
+      searchKeys: ['title'],
+      debounceTime: 300,
+      // Debug
+      debug: false,
+      logLevel: 'info',
+      // Date handling
+      dateFormat: 'YYYY-MM-DD',
+      counter: {
+        template: 'Showing {visible} of {total}',
+        showFiltered: true,
+        filteredTemplate: '({filtered} filtered)',
+        noResultsTemplate: 'No items found',
+        formatter: num => num.toLocaleString()
+      },
+      // Styles
+      styles: {
+        slider: {
+          class: 'afs-range-slider',
+          trackClass: 'afs-range-track',
+          thumbClass: 'afs-range-thumb',
+          valueClass: 'afs-range-value',
+          selectedClass: 'afs-range-selected',
+          // Add new UI options
+          ui: {
+            showHistogram: false,
+            bins: 10 // Number of bins for histogram
+          }
+        },
+        colors: {
+          primary: '#000',
+          background: '#e5e7eb',
+          text: '#000',
+          histogram: '#e5e7eb',
+          // For histogram bars
+          histogramActive: '#000' // For active histogram bars
+        }
+      },
+      // Pagination
+      pagination: {
+        enabled: false,
+        itemsPerPage: 10,
+        pageButtonClass: 'afs-page-button',
+        activePageClass: 'afs-page-active',
+        containerClass: 'afs-pagination'
       }
-      this.addStyles();
-      this.bindEvents();
-      this.loadFromURL();
-      this.updateCounter();
-      this.log('info', 'Initialization complete');
+    };
+    constructor() {
+      let userOptions = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      this.options = this.mergeOptions(Options.defaults, userOptions);
+      this.initializeStyles();
+      this.validate();
     }
 
     /**
-     * Add required styles to document
+     * Initialize styles with defaults
      * @private
      */
-    addStyles() {
-      const styles = `
-            .${this.options.hiddenClass} {
-                display: none !important;
-            }
+    initializeStyles() {
+      const defaultStyles = Options.defaults.styles;
+      const currentStyles = this.options.styles || {};
+      this.options.styles = this.mergeOptions(defaultStyles, currentStyles);
 
-            ${this.options.itemSelector} {
-                opacity: 1;
-                transform: scale(1);
-                transition: opacity ${this.options.animationDuration}ms ease-out,
-                            transform ${this.options.animationDuration}ms ease-out;
-            }
-
-            ${this.options.filterButtonSelector} {
-                opacity: 0.5;
-                transition: opacity ${this.options.animationDuration}ms ease;
-            }
-
-            ${this.options.filterButtonSelector}.${this.options.activeClass} {
-                opacity: 1;
-            }
-        `;
-      const styleSheet = document.createElement("style");
-      styleSheet.textContent = styles;
-      document.head.appendChild(styleSheet);
-      this.log('debug', 'Styles added to document');
+      // Ensure colors object exists and has all required properties
+      this.options.styles.colors = {
+        ...defaultStyles.colors,
+        ...(currentStyles.colors || {})
+      };
     }
 
     /**
-     * Bind all event listeners
+     * Deep merge options
      * @private
+     * @param {Object} target - Target object
+     * @param {Object} source - Source object
+     * @returns {Object} Merged options
      */
-    bindEvents() {
-      this.log('debug', 'Binding events');
-      this.filterButtons.forEach(button => {
-        button.addEventListener("click", () => this.handleFilterClick(button));
+    mergeOptions(target, source) {
+      const result = {
+        ...target
+      };
+      for (const key in source) {
+        if (source[key] !== null && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+          // If the key doesn't exist in target or isn't an object, create/override it
+          if (!target[key] || typeof target[key] !== 'object') {
+            result[key] = {};
+          }
+          // Recursively merge nested objects
+          result[key] = this.mergeOptions(result[key], source[key]);
+        } else if (source[key] !== undefined) {
+          // Only override if the source value is defined
+          result[key] = source[key];
+        }
+      }
+      return result;
+    }
+
+    /**
+     * Validate options
+     * @private
+     * @throws {Error} If options are invalid
+     */
+    validate() {
+      // Required selectors
+      const requiredSelectors = ['containerSelector', 'itemSelector'];
+      for (const selector of requiredSelectors) {
+        if (typeof this.options[selector] !== 'string') {
+          throw new Error(`${selector} must be a string`);
+        }
+      }
+
+      // Animation duration
+      if (typeof this.options.animationDuration !== 'number' || this.options.animationDuration < 0) {
+        throw new Error('animationDuration must be a positive number');
+      }
+
+      // Filter mode
+      if (!['OR', 'AND'].includes(this.options.filterMode.toUpperCase())) {
+        throw new Error('filterMode must be either "OR" or "AND"');
+      }
+
+      // Search keys
+      if (!Array.isArray(this.options.searchKeys) || this.options.searchKeys.length === 0) {
+        throw new Error('searchKeys must be a non-empty array');
+      }
+
+      // Counter validation
+      if (this.options.counter) {
+        if (typeof this.options.counter.template !== 'string') {
+          throw new Error('counter.template must be a string');
+        }
+        if (typeof this.options.counter.showFiltered !== 'boolean') {
+          this.options.counter.showFiltered = true; // Set default
+        }
+        if (typeof this.options.counter.formatter !== 'function') {
+          this.options.counter.formatter = num => num.toLocaleString(); // Set default
+        }
+      } else {
+        this.options.counter = {
+          ...Options.defaults.counter
+        }; // Set defaults if missing
+      }
+    }
+
+    /**
+     * Get option value
+     * @param {string} path - Dot notation path to option
+     * @returns {any} Option value
+     */
+    get(path) {
+      return path.split('.').reduce((obj, key) => obj?.[key], this.options);
+    }
+
+    /**
+     * Set option value
+     * @param {string} path - Dot notation path to option
+     * @param {any} value - New value
+     */
+    set(path, value) {
+      const parts = path.split('.');
+      const last = parts.pop();
+      const target = parts.reduce((obj, key) => {
+        if (!(key in obj)) obj[key] = {};
+        return obj[key];
+      }, this.options);
+      target[last] = value;
+      this.validate();
+    }
+
+    /**
+     * Update multiple options
+     * @param {Object} updates - Options to update
+     */
+    update(updates) {
+      this.options = this.mergeOptions(this.options, updates);
+      this.validate();
+    }
+
+    /**
+     * Reset options to defaults
+     */
+    reset() {
+      this.options = {
+        ...Options.defaults
+      };
+    }
+
+    /**
+     * Export options
+     * @returns {Object} Current options
+     */
+    export() {
+      return {
+        ...this.options
+      };
+    }
+  }
+
+  /**
+   * @fileoverview State management for AFS
+   * @version 1.0.0
+   */
+
+  class State {
+    constructor() {
+      this.state = {
+        filters: {
+          current: new Set(['*']),
+          groups: new Map(),
+          ranges: new Map(),
+          dateRanges: new Map(),
+          mode: 'OR',
+          groupMode: 'OR'
+        },
+        search: {
+          query: '',
+          keys: ['title']
+        },
+        sort: {
+          orders: {},
+          current: null
+        },
+        items: {
+          visible: new Set(),
+          total: 0
+        },
+        pagination: {
+          currentPage: 1,
+          itemsPerPage: 10,
+          totalPages: 0
+        }
+      };
+    }
+
+    /**
+     * Get current state
+     * @returns {Object} Current state
+     */
+    getState() {
+      return this.state;
+    }
+
+    /**
+     * Update state
+     * @param {string} path - Dot notation path to update
+     * @param {any} value - New value
+     */
+    setState(path, value) {
+      const parts = path.split('.');
+      let current = this.state;
+      for (let i = 0; i < parts.length - 1; i++) {
+        if (!(parts[i] in current)) {
+          current[parts[i]] = {};
+        }
+        current = current[parts[i]];
+      }
+      current[parts[parts.length - 1]] = value;
+    }
+
+    /**
+     * Export state
+     * @returns {Object} Exportable state
+     */
+    export() {
+      return {
+        filters: {
+          current: Array.from(this.state.filters.current),
+          groups: Array.from(this.state.filters.groups.entries()),
+          ranges: Array.from(this.state.filters.ranges.entries()),
+          dateRanges: Array.from(this.state.filters.dateRanges.entries()),
+          mode: this.state.filters.mode,
+          groupMode: this.state.filters.groupMode
+        },
+        search: {
+          ...this.state.search
+        },
+        sort: {
+          ...this.state.sort
+        },
+        pagination: {
+          ...this.state.pagination
+        }
+      };
+    }
+
+    /**
+     * Import state
+     * @param {Object} importedState - State to import
+     */
+    import(importedState) {
+      if (importedState.filters) {
+        this.state.filters.current = new Set(importedState.filters.current);
+        this.state.filters.groups = new Map(importedState.filters.groups);
+        this.state.filters.ranges = new Map(importedState.filters.ranges);
+        this.state.filters.dateRanges = new Map(importedState.filters.dateRanges);
+        this.state.filters.mode = importedState.filters.mode;
+        this.state.filters.groupMode = importedState.filters.groupMode;
+      }
+      if (importedState.search) {
+        this.state.search = {
+          ...importedState.search
+        };
+      }
+      if (importedState.sort) {
+        this.state.sort = {
+          ...importedState.sort
+        };
+      }
+      if (importedState.pagination) {
+        this.state.pagination = {
+          ...importedState.pagination
+        };
+      }
+    }
+
+    /**
+     * Reset state to initial values
+     */
+    reset() {
+      this.state = {
+        filters: {
+          current: new Set(['*']),
+          groups: new Map(),
+          ranges: new Map(),
+          dateRanges: new Map(),
+          mode: 'OR',
+          groupMode: 'OR'
+        },
+        search: {
+          query: '',
+          keys: ['title']
+        },
+        sort: {
+          orders: {},
+          current: null
+        },
+        items: {
+          visible: new Set(),
+          total: 0
+        },
+        pagination: {
+          currentPage: 1,
+          itemsPerPage: 10,
+          totalPages: 0
+        }
+      };
+    }
+  }
+
+  /**
+   * @fileoverview Style management for AFS
+   * @version 1.0.0
+   */
+
+  class StyleManager {
+    /**
+     * @param {import('../core/Options').Options} options - Options instance
+     */
+    constructor(options) {
+      this.options = options;
+      this.styleElement = null;
+      this.defaultStyles = {
+        slider: {
+          class: "afs-range-slider",
+          trackClass: "afs-range-track",
+          thumbClass: "afs-range-thumb",
+          valueClass: "afs-range-value",
+          selectedClass: "afs-range-selected"
+        },
+        colors: {
+          primary: "#000",
+          background: "#ddd",
+          text: "#000"
+        },
+        animation: {
+          duration: "300ms",
+          type: "ease-out"
+        }
+      };
+    }
+
+    /**
+     * Create base styles
+     * @private
+     * @returns {string} CSS styles
+     */
+    createBaseStyles() {
+      const hiddenClass = this.options.get("hiddenClass") || "hidden";
+      const itemSelector = this.options.get("itemSelector") || ".filter-item";
+      const filterButtonSelector = this.options.get("filterButtonSelector") || ".btn-filter";
+      const activeClass = this.options.get("activeClass") || "active";
+      const animationDuration = this.options.get("animationDuration") || '300ms';
+      const animationEasing = this.options.get("animationEasing") || 'ease-out';
+      return `
+      .${hiddenClass} {
+        display: none !important;
+      }
+
+      ${itemSelector} {
+        opacity: 1;
+        transform: scale(1);
+        filter: blur(0);
+        transition: opacity ${animationDuration} ${animationEasing},
+                    transform ${animationDuration} ${animationEasing},
+                    filter ${animationDuration} ${animationEasing};
+      }
+
+      ${itemSelector}.${hiddenClass} {
+        opacity: 0;
+        transform: scale(0.95);
+        filter: blur(5px);
+      }
+
+      ${filterButtonSelector} {
+        opacity: 0.5;
+        transition: opacity ${animationDuration} ${animationEasing};
+      }
+
+      ${filterButtonSelector}.${activeClass} {
+        opacity: 1;
+      }
+    `;
+    }
+
+    /**
+     * Create range slider styles
+     * @private
+     * @returns {string} CSS styles
+     */
+    createRangeStyles() {
+      const styles = this.options.get("styles") || this.defaultStyles;
+      const sliderStyles = styles.slider || this.defaultStyles.slider;
+      const colors = styles.colors || this.defaultStyles.colors;
+      return `
+    /* Range Slider Styles */
+    .${sliderStyles.class} {
+      position: relative;
+      width: auto;
+      height: 40px;
+      margin: 10px 0;
+      padding: 0 8px;
+    }
+
+    .${sliderStyles.trackClass} {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 100%;
+      height: 4px;
+      background: ${colors.background};
+      border-radius: 2px;
+    }
+
+    .${sliderStyles.thumbClass} {
+      position: absolute;
+      top: 50%;
+      width: 16px;
+      height: 16px;
+      background: ${colors.primary};
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .${sliderStyles.valueClass} {
+      position: absolute;
+      top: -20px;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: ${colors.text};
+    }
+
+    .${sliderStyles.selectedClass} {
+      position: absolute;
+      height: 4px;
+      background: ${colors.primary};
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    /* Histogram Styles */
+    .afs-histogram {
+      position: absolute;
+      bottom: 22px;
+      left: 8px;
+      right: 8px;
+      height: 20px;
+      display: flex;
+      align-items: flex-end;
+      gap: 1px;
+      opacity: 0.5;
+    }
+
+    .afs-histogram-bar {
+      flex: 1;
+      background-color: ${colors.background};
+      min-height: 4px;
+      transition: background-color 0.2s ease;
+    }
+
+    .afs-histogram-bar.active {
+      background-color: ${colors.primary};
+    }
+  `;
+    }
+
+    /**
+     * Create date filter styles
+     * @private
+     * @returns {string} CSS styles
+     */
+    createDateStyles() {
+      const colors = (this.options.get("styles") || this.defaultStyles).colors;
+      return `
+    .afs-date-range-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin: 10px 0;
+    }
+
+    .afs-date-input-wrapper {
+      flex: 1;
+    }
+
+    .afs-date-input-wrapper label {
+      display: block;
+      font-size: 0.875rem;
+      color: ${colors.text};
+      margin-bottom: 0.5rem;
+    }
+
+    .afs-date-input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid ${colors.background};
+      border-radius: 0.25rem;
+      font-size: 0.875rem;
+      color: ${colors.text};
+      transition: border-color 0.2s ease;
+    }
+
+    .afs-date-input:focus {
+      outline: none;
+      border-color: ${colors.primary};
+    }
+  `;
+    }
+
+    /**
+     * Apply all styles
+     * @public
+     */
+    applyStyles() {
+      try {
+        const styles = `
+      /* Base styles */
+      ${this.createBaseStyles()}
+
+      /* Range slider styles */
+      ${this.createRangeStyles()}
+
+      /* Date filter styles */
+      ${this.createDateStyles()}
+
+      /* Pagination styles */
+      ${this.createPaginationStyles()}
+
+      /* Search styles */
+      ${this.createSearchStyles()}
+    `;
+        if (this.styleElement) {
+          this.styleElement.textContent = styles;
+        } else {
+          this.styleElement = document.createElement("style");
+          this.styleElement.textContent = styles;
+          document.head.appendChild(this.styleElement);
+        }
+      } catch (error) {
+        console.error("Error applying styles:", error);
+        const fallbackStyles = this.createBaseStyles();
+        if (this.styleElement) {
+          this.styleElement.textContent = fallbackStyles;
+        } else {
+          this.styleElement = document.createElement("style");
+          this.styleElement.textContent = fallbackStyles;
+          document.head.appendChild(this.styleElement);
+        }
+      }
+    }
+
+    /**
+     * Create pagination styles
+     * @private
+     * @returns {string} CSS styles
+     */
+    createPaginationStyles() {
+      const paginationOptions = this.options.get("pagination") || {};
+      const colors = (this.options.get("styles") || this.defaultStyles).colors;
+      const containerClass = paginationOptions.containerClass || "afs-pagination";
+      const buttonClass = paginationOptions.pageButtonClass || "afs-page-button";
+      const activeClass = paginationOptions.activePageClass || "afs-page-active";
+      return `
+      .${containerClass} {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 20px;
+      }
+
+      .${buttonClass} {
+        padding: 8px 12px;
+        border: 1px solid ${colors.primary};
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 200ms ease-out;
+        background: transparent;
+        color: ${colors.primary};
+      }
+
+      .${buttonClass}:hover {
+        background: ${colors.primary};
+        color: white;
+      }
+
+      .${buttonClass}.${activeClass} {
+        background: ${colors.primary};
+        color: white;
+      }
+
+      .${buttonClass}:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    `;
+    }
+
+    /**
+     * Create search styles
+     * @private
+     * @returns {string} CSS styles
+     */
+    createSearchStyles() {
+      const searchClass = this.options.get("searchInputClass") || "afs-search";
+      const colors = (this.options.get("styles") || this.defaultStyles).colors;
+      return `
+      .${searchClass} {
+        padding: 8px;
+        border: 1px solid ${colors.background};
+        border-radius: 4px;
+        width: 100%;
+        max-width: 300px;
+        transition: border-color 200ms ease-out;
+      }
+
+      .${searchClass}:focus {
+        outline: none;
+        border-color: ${colors.primary};
+      }
+    `;
+    }
+
+    /**
+     * Update styles
+     * @public
+     * @param {Object} newOptions - New style options
+     */
+    updateStyles(newOptions) {
+      this.options = newOptions;
+      this.applyStyles();
+    }
+
+    /**
+     * Remove styles
+     * @public
+     */
+    removeStyles() {
+      if (this.styleElement) {
+        this.styleElement.remove();
+        this.styleElement = null;
+      }
+    }
+  }
+
+  /**
+   * @fileoverview Event handling system for AFS
+   * @version 1.0.0
+   */
+
+  class EventEmitter {
+    constructor() {
+      this.events = new Map();
+      this.onceEvents = new Map();
+    }
+
+    /**
+     * Subscribe to an event
+     * @param {string} eventName - Name of the event
+     * @param {Function} callback - Callback function
+     * @returns {Function} Unsubscribe function
+     */
+    on(eventName, callback) {
+      if (!this.events.has(eventName)) {
+        this.events.set(eventName, new Set());
+      }
+      this.events.get(eventName).add(callback);
+
+      // Return unsubscribe function
+      return () => this.off(eventName, callback);
+    }
+
+    /**
+     * Subscribe to an event once
+     * @param {string} eventName - Name of the event
+     * @param {Function} callback - Callback function
+     * @returns {Function} Unsubscribe function
+     */
+    once(eventName, callback) {
+      var _this = this;
+      const onceWrapper = function () {
+        _this.off(eventName, onceWrapper);
+        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+          args[_key] = arguments[_key];
+        }
+        callback.apply(_this, args);
+      };
+      if (!this.onceEvents.has(eventName)) {
+        this.onceEvents.set(eventName, new Map());
+      }
+      this.onceEvents.get(eventName).set(callback, onceWrapper);
+      return this.on(eventName, onceWrapper);
+    }
+
+    /**
+     * Unsubscribe from an event
+     * @param {string} eventName - Name of the event
+     * @param {Function} callback - Callback function
+     */
+    off(eventName, callback) {
+      // Remove from regular events
+      if (this.events.has(eventName)) {
+        this.events.get(eventName).delete(callback);
+
+        // Cleanup if no more listeners
+        if (this.events.get(eventName).size === 0) {
+          this.events.delete(eventName);
+        }
+      }
+
+      // Remove from once events
+      if (this.onceEvents.has(eventName)) {
+        const onceWrapper = this.onceEvents.get(eventName).get(callback);
+        if (onceWrapper) {
+          this.events.get(eventName)?.delete(onceWrapper);
+          this.onceEvents.get(eventName).delete(callback);
+        }
+
+        // Cleanup if no more once listeners
+        if (this.onceEvents.get(eventName).size === 0) {
+          this.onceEvents.delete(eventName);
+        }
+      }
+    }
+
+    /**
+     * Emit an event
+     * @param {string} eventName - Name of the event
+     * @param {...any} args - Arguments to pass to callbacks
+     */
+    emit(eventName) {
+      for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+        args[_key2 - 1] = arguments[_key2];
+      }
+      if (this.events.has(eventName)) {
+        this.events.get(eventName).forEach(callback => {
+          try {
+            callback.apply(this, args);
+          } catch (error) {
+            console.error(`Error in event handler for ${eventName}:`, error);
+          }
+        });
+      }
+    }
+
+    /**
+     * Remove all event listeners
+     * @param {string} [eventName] - Optional event name to clear specific event
+     */
+    removeAllListeners(eventName) {
+      if (eventName) {
+        this.events.delete(eventName);
+        this.onceEvents.delete(eventName);
+      } else {
+        this.events.clear();
+        this.onceEvents.clear();
+      }
+    }
+
+    /**
+     * Get the number of listeners for an event
+     * @param {string} eventName - Name of the event
+     * @returns {number} Number of listeners
+     */
+    listenerCount(eventName) {
+      return (this.events.get(eventName)?.size || 0) + (this.onceEvents.get(eventName)?.size || 0);
+    }
+  }
+
+  class Animation {
+    constructor(afs) {
+      this.afs = afs;
+      this.options = this.afs.options;
+      this.animations = {
+        fade: {
+          in: {
+            opacity: 1,
+            transform: 'scale(1)',
+            transitionTimingFunction: 'ease-in'
+          },
+          out: {
+            opacity: 0,
+            transform: 'scale(0.95)',
+            transitionTimingFunction: 'ease-out'
+          }
+        },
+        slide: {
+          in: {
+            opacity: 1,
+            transform: 'translateY(0)',
+            transitionTimingFunction: 'ease-in-out'
+          },
+          out: {
+            opacity: 0,
+            transform: 'translateY(20px)',
+            transitionTimingFunction: 'ease-in-out'
+          }
+        },
+        scale: {
+          in: {
+            opacity: 1,
+            transform: 'scale(1)',
+            transitionTimingFunction: 'ease-in'
+          },
+          out: {
+            opacity: 0,
+            transform: 'scale(0.8)',
+            transitionTimingFunction: 'ease-out'
+          }
+        },
+        rotate: {
+          in: {
+            opacity: 1,
+            transform: 'rotate(0deg) scale(1)',
+            transitionTimingFunction: 'ease-in'
+          },
+          out: {
+            opacity: 0,
+            transform: 'rotate(90deg) scale(0.9)',
+            transitionTimingFunction: 'ease-out'
+          }
+        },
+        flip: {
+          in: {
+            opacity: 1,
+            transform: 'rotateY(0)',
+            transitionTimingFunction: 'ease-in'
+          },
+          out: {
+            opacity: 0,
+            transform: 'rotateY(180deg)',
+            transitionTimingFunction: 'ease-out'
+          }
+        },
+        zoom: {
+          in: {
+            opacity: 1,
+            transform: 'scale(1.2)',
+            transitionTimingFunction: 'ease-in'
+          },
+          out: {
+            opacity: 0,
+            transform: 'scale(0.8)',
+            transitionTimingFunction: 'ease-out'
+          }
+        },
+        bounce: {
+          in: {
+            opacity: 1,
+            transform: 'translateY(0)',
+            animation: 'bounce 1s cubic-bezier(0.68, -0.55, 0.27, 1.55)'
+          },
+          out: {
+            opacity: 0,
+            transform: 'translateY(-20px)',
+            animation: 'bounceOut 1s ease-out'
+          }
+        },
+        blur: {
+          in: {
+            opacity: 1,
+            filter: 'blur(0)',
+            transitionTimingFunction: 'ease-in'
+          },
+          out: {
+            opacity: 0,
+            filter: 'blur(5px)',
+            transitionTimingFunction: 'ease-out'
+          }
+        },
+        skew: {
+          in: {
+            opacity: 1,
+            transform: 'skew(0deg)',
+            transitionTimingFunction: 'ease-in-out'
+          },
+          out: {
+            opacity: 0,
+            transform: 'skew(10deg)',
+            transitionTimingFunction: 'ease-in-out'
+          }
+        },
+        slideInLeft: {
+          in: {
+            opacity: 1,
+            transform: 'translateX(0)',
+            transitionTimingFunction: 'ease-in'
+          },
+          out: {
+            opacity: 0,
+            transform: 'translateX(-100%)',
+            transitionTimingFunction: 'ease-out'
+          }
+        },
+        slideInRight: {
+          in: {
+            opacity: 1,
+            transform: 'translateX(0)',
+            transitionTimingFunction: 'ease-in'
+          },
+          out: {
+            opacity: 0,
+            transform: 'translateX(100%)',
+            transitionTimingFunction: 'ease-out'
+          }
+        },
+        fadeInUp: {
+          in: {
+            opacity: 1,
+            transform: 'translateY(0)',
+            transitionTimingFunction: 'ease-in'
+          },
+          out: {
+            opacity: 0,
+            transform: 'translateY(10px)',
+            transitionTimingFunction: 'ease-out'
+          }
+        },
+        fadeInDown: {
+          in: {
+            opacity: 1,
+            transform: 'translateY(0)',
+            transitionTimingFunction: 'ease-in'
+          },
+          out: {
+            opacity: 0,
+            transform: 'translateY(-10px)',
+            transitionTimingFunction: 'ease-out'
+          }
+        },
+        bounceIn: {
+          in: {
+            opacity: 1,
+            transform: 'scale(1.05)',
+            transitionTimingFunction: 'cubic-bezier(0.68, -0.55, 0.27, 1.55)'
+          },
+          out: {
+            opacity: 0,
+            transform: 'scale(0.9)',
+            transitionTimingFunction: 'ease-out'
+          }
+        }
+      };
+    }
+    applyShowAnimation(item) {
+      let animationType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'fade';
+      const duration = this.options.get('animationDuration') || '300ms';
+      const animation = this.animations[animationType]?.in || this.animations.fade.in;
+      item.style.display = 'block';
+      requestAnimationFrame(() => {
+        Object.assign(item.style, animation, {
+          transition: `opacity ${duration} ${animation.transitionTimingFunction}, transform ${duration} ${animation.transitionTimingFunction}`
+        });
       });
-      if (this.searchInput) {
-        this.searchInput.addEventListener("input", debounce(e => {
-          this.search(e.target.value);
-        }, this.options.debounceTime));
-      }
-      window.addEventListener("popstate", () => this.loadFromURL());
-      this.log('debug', 'Events bound successfully');
+    }
+    applyHideAnimation(item) {
+      let animationType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'fade';
+      const duration = this.options.get('animationDuration') || '300ms';
+      const animation = this.animations[animationType]?.out || this.animations.fade.out;
+      Object.assign(item.style, animation, {
+        transition: `opacity ${duration} ${animation.transitionTimingFunction}, transform ${duration} ${animation.transitionTimingFunction}`
+      });
+      const handleTransitionEnd = () => {
+        item.style.display = 'none';
+        item.removeEventListener('transitionend', handleTransitionEnd);
+      };
+      item.addEventListener('transitionend', handleTransitionEnd);
+    }
+    setAnimation(animationType) {
+      this.afs.options.set('animationType', animationType);
+    }
+  }
+
+  /**
+   * @fileoverview Filter functionality for AFS
+   * @version 1.0.0
+   */
+
+  class Filter {
+    /**
+     * @param {import('../AFS').AFS} afs - Main AFS instance
+     */
+    constructor(afs) {
+      this.afs = afs;
+      this.animation = new Animation(afs);
+      this.filterButtons = new Map();
+      this.activeFilters = new Set(["*"]);
+      this.currentFilters = new Set(["*"]);
+      this.filterGroups = new Map();
+      this.sortOrders = new Map();
+      this.setupFilters();
     }
 
     /**
-     * Handle filter button clicks
+     * Setup filters
      * @private
-     * @param {HTMLElement} button - Clicked filter button
      */
+    setupFilters() {
+      this.afs.logger.debug("Setting up filters");
+      const filterSelector = this.afs.options.get("filterButtonSelector");
+      if (!filterSelector) return;
+
+      // Initialize filter buttons
+      document.querySelectorAll(filterSelector).forEach(button => {
+        const filterValue = button.dataset.filter;
+        if (!filterValue) {
+          this.afs.logger.warn("Filter button missing data-filter attribute:", button);
+          return;
+        }
+        this.filterButtons.set(button, filterValue);
+        this.bindFilterEvent(button);
+      });
+      this.afs.logger.debug("Filters initialized");
+    }
+
+    /**
+     * Set filter logic mode
+     * @public
+     * @param {string|boolean} logic - 'AND'/'OR' or true/false (true = AND, false = OR)
+     */
+    setLogic(logic) {
+      if (typeof logic === "boolean") {
+        // Handle boolean input (true = AND, false = OR)
+        this.afs.options.set("filterMode", logic ? "AND" : "OR");
+      } else {
+        const mode = logic.toUpperCase();
+        if (["OR", "AND"].includes(mode)) {
+          this.afs.options.set("filterMode", mode);
+        } else {
+          this.afs.logger.warn(`Invalid filter mode: ${logic}`);
+          return;
+        }
+      }
+      this.afs.logger.debug(`Filter logic set to: ${this.afs.options.get("filterMode")}`);
+      this.applyFilters();
+    }
+
+    /**
+     * Clear all filters
+     * @public
+     */
+    clearAllFilters() {
+      this.afs.logger.debug("Clearing all filters");
+
+      // Reset filters
+      this.activeFilters.clear();
+      this.activeFilters.add("*");
+
+      // Reset filter buttons
+      this.filterButtons.forEach((_, button) => {
+        button.classList.remove(this.afs.options.get("activeClass"));
+      });
+
+      // Reset filter groups
+      this.filterGroups.clear();
+
+      // Find and activate "all" button if exists
+      const allButton = this.findAllButton();
+      if (allButton) {
+        allButton.classList.add(this.afs.options.get("activeClass"));
+      }
+
+      // Clear sorting
+      this.sortOrders.clear();
+
+      // Apply changes and update UI
+      this.applyFilters();
+      this.afs.urlManager.updateURL();
+      this.afs.emit("filtersCleared");
+    }
+
+    /**
+     * Bind filter event to button
+     * @private
+     * @param {HTMLElement} button - Filter button
+     */
+    bindFilterEvent(button) {
+      this.afs.logger.debug("Binding filter event to button:", button);
+      button.addEventListener("click", () => {
+        const filterValue = this.filterButtons.get(button);
+        if (!filterValue) return;
+        if (filterValue === "*") {
+          this.resetFilters();
+        } else {
+          this.toggleFilter(filterValue, button);
+        }
+
+        // Update the URL after filter change
+        this.afs.urlManager.updateURL();
+      });
+    }
+
+    /**
+     * Reset filters to default state
+     * @public
+     */
+    resetFilters() {
+      this.afs.logger.debug("Resetting filters");
+
+      // Clear existing filters
+      this.activeFilters.clear();
+
+      // Reset button states
+      this.filterButtons.forEach((_, button) => {
+        button.classList.remove(this.afs.options.get("activeClass"));
+      });
+
+      // Add "*" filter and activate "all" button
+      this.activeFilters.add("*");
+      const allButton = this.findAllButton();
+      if (allButton) {
+        allButton.classList.add(this.afs.options.get("activeClass"));
+      }
+
+      // Clear filter groups
+      this.filterGroups.clear();
+
+      // Force all items to be visible first
+      const visibleItems = new Set(this.afs.items);
+      this.afs.state.setState("items.visible", visibleItems);
+
+      // Show all items with animation
+      this.afs.items.forEach(item => {
+        item.classList.remove(this.afs.options.get('hiddenClass'));
+        requestAnimationFrame(() => {
+          this.animation.applyShowAnimation(item, this.afs.options.get("animationType"));
+        });
+      });
+
+      // Update URL after reset
+      this.afs.urlManager.updateURL();
+    }
+
+    /**
+     * Find "all" filter button
+     * @private
+     * @returns {HTMLElement|null} All button
+     */
+    findAllButton() {
+      for (const [button, value] of this.filterButtons.entries()) {
+        if (value === "*") return button;
+      }
+      return null;
+    }
     handleFilterClick(button) {
       const filterValue = button.dataset.filter;
-      this.log('debug', 'Filter button clicked:', filterValue);
+      this.afs.logger.debug("Filter clicked:", filterValue);
       if (filterValue === "*") {
         this.resetFilters();
       } else {
         this.toggleFilter(filterValue, button);
       }
       this.filter();
+
+      // Call updateURL to reflect the new filter state in the URL
       this.updateURL();
     }
 
     /**
-     * Reset all filters to default state
+     * Toggle filter state
      * @private
-     */
-    resetFilters() {
-      this.log('debug', 'Resetting filters');
-      this.filterButtons.forEach(btn => btn.classList.remove(this.options.activeClass));
-      this.currentFilters.clear();
-      this.currentFilters.add("*");
-      this.filterButtons[0].classList.add(this.options.activeClass);
-      this.resetCounter();
-    }
-
-    /**
-     * Reset visible items counter
-     * @private
-     */
-    resetCounter() {
-      this.visibleItems = new Set(this.items);
-      this.updateCounter();
-    }
-
-    /**
-     * Toggle individual filter state
-     * @private
-     * @param {string} filterValue - Filter value to toggle
-     * @param {HTMLElement} button - Filter button element
+     * @param {string} filterValue - Filter value
+     * @param {HTMLElement} button - Filter button
      */
     toggleFilter(filterValue, button) {
-      this.log('debug', `Toggling filter: ${filterValue}`);
-      this.currentFilters.delete("*");
-      this.filterButtons[0].classList.remove(this.options.activeClass);
-      if (button.classList.contains(this.options.activeClass)) {
-        button.classList.remove(this.options.activeClass);
-        this.currentFilters.delete(filterValue);
+      // Remove "all" filter
+      this.activeFilters.delete("*");
+      const allButton = this.findAllButton();
+      if (allButton) {
+        allButton.classList.remove(this.afs.options.get("activeClass"));
+      }
 
-        // If no filters are selected, reset to default state and clear URL
-        if (this.currentFilters.size === 0) {
+      // Toggle filter
+      if (button.classList.contains(this.afs.options.get("activeClass"))) {
+        button.classList.remove(this.afs.options.get("activeClass"));
+        this.activeFilters.delete(filterValue);
+
+        // Reset to "all" if no filters active
+        if (this.activeFilters.size === 0) {
           this.resetFilters();
-          window.history.pushState({}, "", window.location.pathname);
           return;
         }
       } else {
-        button.classList.add(this.options.activeClass);
-        this.currentFilters.add(filterValue);
+        button.classList.add(this.afs.options.get("activeClass"));
+        this.activeFilters.add(filterValue);
       }
+      this.applyFilters();
+
+      // update counter
+      this.afs.updateCounter();
+
+      // Emit event
+      this.afs.emit("filterToggled", {
+        filter: filterValue,
+        activeFilters: Array.from(this.activeFilters)
+      });
+      this.afs.logger.debug("Filter toggled:", filterValue);
     }
 
     /**
-     * Sort items based on auto-detecting ASC or DESC for each key
-     * @public
-     * @param {string} key - The data attribute key to sort by (e.g., 'title', 'price', 'date')
-     */
-    sortWithOrder(key) {
-      const items = [...this.items];
+    * Apply current filters
+    * @public
+    */
+    applyFilters() {
+      // Log active filters
+      const activeFilters = Array.from(this.activeFilters);
+      this.afs.logger.debug("Active filters:", activeFilters);
+      this.afs.logger.debug("Applying filters");
+      const previouslyVisible = new Set(this.afs.state.getState().items.visible);
+      const visibleItems = new Set();
 
-      // Check if the current sort order is ASC, default to ASC if undefined
-      const currentOrder = this.sortOrders[key] || "asc";
-      const newOrder = currentOrder === "asc" ? "desc" : "asc"; // Toggle order
-
-      // Sort items based on the new order
-      items.sort((a, b) => {
-        let valueA = a.dataset[key];
-        let valueB = b.dataset[key];
-
-        // Check if values are numeric and convert them to numbers if they are
-        const isNumeric = !isNaN(valueA) && !isNaN(valueB);
-        if (isNumeric) {
-          valueA = parseFloat(valueA);
-          valueB = parseFloat(valueB);
-        }
-        if (newOrder === "asc") {
-          return isNumeric ? valueA - valueB : valueA.localeCompare(valueB);
-        } else {
-          return isNumeric ? valueB - valueA : valueB.localeCompare(valueA);
+      // First pass: determine which items should be visible
+      this.afs.items.forEach(item => {
+        if (this.activeFilters.has("*") || this.itemMatchesFilters(item)) {
+          visibleItems.add(item);
         }
       });
 
-      // Update the current sort order for the key
-      this.sortOrders[key] = newOrder;
+      // Update state with determined visible items
+      this.afs.state.setState("items.visible", visibleItems);
 
-      // Reorder items in the DOM
-      items.forEach(item => this.container.appendChild(item));
-      this.log('debug', `Sorting items by ${key} in ${newOrder} order`);
-    }
-
-    /**
-     * Shuffle items randomly and display in the container
-     * @public
-     */
-    shuffle() {
-      const itemsArray = [...this.items];
-
-      // Shuffle the itemsArray using Fisher-Yates algorithm
-      for (let i = itemsArray.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [itemsArray[i], itemsArray[j]] = [itemsArray[j], itemsArray[i]];
-      }
-
-      // Re-append the shuffled items to the container
-      itemsArray.forEach(item => this.container.appendChild(item));
-      this.log('debug', 'Shuffling items');
-    }
-
-    /**
-     * Apply current filters to items
-     * @public
-     */
-    /**
-     * Apply current filters to items
-     * @public
-     */
-    filter() {
-      // Store the original filter logic
-      const standardFilter = () => {
-        this.log('debug', 'Applying filters');
-        this.visibleItems.clear();
-        this.items.forEach(item => {
-          if (this.currentFilters.has("*")) {
-            this.showItem(item);
-            this.visibleItems.add(item);
-          } else {
-            const itemCategories = new Set(item.dataset.categories?.split(" ") || []);
-            const matchesFilter = this.options.filterMode === "OR" ? this.matchesAnyFilter(itemCategories) : this.matchesAllFilters(itemCategories);
-            if (matchesFilter) {
-              this.showItem(item);
-              this.visibleItems.add(item);
-            } else {
-              this.hideItem(item);
-            }
-          }
-        });
-      };
-
-      // Check if we should use group filtering or standard filtering
-      if (this.filterGroups.size === 0) {
-        standardFilter();
-      } else {
-        this.visibleItems.clear();
-        this.items.forEach(item => {
-          if (this.currentFilters.has("*")) {
-            this.showItem(item);
-            this.visibleItems.add(item);
-          } else {
-            const itemCategories = new Set(item.dataset.categories?.split(" ") || []);
-            const matchesGroups = this.matchesFilterGroups(itemCategories);
-            if (matchesGroups) {
-              this.showItem(item);
-              this.visibleItems.add(item);
-            } else {
-              this.hideItem(item);
-            }
-          }
-        });
-      }
-      setTimeout(() => {
-        this.updateCounter();
-      }, this.options.animationDuration);
-      this.log('info', `Filter applied. Visible items: ${this.visibleItems.size}`);
-    }
-
-    /**
-     * Add or update a filter group
-     * @public
-     * @param {string} groupId - Group identifier
-     * @param {string[]} filters - Array of filter values
-     * @param {string} [operator='OR'] - Operator within group ('AND' or 'OR')
-     * @returns {boolean} Success status
-     */
-    addFilterGroup(groupId, filters) {
-      let operator = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "OR";
-      try {
-        // Validate inputs
-        if (!groupId || !Array.isArray(filters)) {
-          this.log('error', 'Invalid group ID or filters');
-          return false;
-        }
-        const validOperator = operator.toUpperCase();
-        if (!["AND", "OR"].includes(validOperator)) {
-          this.log('error', 'Invalid operator:', operator);
-          operator = "OR";
-        }
-
-        // Create or update group
-        this.filterGroups.set(groupId, {
-          filters: new Set(filters),
-          operator: validOperator
-        });
-
-        // Only update if we have active groups
-        if (this.filterGroups.size > 0) {
-          this.updateFiltersFromGroups();
-          this.filter();
-          this.updateURL();
-        }
-        return true;
-      } catch (error) {
-        this.log('error', 'Error adding filter group:', error);
-        return false;
-      }
-    }
-
-    /**
-     * Set how groups combine with each other
-     * @public
-     * @param {string} mode - Mode for combining groups ('AND' or 'OR')
-     */
-    setGroupMode(mode) {
-      const validMode = mode.toUpperCase();
-      if (["AND", "OR"].includes(validMode)) {
-        this.groupMode = validMode;
-        if (this.filterGroups.size > 0) {
-          this.filter();
-        }
-      }
-    }
-
-    /**
-     * Remove a filter group
-     * @public
-     * @param {string} groupId - Group identifier
-     * @returns {boolean} Success status
-     */
-    removeFilterGroup(groupId) {
-      if (this.filterGroups.has(groupId)) {
-        this.filterGroups.delete(groupId);
-
-        // If no groups left, revert to normal filtering
-        if (this.filterGroups.size === 0) {
-          this.resetFilters();
+      // Second pass: apply animations based on visibility changes
+      this.afs.items.forEach(item => {
+        if (visibleItems.has(item)) {
+          // Remove hidden class first
+          item.classList.remove(this.afs.options.get('hiddenClass'));
+          // Then apply show animation in next frame
+          requestAnimationFrame(() => {
+            this.animation.applyShowAnimation(item, this.afs.options.get("animationType"));
+          });
         } else {
-          this.updateFiltersFromGroups();
+          // Apply hide animation
+          requestAnimationFrame(() => {
+            this.animation.applyHideAnimation(item, this.afs.options.get("animationType"));
+          });
         }
-        this.filter();
-        this.updateURL();
-        return true;
-      }
-      return false;
+      });
+
+      // Emit events and update UI
+      this.emitFilterEvents(previouslyVisible, visibleItems);
+
+      // Schedule UI updates
+      requestAnimationFrame(() => {
+        // Force reflow to ensure animations play
+        this.afs.container.offsetHeight;
+
+        // Update counter and URL
+        this.afs.updateCounter();
+        this.afs.urlManager.updateURL();
+
+        // Emit final event
+        this.afs.emit("filtersApplied", {
+          activeFilters,
+          visibleItems: visibleItems.size
+        });
+      });
     }
 
     /**
-     * Update filters based on groups
+     * Check if item matches current filters
      * @private
+     * @param {HTMLElement} item - DOM element
+     * @returns {boolean} Whether item matches filters
      */
-    updateFiltersFromGroups() {
-      // Only process if we have groups
-      if (this.filterGroups.size === 0) return;
-
-      // Clear current filters except '*'
-      if (!this.currentFilters.has("*")) {
-        this.currentFilters.clear();
+    itemMatchesFilters(item) {
+      // Show all items if "*" is active
+      if (this.activeFilters.has("*")) {
+        return true;
       }
 
-      // Combine all group filters
-      for (const group of this.filterGroups.values()) {
-        group.filters.forEach(filter => {
-          if (filter !== "*") {
-            this.currentFilters.add(filter);
-          }
-        });
+      // Regular filter matching
+      const itemCategories = new Set(item.dataset.categories?.split(" ") || []);
+
+      // If using filter groups
+      if (this.filterGroups.size > 0) {
+        return this.itemMatchesFilterGroups(itemCategories);
       }
+
+      // Regular filtering
+      return this.afs.options.get("filterMode") === "OR" ? this.itemMatchesAnyFilter(itemCategories) : this.itemMatchesAllFilters(itemCategories);
     }
 
     /**
@@ -509,10 +1488,10 @@
      * @param {Set} itemCategories - Item's categories
      * @returns {boolean} Whether item matches any filter
      */
-    matchesAnyFilter(itemCategories) {
-      return [...this.currentFilters].some(filter => {
-        const [type, value] = filter.split(":");
-        return itemCategories.has(`${type}:${value}`);
+    itemMatchesAnyFilter(itemCategories) {
+      return Array.from(this.activeFilters).some(filter => {
+        if (filter === "*") return true;
+        return itemCategories.has(filter);
       });
     }
 
@@ -522,158 +1501,1598 @@
      * @param {Set} itemCategories - Item's categories
      * @returns {boolean} Whether item matches all filters
      */
-    matchesAllFilters(itemCategories) {
-      return [...this.currentFilters].every(filter => {
-        const [type, value] = filter.split(":");
-        return itemCategories.has(`${type}:${value}`);
+    itemMatchesAllFilters(itemCategories) {
+      return Array.from(this.activeFilters).every(filter => {
+        if (filter === "*") return true;
+        return itemCategories.has(filter);
       });
-    }
-
-    /**
-     * Show an item with animation
-     * @private
-     * @param {HTMLElement} item - Item to show
-     */
-    showItem(item) {
-      this.visibleItems.add(item);
-      item.classList.remove(this.options.hiddenClass);
-      item.style.opacity = "0";
-      item.style.transform = "scale(0.95)";
-      item.offsetHeight;
-      requestAnimationFrame(() => {
-        item.style.opacity = "1";
-        item.style.transform = "scale(1)";
-      });
-    }
-
-    /**
-     * Hide an item with animation
-     * @private
-     * @param {HTMLElement} item - Item to hide
-     */
-    hideItem(item) {
-      item.style.opacity = "0";
-      item.style.transform = "scale(0.95)";
-      setTimeout(() => {
-        if (item.style.opacity === "0") {
-          item.classList.add(this.options.hiddenClass);
-          this.visibleItems.delete(item);
-        }
-      }, this.options.animationDuration);
-    }
-
-    /**
-     * Search items by text
-     * @public
-     * @param {string} query - Search query
-     */
-    search(query) {
-      this.log('debug', 'Performing search with query:', query);
-      this.currentSearch = query.toLowerCase().trim();
-      let matches = 0;
-      this.items.forEach(item => {
-        const searchText = this.options.searchKeys.map(key => item.dataset[key] || "").join(" ").toLowerCase();
-        const matchesSearch = this.currentSearch === "" || searchText.includes(this.currentSearch);
-        if (matchesSearch) {
-          this.showItem(item);
-          matches++;
-        } else {
-          this.hideItem(item);
-        }
-      });
-      this.updateURL();
-      this.log('info', `Search complete. Found ${matches} matches`);
-      setTimeout(() => {
-        this.updateCounter();
-      }, this.options.animationDuration);
-    }
-
-    /**
-     * Sort items by multiple criteria
-     * @public
-     * @param {Array<{key: string, direction: string}>} criteria - Sort criteria
-     */
-    sortMultiple(criteria) {
-      const items = [...this.items];
-      items.sort((a, b) => {
-        for (const criterion of criteria) {
-          const valueA = a.dataset[criterion.key];
-          const valueB = b.dataset[criterion.key];
-          const comparison = criterion.direction === "asc" ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
-          if (comparison !== 0) return comparison;
-        }
-        return 0;
-      });
-      items.forEach(item => this.container.appendChild(item));
-      this.log('debug', 'Sorting items by multiple criteria:', criteria);
-    }
-
-    /**
-     * Filter items by numeric range
-     * @public
-     * @param {string} key - Data attribute key
-     * @param {number} min - Minimum value
-     * @param {number} max - Maximum value
-     */
-    addRangeFilter(key, min, max) {
-      this.items.forEach(item => {
-        const value = parseFloat(item.dataset[key]);
-        const inRange = value >= min && value <= max;
-        if (inRange) {
-          this.showItem(item);
-        } else {
-          this.hideItem(item);
-        }
-      });
-      setTimeout(() => {
-        this.updateCounter();
-      }, this.options.animationDuration);
-      this.log('debug', `Filtering items by range: ${key} between ${min} and ${max}`);
     }
 
     /**
      * Check if item matches filter groups
      * @private
      * @param {Set} itemCategories - Item's categories
-     * @returns {boolean} Whether item matches the group filters
+     * @returns {boolean} Whether item matches groups
      */
-    matchesFilterGroups(itemCategories) {
-      const groupMatches = [...this.filterGroups.values()].map(group => {
-        const groupFilters = [...group.filters];
-        if (groupFilters.length === 0) return true;
-        return group.operator === "OR" ? groupFilters.some(filter => itemCategories.has(filter)) : groupFilters.every(filter => itemCategories.has(filter));
+    itemMatchesFilterGroups(itemCategories) {
+      const groupMatches = Array.from(this.filterGroups.values()).map(group => {
+        if (group.filters.size === 0) return true;
+        return group.operator === "OR" ? Array.from(group.filters).some(filter => itemCategories.has(filter)) : Array.from(group.filters).every(filter => itemCategories.has(filter));
       });
-      return this.groupMode === "OR" ? groupMatches.some(matches => matches) : groupMatches.every(matches => matches);
+      return this.afs.options.get("groupMode") === "OR" ? groupMatches.some(matches => matches) : groupMatches.every(matches => matches);
+    }
+
+    /**
+     * Emit filter-related events
+     * @private
+     * @param {Set} previouslyVisible - Previously visible items
+     * @param {Set} nowVisible - Currently visible items
+     */
+    emitFilterEvents(previouslyVisible, nowVisible) {
+      // Determine added and removed items
+      const added = new Set([...nowVisible].filter(item => !previouslyVisible.has(item)));
+      const removed = new Set([...previouslyVisible].filter(item => !nowVisible.has(item)));
+
+      // Emit filter event
+      this.afs.emit("filter", {
+        activeFilters: Array.from(this.activeFilters),
+        visibleItems: nowVisible.size,
+        added: added.size,
+        removed: removed.size
+      });
+
+      // Emit specific events for added/removed items
+      if (added.size > 0) {
+        this.afs.emit("itemsShown", {
+          items: added
+        });
+      }
+      if (removed.size > 0) {
+        this.afs.emit("itemsHidden", {
+          items: removed
+        });
+      }
+    }
+
+    /**
+     * Add or update a filter group
+     * @public
+     * @param {string} groupId - Group identifier
+     * @param {string[]} filters - Array of filter values
+     * @param {string} [operator='OR'] - Operator within group
+     */
+    addFilterGroup(groupId, filters) {
+      let operator = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "OR";
+      this.afs.logger.debug(`Adding filter group: ${groupId}`);
+      if (!Array.isArray(filters)) {
+        this.afs.logger.error("Filters must be an array");
+        return;
+      }
+      const validOperator = operator.toUpperCase();
+      if (!["AND", "OR"].includes(validOperator)) {
+        this.afs.logger.warn(`Invalid operator: ${operator}, defaulting to OR`);
+        operator = "OR";
+      }
+      this.filterGroups.set(groupId, {
+        filters: new Set(filters),
+        operator: validOperator
+      });
+      this.applyFilters();
+    }
+
+    /**
+     * Remove a filter group
+     * @public
+     * @param {string} groupId - Group identifier
+     */
+    removeFilterGroup(groupId) {
+      if (this.filterGroups.delete(groupId)) {
+        this.afs.logger.debug(`Removed filter group: ${groupId}`);
+        if (this.filterGroups.size === 0) {
+          this.resetFilters();
+        } else {
+          this.applyFilters();
+        }
+      }
+    }
+
+    /**
+     * Set filter group mode
+     * @public
+     * @param {string} mode - Mode for combining groups
+     */
+    setGroupMode(mode) {
+      const validMode = mode.toUpperCase();
+      if (["AND", "OR"].includes(validMode)) {
+        this.afs.options.set("groupMode", validMode);
+        this.afs.logger.debug(`Set group mode to: ${validMode}`);
+        this.applyFilters();
+      } else {
+        this.afs.logger.warn(`Invalid group mode: ${mode}`);
+      }
+    }
+
+    /**
+     * Add filter manually
+     * @public
+     * @param {string} filter - Filter value
+     */
+    addFilter(filter) {
+      this.afs.logger.debug(`Adding filter: ${filter}`);
+      if (filter === "*") {
+        this.resetFilters();
+        return;
+      }
+      this.activeFilters.delete("*");
+      this.activeFilters.add(filter);
+
+      // Update button states
+      this.filterButtons.forEach((value, button) => {
+        if (value === filter) {
+          button.classList.add(this.afs.options.get("activeClass"));
+        } else if (value === "*") {
+          button.classList.remove(this.afs.options.get("activeClass"));
+        }
+      });
+      this.applyFilters();
+    }
+
+    /**
+     * Remove filter manually
+     * @public
+     * @param {string} filter - Filter value
+     */
+    removeFilter(filter) {
+      this.afs.logger.debug(`Removing filter: ${filter}`);
+      this.activeFilters.delete(filter);
+
+      // Update button states
+      this.filterButtons.forEach((value, button) => {
+        if (value === filter) {
+          button.classList.remove(this.afs.options.get("activeClass"));
+        }
+      });
+
+      // Reset to all if no filters active
+      if (this.activeFilters.size === 0) {
+        this.resetFilters();
+      } else {
+        this.applyFilters();
+      }
+    }
+
+    /**
+     * Set filter mode
+     * @public
+     * @param {string} mode - Filter mode ('AND' or 'OR')
+     */
+    setFilterMode(mode) {
+      this.afs.logger.debug(`Setting filter mode to: ${mode}`);
+      const validMode = mode.toUpperCase();
+      if (["AND", "OR"].includes(validMode)) {
+        this.afs.options.set("filterMode", validMode);
+        this.afs.logger.debug(`Set filter mode to: ${validMode}`);
+        this.applyFilters();
+      } else {
+        this.afs.logger.warn(`Invalid filter mode: ${mode}`);
+      }
+    }
+
+    /**
+     * Get active filters
+     * @public
+     * @returns {Set} Active filters
+     */
+    getActiveFilters() {
+      return new Set(this.activeFilters);
+    }
+
+    /**
+     * Get filter groups
+     * @public
+     * @returns {Map} Filter groups
+     */
+    getFilterGroups() {
+      return new Map(this.filterGroups);
+    }
+
+    /**
+     * Add filter button dynamically
+     * @public
+     * @param {HTMLElement} button - Button element
+     * @param {string} filter - Filter value
+     */
+    addFilterButton(button, filter) {
+      if (!filter) {
+        this.afs.logger.warn("Filter value required for new filter button");
+        return;
+      }
+      this.filterButtons.set(button, filter);
+      this.bindFilterEvent(button);
+      this.afs.logger.debug(`Added filter button for: ${filter}`);
+    }
+
+    /**
+     * Remove filter button
+     * @public
+     * @param {HTMLElement} button - Button to remove
+     */
+    removeFilter(filter) {
+      this.afs.logger.debug(`Removing filter: ${filter}`);
+      this.activeFilters.delete(filter);
+
+      // Update button states
+      this.filterButtons.forEach((value, button) => {
+        if (value === filter) {
+          button.classList.remove(this.afs.options.get("activeClass"));
+        }
+      });
+
+      // Reset to all if no filters active
+      if (this.activeFilters.size === 0) {
+        this.resetFilters();
+      } else {
+        this.applyFilters();
+      }
+    }
+
+    /**
+     * Sort items with automatic order detection
+     * @public
+     * @param {string} key - The data attribute key to sort by
+     */
+    sortWithOrder(key) {
+      this.afs.logger.debug(`Sorting by ${key}`);
+      try {
+        const items = Array.from(this.afs.items);
+
+        // Toggle sort order for the key
+        const currentOrder = this.sortOrders.get(key) || "asc";
+        const newOrder = currentOrder === "asc" ? "desc" : "asc";
+        this.sortOrders.set(key, newOrder);
+
+        // Determine sort type from first item
+        const sortType = this.determineSortType(items[0], key);
+
+        // Sort items
+        items.sort((a, b) => {
+          const valueA = this.getSortValue(a, key, sortType);
+          const valueB = this.getSortValue(b, key, sortType);
+          return this.compareValues(valueA, valueB, newOrder);
+        });
+
+        // Reorder DOM elements
+        this.reorderItems(items);
+
+        // Emit event
+        this.afs.emit("sort", {
+          key,
+          order: newOrder
+        });
+        this.afs.logger.info(`Sorted items by ${key} in ${newOrder} order`);
+        return newOrder; // Return the new order for UI updates
+      } catch (error) {
+        this.afs.logger.error("Sort error:", error);
+        return null;
+      }
+    }
+
+    /**
+     * Shuffle items randomly
+     * @public
+     */
+    shuffle() {
+      this.afs.logger.debug("Shuffling items");
+      try {
+        const items = Array.from(this.afs.items);
+
+        // Fisher-Yates shuffle algorithm
+        for (let i = items.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [items[i], items[j]] = [items[j], items[i]];
+        }
+
+        // Use the existing reorderItems method to update the DOM
+        this.reorderItems(items);
+
+        // Clear any existing sort orders as we've shuffled
+        this.sortOrders.clear();
+        this.afs.emit("shuffled", {
+          itemCount: items.length
+        });
+        this.afs.logger.debug("Items shuffled successfully");
+      } catch (error) {
+        this.afs.logger.error("Shuffle error:", error);
+      }
+    }
+
+    /**
+     * Determine sort type from item value
+     * @private
+     * @param {HTMLElement} item - DOM element
+     * @param {string} key - Sort key
+     * @returns {string} Sort type ('number', 'date', or 'string')
+     */
+    determineSortType(item, key) {
+      this.afs.logger.debug(`Determining sort type for ${key}`);
+      const value = item.dataset[key];
+      if (!value) return "string";
+      if (!isNaN(value)) return "number";
+      if (/^\d{4}-\d{2}-\d{2}/.test(value)) return "date";
+      return "string";
+    }
+
+    /**
+     * Get sort value from item
+     * @private
+     * @param {HTMLElement} item - DOM element
+     * @param {string} key - Sort key
+     * @param {string} type - Sort type
+     * @returns {any} Parsed value for sorting
+     */
+    getSortValue(item, key, type) {
+      const value = item.dataset[key];
+      switch (type) {
+        case "number":
+          return parseFloat(value) || 0;
+        case "date":
+          return new Date(value).getTime() || 0;
+        default:
+          return (value || "").toLowerCase();
+      }
+    }
+
+    /**
+     * Compare two values for sorting
+     * @private
+     * @param {any} a - First value
+     * @param {any} b - Second value
+     * @param {string} order - Sort order ('asc' or 'desc')
+     * @returns {number} Comparison result
+     */
+    compareValues(a, b, order) {
+      // Handle null/undefined values
+      if (a === null || a === undefined) return order === "asc" ? 1 : -1;
+      if (b === null || b === undefined) return order === "asc" ? -1 : 1;
+
+      // Compare values
+      const comparison = a < b ? -1 : a > b ? 1 : 0;
+      return order === "asc" ? comparison : -comparison;
+    }
+
+    /**
+     * Reorder DOM elements
+     * @private
+     * @param {HTMLElement[]} items - Sorted items
+     */
+    reorderItems(items) {
+      const fragment = document.createDocumentFragment();
+      items.forEach(item => fragment.appendChild(item));
+      this.afs.container.appendChild(fragment);
+    }
+
+    /**
+     * Get current sort order for key
+     * @public
+     * @param {string} key - Sort key
+     * @returns {string} Current sort order ('asc' or 'desc')
+     */
+    getCurrentSortOrder(key) {
+      return this.sortOrders.get(key) || "asc";
+    }
+
+    /**
+     * Clear all sort orders
+     * @public
+     */
+    clearSortOrders() {
+      this.afs.logger.debug("Clearing all sort orders");
+      this.sortOrders.clear();
+      this.afs.emit("sortCleared");
+    }
+
+    /**
+     * Clear all filters, url and search
+     * @public
+     */
+    clearAllFilters() {
+      this.afs.logger.debug("Clearing all filters and search");
+
+      // Reset filters
+      this.activeFilters.clear();
+      this.activeFilters.add("*");
+
+      // Update filter buttons
+      this.filterButtons.forEach((_, button) => {
+        button.classList.remove(this.afs.options.get("activeClass"));
+      });
+
+      // Find and activate "all" button if exists
+      const allButton = this.findAllButton();
+      if (allButton) {
+        allButton.classList.add(this.afs.options.get("activeClass"));
+      }
+
+      // Clear checkboxes
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+      checkboxes.forEach(checkbox => {
+        if (checkbox.classList.contains(this.afs.options.get("activeClass"))) {
+          checkbox.checked = false;
+          checkbox.classList.remove(this.afs.options.get("activeClass"));
+        }
+      });
+
+      // Clear search
+      if (this.afs.search) {
+        this.afs.search.setValue("");
+      }
+
+      // Clear filter groups and sort orders
+      this.filterGroups.clear();
+      this.sortOrders.clear();
+
+      // Apply changes
+      this.applyFilters();
+      if (this.afs.urlManager) {
+        this.afs.urlManager.updateURL();
+      }
+
+      // Emit event
+      this.afs.emit("filtersCleared");
+      this.afs.logger.info("All filters cleared");
+    }
+
+    /**
+     * Refresh the view
+     * @public
+     */
+    refresh() {
+      this.afs.logger.debug("Refreshing view");
+      this.applyFilters();
+      this.afs.updateCounter();
+    }
+    removeFilterButton(button) {
+      this.filterButtons.delete(button);
+      button.removeEventListener("click", this.handleFilterClick);
+    }
+
+    /**
+     * Destroy instance
+     * @public
+     */
+    destroy() {
+      this.filterButtons.forEach((_, button) => {
+        this.removeFilterButton(button);
+      });
+      this.filterButtons.clear();
+      this.activeFilters.clear();
+      this.filterGroups.clear();
+      this.afs.logger.debug("Filter functionality destroyed");
+    }
+  }
+
+  /**
+   * @fileoverview Utility functions for AFS
+   * @version 1.0.0
+   */
+
+  /**
+   * Debounce function
+   * @param {Function} func - Function to debounce
+   * @param {number} wait - Delay in milliseconds
+   * @param {boolean} [immediate=false] - Execute immediately
+   * @returns {Function} Debounced function
+   */
+  function debounce(func, wait) {
+    let immediate = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+    let timeout;
+    return function executedFunction() {
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+      const context = this;
+      const later = () => {
+        timeout = null;
+        if (!immediate) func.apply(context, args);
+      };
+      const callNow = immediate && !timeout;
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+      if (callNow) func.apply(context, args);
+    };
+  }
+
+  /**
+   * @fileoverview Search functionality for AFS
+   * @version 1.0.0
+   */
+
+  class Search {
+    /**
+     * @param {import('../AFS').AFS} afs - Main AFS instance
+     */
+    constructor(afs) {
+      this.afs = afs;
+      this.searchInput = null;
+      this.searchKeys = ['title']; // Default search keys
+      this.minSearchLength = 2;
+      this.highlightClass = 'afs-highlight';
+      this.setupSearch();
+    }
+
+    /**
+     * Setup search functionality
+     * @private
+     */
+    setupSearch() {
+      const searchSelector = this.afs.options.get('searchInputSelector');
+      if (!searchSelector) return;
+      this.searchInput = document.querySelector(searchSelector);
+      if (!this.searchInput) {
+        this.afs.logger.warn(`Search input not found: ${searchSelector}`);
+        return;
+      }
+
+      // Configure search
+      this.searchKeys = this.afs.options.get('searchKeys') || this.searchKeys;
+      this.minSearchLength = this.afs.options.get('minSearchLength') || this.minSearchLength;
+
+      // Bind events
+      this.bindSearchEvents();
+      this.afs.logger.debug('Search functionality initialized');
+    }
+
+    /**
+     * Bind search events
+     * @private
+     */
+    bindSearchEvents() {
+      if (!this.searchInput) return;
+
+      // Create debounced search function
+      const debouncedSearch = debounce(e => {
+        this.search(e.target.value);
+      }, this.afs.options.get('debounceTime') || 300);
+
+      // Bind input event
+      this.searchInput.addEventListener('input', debouncedSearch);
+
+      // Bind clear event
+      this.searchInput.addEventListener('search', e => {
+        if (!e.target.value) {
+          this.clearSearch();
+        }
+      });
+
+      // Handle Enter key
+      this.searchInput.addEventListener('keypress', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          this.search(e.target.value);
+        }
+      });
+    }
+
+    /**
+     * Perform search
+     * @public
+     * @param {string} query - Search query
+     */
+    search(query) {
+      this.afs.logger.debug('Performing search:', query);
+      const normalizedQuery = this.normalizeQuery(query);
+
+      // Update state
+      this.afs.state.setState('search.query', normalizedQuery);
+      let matches = 0;
+
+      // Special case for empty query
+      if (!normalizedQuery) {
+        this.clearSearch();
+        return;
+      }
+
+      // Skip if query is too short
+      if (normalizedQuery.length < this.minSearchLength) {
+        this.afs.logger.debug('Search query too short');
+        return;
+      }
+      try {
+        // Create search regex
+        const regex = this.createSearchRegex(normalizedQuery);
+
+        // Search through items
+        this.afs.items.forEach(item => {
+          const searchText = this.getItemSearchText(item);
+          const matchesSearch = regex.test(searchText);
+          if (matchesSearch) {
+            this.afs.showItem(item);
+            this.highlightMatches(item, regex);
+            matches++;
+          } else {
+            this.afs.hideItem(item);
+            this.removeHighlights(item);
+          }
+        });
+
+        // Update URL and emit event
+        this.afs.urlManager.updateURL();
+        this.afs.emit('search', {
+          query: normalizedQuery,
+          matches,
+          total: this.afs.items.length
+        });
+        this.afs.logger.info(`Search complete. Found ${matches} matches`);
+      } catch (error) {
+        this.afs.logger.error('Search error:', error);
+      }
+
+      // Update counter after animation
+      setTimeout(() => {
+        this.afs.updateCounter();
+      }, this.afs.options.get('animationDuration'));
+    }
+
+    /**
+     * Normalize search query
+     * @private
+     * @param {string} query - Raw search query
+     * @returns {string} Normalized query
+     */
+    normalizeQuery(query) {
+      return query.toLowerCase().trim().replace(/\s+/g, ' ');
+    }
+
+    /**
+     * Create search regex
+     * @private
+     * @param {string} query - Normalized search query
+     * @returns {RegExp} Search regex
+     */
+    createSearchRegex(query) {
+      // Escape special regex characters
+      const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+      // Split into words for whole word matching
+      const words = escapedQuery.split(' ').filter(Boolean);
+
+      // Create regex pattern
+      const pattern = words.map(word => `(?=.*\\b${word})`).join('');
+      return new RegExp(pattern, 'i');
+    }
+
+    /**
+     * Get searchable text from item
+     * @private
+     * @param {HTMLElement} item - DOM element
+     * @returns {string} Searchable text
+     */
+    getItemSearchText(item) {
+      return this.searchKeys.map(key => item.dataset[key] || '').join(' ').toLowerCase();
+    }
+
+    /**
+     * Highlight search matches
+     * @private
+     * @param {HTMLElement} item - DOM element
+     * @param {RegExp} regex - Search regex
+     */
+    highlightMatches(item, regex) {
+      if (!this.afs.options.get('highlightMatches')) return;
+      this.searchKeys.forEach(key => {
+        const target = item.querySelector(`[data-search-key="${key}"]`);
+        if (!target) return;
+        const text = target.textContent;
+        const words = this.afs.state.getState().search.query.split(' ');
+        let highlightedText = text;
+        words.forEach(word => {
+          if (!word) return;
+          const wordRegex = new RegExp(`(${word})`, 'gi');
+          highlightedText = highlightedText.replace(wordRegex, `<span class="${this.highlightClass}">$1</span>`);
+        });
+        target.innerHTML = highlightedText;
+      });
+    }
+
+    /**
+     * Remove highlights
+     * @private
+     * @param {HTMLElement} item - DOM element
+     */
+    removeHighlights(item) {
+      if (!this.afs.options.get('highlightMatches')) return;
+      this.searchKeys.forEach(key => {
+        const target = item.querySelector(`[data-search-key="${key}"]`);
+        if (!target) return;
+        const highlights = target.querySelectorAll(`.${this.highlightClass}`);
+        highlights.forEach(highlight => {
+          const text = highlight.textContent;
+          highlight.replaceWith(text);
+        });
+      });
+    }
+
+    /**
+     * Clear search
+     * @public
+     */
+    clearSearch() {
+      this.afs.logger.debug('Clearing search');
+
+      // Clear input
+      if (this.searchInput) {
+        this.searchInput.value = '';
+      }
+
+      // Clear state
+      this.afs.state.setState('search.query', '');
+
+      // Show all items
+      this.afs.items.forEach(item => {
+        this.afs.showItem(item);
+        this.removeHighlights(item);
+      });
+
+      // Update URL and emit event
+      this.afs.urlManager.updateURL();
+      this.afs.emit('searchCleared');
+
+      // Update counter
+      setTimeout(() => {
+        this.afs.updateCounter();
+      }, this.afs.options.get('animationDuration'));
+    }
+
+    /**
+     * Set search value
+     * @public
+     * @param {string} value - Search value
+     */
+    setValue(value) {
+      if (this.searchInput) {
+        this.searchInput.value = value;
+      }
+      this.search(value);
+    }
+
+    /**
+     * Get current search value
+     * @public
+     * @returns {string} Current search value
+     */
+    getValue() {
+      return this.afs.state.getState().search.query;
+    }
+
+    /**
+     * Update search configuration
+     * @public
+     * @param {Object} config - Search configuration
+     */
+    updateConfig() {
+      let {
+        searchKeys,
+        minSearchLength,
+        highlightClass,
+        debounceTime
+      } = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      if (searchKeys) this.searchKeys = searchKeys;
+      if (minSearchLength) this.minSearchLength = minSearchLength;
+      if (highlightClass) this.highlightClass = highlightClass;
+      if (debounceTime) {
+        this.bindSearchEvents(); // Rebind with new debounce time
+      }
+    }
+
+    /**
+     * Destroy search functionality
+     * @public
+     */
+    destroy() {
+      if (this.searchInput) {
+        this.searchInput.removeEventListener('input', this.debouncedSearch);
+        this.searchInput.removeEventListener('search', this.handleClear);
+        this.searchInput.removeEventListener('keypress', this.handleEnter);
+      }
+      this.clearSearch();
+    }
+  }
+
+  /**
+   * @fileoverview Sort functionality for AFS
+   * @version 1.0.0
+   */
+
+  class Sort {
+    /**
+     * @param {import('../AFS').AFS} afs - Main AFS instance
+     */
+    constructor(afs) {
+      this.afs = afs;
+      this.sortButtons = new Map();
+      this.setupSort();
+    }
+
+    /**
+     * Setup sort functionality
+     * @private
+     */
+    setupSort() {
+      const sortSelector = this.afs.options.get("sortButtonSelector");
+      if (!sortSelector) return;
+
+      // Find and setup sort buttons
+      document.querySelectorAll(sortSelector).forEach(button => {
+        const key = button.dataset.sortKey;
+        if (!key) {
+          this.afs.logger.warn("Sort button missing data-sort-key attribute:", button);
+          return;
+        }
+        this.sortButtons.set(button, {
+          key,
+          direction: button.dataset.sortDirection || "asc"
+        });
+        this.bindSortEvent(button);
+      });
+      this.afs.logger.debug("Sort functionality initialized");
+    }
+
+    /**
+     * Bind sort event to button
+     * @private
+     * @param {HTMLElement} button - Sort button
+     */
+    bindSortEvent(button) {
+      this.afs.logger.debug("Binding sort event to button:", button);
+      button.addEventListener("click", () => {
+        const sortData = this.sortButtons.get(button);
+        if (!sortData) return;
+
+        // Toggle direction
+        sortData.direction = sortData.direction === "asc" ? "desc" : "asc";
+        this.sortButtons.set(button, sortData);
+
+        // Update button state
+        this.updateSortButtonState(button, sortData);
+
+        // Perform sort
+        this.sort(sortData.key, sortData.direction);
+      });
+    }
+
+    /**
+     * Update sort button visual state
+     * @private
+     * @param {HTMLElement} button - Sort button
+     * @param {Object} sortData - Sort data
+     */
+    updateSortButtonState(button, sortData) {
+      // Remove active class from all buttons
+      this.sortButtons.forEach((_, btn) => {
+        btn.classList.remove(this.afs.options.get("activeSortClass"));
+      });
+
+      // Add active class to current button
+      button.classList.add(this.afs.options.get("activeSortClass"));
+
+      // Update direction indicator
+      const indicator = button.querySelector(".sort-direction");
+      if (indicator) {
+        indicator.textContent = sortData.direction === "asc" ? "↑" : "↓";
+      }
+    }
+
+    /**
+     * Sort items
+     * @public
+     * @param {string} key - Sort key
+     * @param {string} direction - Sort direction ('asc' or 'desc')
+     */
+    sort(key) {
+      let direction = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "asc";
+      this.afs.logger.debug(`Sorting by ${key} in ${direction} order`);
+      try {
+        // Update state
+        this.afs.state.setState("sort.current", {
+          key,
+          direction
+        });
+
+        // Get all items as array
+        const items = Array.from(this.afs.items);
+
+        // Determine sort type
+        const sortType = this.determineSortType(items[0], key);
+
+        // Sort items
+        items.sort((a, b) => {
+          const valueA = this.getSortValue(a, key, sortType);
+          const valueB = this.getSortValue(b, key, sortType);
+          return this.compareValues(valueA, valueB, direction);
+        });
+
+        // Reorder DOM elements
+        this.reorderItems(items);
+
+        // Update URL and emit event
+        this.afs.urlManager.updateURL();
+        this.afs.emit("sort", {
+          key,
+          direction
+        });
+        this.afs.logger.info(`Sorted items by ${key} ${direction}`);
+      } catch (error) {
+        this.afs.logger.error("Sort error:", error);
+      }
+    }
+
+    /**
+     * Determine sort type from first item
+     * @private
+     * @param {HTMLElement} item - First item
+     * @param {string} key - Sort key
+     * @returns {string} Sort type
+     */
+    determineSortType(item, key) {
+      const value = item.dataset[key];
+      if (!value) return "string";
+      if (!isNaN(value)) return "number";
+      if (/^\d{4}-\d{2}-\d{2}/.test(value)) return "date";
+      return "string";
+    }
+
+    /**
+     * Get sort value from item
+     * @private
+     * @param {HTMLElement} item - DOM element
+     * @param {string} key - Sort key
+     * @param {string} type - Sort type
+     * @returns {any} Sort value
+     */
+    getSortValue(item, key, type) {
+      const value = item.dataset[key];
+      switch (type) {
+        case "number":
+          return parseFloat(value);
+        case "date":
+          return new Date(value).getTime();
+        default:
+          return value.toLowerCase();
+      }
+    }
+
+    /**
+     * Compare two values
+     * @private
+     * @param {any} a - First value
+     * @param {any} b - Second value
+     * @param {string} direction - Sort direction
+     * @returns {number} Comparison result
+     */
+    compareValues(a, b, direction) {
+      const modifier = direction === "asc" ? 1 : -1;
+      if (a === b) return 0;
+      if (a === undefined || a === null) return 1;
+      if (b === undefined || b === null) return -1;
+      return a > b ? modifier : -modifier;
+    }
+
+    /**
+     * Reorder DOM elements
+     * @private
+     * @param {HTMLElement[]} items - Sorted items
+     */
+    reorderItems(items) {
+      const container = this.afs.options.get("container");
+      const fragment = document.createDocumentFragment();
+      items.forEach(item => fragment.appendChild(item));
+      container.appendChild(fragment);
+    }
+    /**
+     * Sort with multiple criteria
+     * @public
+     * @param {Array<{key: string, direction: string}>} criteria - Sort criteria
+     */
+    sortMultiple(criteria) {
+      this.afs.logger.debug("Sorting by multiple criteria:", criteria);
+      try {
+        const items = Array.from(this.afs.items);
+        items.sort((a, b) => {
+          for (const {
+            key,
+            direction
+          } of criteria) {
+            const type = this.determineSortType(items[0], key);
+            const valueA = this.getSortValue(a, key, type);
+            const valueB = this.getSortValue(b, key, type);
+            const comparison = this.compareValues(valueA, valueB, direction);
+            if (comparison !== 0) return comparison;
+          }
+          return 0;
+        });
+        this.reorderItems(items);
+
+        // Update state with primary sort
+        if (criteria.length > 0) {
+          this.afs.state.setState("sort.current", criteria[0]);
+        }
+        this.afs.urlManager.updateURL();
+        this.afs.emit("multiSort", {
+          criteria
+        });
+      } catch (error) {
+        this.afs.logger.error("Multiple sort error:", error);
+      }
+    }
+
+    /**
+     * Sort with custom comparator
+     * @public
+     * @param {string} key - Sort key
+     * @param {Function} comparator - Custom comparison function
+     */
+    sortWithComparator(key, comparator) {
+      this.afs.logger.debug(`Sorting by ${key} with custom comparator`);
+      try {
+        const items = Array.from(this.afs.items);
+        items.sort((a, b) => {
+          const valueA = a.dataset[key];
+          const valueB = b.dataset[key];
+          return comparator(valueA, valueB);
+        });
+        this.reorderItems(items);
+        this.afs.emit("customSort", {
+          key,
+          comparator
+        });
+      } catch (error) {
+        this.afs.logger.error("Custom sort error:", error);
+      }
+    }
+
+    /**
+     * Shuffle items randomly
+     * @public
+     */
+    shuffle() {
+      this.afs.logger.debug("Shuffling items");
+      try {
+        const items = Array.from(this.afs.items);
+
+        // Fisher-Yates shuffle algorithm
+        for (let i = items.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [items[i], items[j]] = [items[j], items[i]];
+        }
+        this.reorderItems(items);
+
+        // Clear current sort state
+        this.afs.state.setState("sort.current", null);
+
+        // Update UI
+        this.sortButtons.forEach((_, button) => {
+          button.classList.remove(this.afs.options.get("activeSortClass"));
+          const indicator = button.querySelector(".sort-direction");
+          if (indicator) indicator.textContent = "";
+        });
+        this.afs.urlManager.updateURL();
+        this.afs.emit("shuffle");
+      } catch (error) {
+        this.afs.logger.error("Shuffle error:", error);
+      }
+    }
+
+    /**
+     * Reset sort to default state
+     * @public
+     */
+    reset() {
+      this.afs.logger.debug("Resetting sort");
+
+      // Clear sort state
+      this.afs.state.setState("sort.current", null);
+
+      // Reset UI
+      this.sortButtons.forEach((_, button) => {
+        button.classList.remove(this.afs.options.get("activeSortClass"));
+        const indicator = button.querySelector(".sort-direction");
+        if (indicator) indicator.textContent = "";
+      });
+
+      // Reset sort data
+      this.sortButtons.forEach((data, button) => {
+        data.direction = "asc";
+        this.sortButtons.set(button, data);
+      });
+      this.afs.urlManager.updateURL();
+      this.afs.emit("sortReset");
+    }
+
+    /**
+     * Get current sort state
+     * @public
+     * @returns {Object|null} Current sort state
+     */
+    getCurrentSort() {
+      return this.afs.state.getState().sort.current;
+    }
+
+    /**
+     * Add sort button dynamically
+     * @public
+     * @param {HTMLElement} button - Sort button element
+     * @param {string} key - Sort key
+     * @param {string} [direction='asc'] - Initial sort direction
+     */
+    addSortButton(button, key) {
+      let direction = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "asc";
+      if (!key) {
+        this.afs.logger.warn("Sort key required for new sort button");
+        return;
+      }
+      this.sortButtons.set(button, {
+        key,
+        direction
+      });
+      this.bindSortEvent(button);
+      this.afs.logger.debug(`Added sort button for ${key}`);
+    }
+
+    /**
+     * Remove sort button
+     * @public
+     * @param {HTMLElement} button - Sort button to remove
+     */
+    removeSortButton(button) {
+      if (this.sortButtons.has(button)) {
+        button.removeEventListener("click", this.bindSortEvent);
+        this.sortButtons.delete(button);
+        this.afs.logger.debug("Removed sort button");
+      }
+    }
+
+    /**
+     * Destroy sort functionality
+     * @public
+     */
+    destroy() {
+      this.sortButtons.forEach((_, button) => {
+        this.removeSortButton(button);
+      });
+      this.sortButtons.clear();
+      this.afs.logger.debug("Sort functionality destroyed");
+    }
+  }
+
+  /**
+   * @fileoverview Pagination functionality for AFS
+   * @version 1.0.0
+   */
+
+  class Pagination {
+    /**
+     * @param {import('../AFS').AFS} afs - Main AFS instance
+     */
+    constructor(afs) {
+      this.afs = afs;
+      this.container = null;
+      this.options = this.afs.options.get('pagination') || {};
+      this.setupPagination();
+    }
+
+    /**
+     * Setup pagination
+     * @private
+     */
+    setupPagination() {
+      if (!this.options.enabled) return;
+      this.container = document.createElement('div');
+      this.container.className = this.options.containerClass || 'afs-pagination';
+
+      // Add pagination container after the items container
+      const itemsContainer = this.afs.options.get('container');
+      itemsContainer.parentNode.insertBefore(this.container, itemsContainer.nextSibling);
+
+      // Initialize state
+      this.afs.state.setState('pagination', {
+        currentPage: 1,
+        itemsPerPage: this.options.itemsPerPage || 10,
+        totalPages: 0
+      });
+      this.bindEvents();
+      this.update();
+      this.afs.logger.debug('Pagination initialized');
+    }
+
+    /**
+     * Bind pagination events
+     * @private
+     */
+    bindEvents() {
+      // Listen for AFS filter events
+      this.afs.on('filter', () => this.update());
+      this.afs.on('search', () => this.update());
+      this.afs.on('sort', () => this.update());
+
+      // Delegate click events for pagination buttons
+      this.container.addEventListener('click', e => {
+        const button = e.target.closest('button');
+        if (!button) return;
+        const page = button.dataset.page;
+        if (page) {
+          this.goToPage(parseInt(page));
+        }
+      });
+    }
+
+    /**
+     * Update pagination
+     * @public
+     */
+    update() {
+      const visibleItems = this.afs.state.getState().items.visible;
+      const itemsPerPage = this.afs.state.getState().pagination.itemsPerPage;
+      const totalPages = Math.ceil(visibleItems.size / itemsPerPage);
+
+      // Update state
+      this.afs.state.setState('pagination.totalPages', totalPages);
+
+      // Ensure current page is valid
+      const currentPage = this.afs.state.getState().pagination.currentPage;
+      if (currentPage > totalPages) {
+        this.goToPage(1);
+        return;
+      }
+      this.updateVisibility();
+      this.renderPagination();
+      this.afs.urlManager.updateURL();
+      this.afs.emit('pagination', {
+        currentPage,
+        totalPages,
+        itemsPerPage,
+        visibleItems: visibleItems.size
+      });
+    }
+
+    /**
+     * Update items visibility based on current page
+     * @private
+     */
+    updateVisibility() {
+      const state = this.afs.state.getState();
+      const {
+        currentPage,
+        itemsPerPage
+      } = state.pagination;
+      const visibleItems = Array.from(state.items.visible);
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      visibleItems.forEach((item, index) => {
+        if (index >= startIndex && index < endIndex) {
+          this.afs.showItem(item);
+        } else {
+          this.afs.hideItem(item);
+        }
+      });
+    }
+
+    /**
+     * Render pagination controls
+     * @private
+     */
+    renderPagination() {
+      const state = this.afs.state.getState().pagination;
+      const {
+        currentPage,
+        totalPages
+      } = state;
+
+      // Clear existing controls
+      this.container.innerHTML = '';
+
+      // Don't render if only one page
+      if (totalPages <= 1) {
+        this.container.style.display = 'none';
+        return;
+      }
+      this.container.style.display = 'flex';
+      const controls = this.createPaginationControls(currentPage, totalPages);
+      this.container.appendChild(controls);
+    }
+
+    /**
+     * Create pagination controls
+     * @private
+     * @param {number} currentPage - Current page
+     * @param {number} totalPages - Total pages
+     * @returns {DocumentFragment} Pagination controls
+     */
+    createPaginationControls(currentPage, totalPages) {
+      const fragment = document.createDocumentFragment();
+
+      // Previous button
+      if (this.options.showPrevNext) {
+        const prevButton = this.createPageButton('‹', currentPage - 1, {
+          disabled: currentPage === 1,
+          class: 'afs-pagination-prev'
+        });
+        fragment.appendChild(prevButton);
+      }
+
+      // First page
+      fragment.appendChild(this.createPageButton('1', 1, {
+        active: currentPage === 1
+      }));
+
+      // Calculate page range
+      const range = this.calculatePageRange(currentPage, totalPages);
+
+      // Add ellipsis and pages
+      if (range.start > 2) {
+        fragment.appendChild(this.createEllipsis());
+      }
+      for (let i = range.start; i <= range.end; i++) {
+        if (i === 1 || i === totalPages) continue;
+        fragment.appendChild(this.createPageButton(i.toString(), i, {
+          active: currentPage === i
+        }));
+      }
+      if (range.end < totalPages - 1) {
+        fragment.appendChild(this.createEllipsis());
+      }
+
+      // Last page
+      if (totalPages > 1) {
+        fragment.appendChild(this.createPageButton(totalPages.toString(), totalPages, {
+          active: currentPage === totalPages
+        }));
+      }
+
+      // Next button
+      if (this.options.showPrevNext) {
+        const nextButton = this.createPageButton('›', currentPage + 1, {
+          disabled: currentPage === totalPages,
+          class: 'afs-pagination-next'
+        });
+        fragment.appendChild(nextButton);
+      }
+      return fragment;
+    }
+
+    /**
+     * Create page button
+     * @private
+     * @param {string} text - Button text
+     * @param {number} page - Page number
+     * @param {Object} options - Button options
+     * @returns {HTMLButtonElement} Page button
+     */
+    createPageButton(text, page) {
+      let {
+        active = false,
+        disabled = false,
+        class: className = ''
+      } = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+      const button = document.createElement('button');
+      button.textContent = text;
+      button.dataset.page = page;
+      button.classList.add(this.options.pageButtonClass || 'afs-page-button');
+      if (className) {
+        button.classList.add(className);
+      }
+      if (active) {
+        button.classList.add(this.options.activePageClass || 'afs-page-active');
+      }
+      if (disabled) {
+        button.disabled = true;
+        button.classList.add('afs-page-disabled');
+      }
+      return button;
+    }
+
+    /**
+     * Create ellipsis element
+     * @private
+     * @returns {HTMLSpanElement} Ellipsis element
+     */
+    createEllipsis() {
+      const span = document.createElement('span');
+      span.textContent = '...';
+      span.classList.add('afs-pagination-ellipsis');
+      return span;
+    }
+
+    /**
+     * Calculate page range to display
+     * @private
+     * @param {number} currentPage - Current page
+     * @param {number} totalPages - Total pages
+     * @returns {Object} Page range
+     */
+    calculatePageRange(currentPage, totalPages) {
+      const maxButtons = this.options.maxButtons || 7;
+      const sideButtons = Math.floor((maxButtons - 3) / 2); // Subtract first, last, and current
+
+      let start = Math.max(2, currentPage - sideButtons);
+      let end = Math.min(totalPages - 1, start + maxButtons - 3);
+      if (end - start < maxButtons - 3) {
+        start = Math.max(2, end - (maxButtons - 3));
+      }
+      return {
+        start,
+        end
+      };
+    }
+
+    /**
+     * Go to specific page
+     * @public
+     * @param {number} page - Target page
+     */
+    goToPage(page) {
+      const state = this.afs.state.getState().pagination;
+      const targetPage = Math.max(1, Math.min(page, state.totalPages));
+      if (targetPage === state.currentPage) return;
+      this.afs.state.setState('pagination.currentPage', targetPage);
+      this.update();
+
+      // Scroll to top if enabled
+      if (this.options.scrollToTop) {
+        this.scrollToTop();
+      }
+    }
+
+    /**
+     * Scroll to top of container
+     * @private
+     */
+    scrollToTop() {
+      const container = this.afs.options.get('container');
+      const offset = this.options.scrollOffset || 0;
+      window.scrollTo({
+        top: container.offsetTop - offset,
+        behavior: 'smooth'
+      });
+    }
+
+    /**
+     * Set items per page
+     * @public
+     * @param {number} count - Items per page
+     */
+    setItemsPerPage(count) {
+      this.afs.state.setState('pagination.itemsPerPage', count);
+      this.afs.state.setState('pagination.currentPage', 1);
+      this.update();
+    }
+
+    /**
+     * Get current page info
+     * @public
+     * @returns {Object} Page info
+     */
+    getPageInfo() {
+      const state = this.afs.state.getState();
+      const {
+        currentPage,
+        itemsPerPage,
+        totalPages
+      } = state.pagination;
+      const totalItems = state.items.visible.size;
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+      return {
+        currentPage,
+        itemsPerPage,
+        totalPages,
+        totalItems,
+        startIndex: startIndex + 1,
+        endIndex,
+        hasNextPage: currentPage < totalPages,
+        hasPrevPage: currentPage > 1
+      };
+    }
+
+    /**
+     * Destroy pagination
+     * @public
+     */
+    destroy() {
+      if (this.container) {
+        this.container.remove();
+        this.container = null;
+      }
+      this.afs.logger.debug('Pagination destroyed');
+    }
+  }
+
+  /**
+   * @fileoverview URL state management for AFS
+   * @version 1.0.0
+   */
+
+  class URLManager {
+    /**
+     * @param {import('../AFS').AFS} afs - Main AFS instance
+     */
+    constructor(afs) {
+      this.afs = afs;
+      this.defaultParams = new URLSearchParams();
+      this.setupPopStateHandler();
+
+      // Load URL state after a small delay to ensure all features are ready
+      setTimeout(() => {
+        this.loadFromURL();
+      }, 0);
+    }
+
+    /**
+     * Setup history popstate handler
+     * @private
+     */
+    setupPopStateHandler() {
+      window.addEventListener('popstate', () => {
+        this.loadFromURL();
+      });
     }
 
     /**
      * Update URL with current filter state
-     * @private
+     * @public
      */
+    /**
+    * Update URL with current filter state
+    * @public
+    */
     updateURL() {
-      this.log('debug', 'Updating URL');
+      this.afs.logger.debug("Updating URL state");
+      const params = new URLSearchParams();
+      const state = this.afs.state.getState(); // Get current state of filters
 
-      // If only "*" filter is active or no filters are active, clear the URL
-      if (this.currentFilters.size === 0 || this.currentFilters.size === 1 && this.currentFilters.has("*")) {
-        window.history.pushState({}, "", window.location.pathname);
+      // Get active filters directly from the Filter instance
+      const activeFilters = this.afs.filter.getActiveFilters();
+
+      // Update the state object with the active filters
+      state.filters.current = activeFilters;
+
+      // Add filters to URL
+      this.addFiltersToURL(params, state);
+
+      // Add ranges (if applicable) to URL
+      this.addRangesToURL(params, state);
+
+      // Add search query to URL
+      this.addSearchToURL(params, state);
+
+      // Add sort state to URL
+      this.addSortToURL(params, state);
+
+      // Add pagination to URL
+      this.addPaginationToURL(params, state);
+
+      // Push the updated URL
+      this.pushState(params); // Push the new URL state to the browser
+    }
+
+    /**
+     * Add filters to URL parameters
+     * @private
+     * @param {URLSearchParams} params
+     * @param {Object} state
+     */
+    addFiltersToURL(params, state) {
+      const filters = state.filters;
+
+      // Skip if only default filter is active
+      if (filters.current.size === 0 || filters.current.size === 1 && filters.current.has('*')) {
         return;
       }
-      const params = new URLSearchParams(window.location.search);
 
-      // Add groups to URL if they exist
-      if (this.filterGroups.size > 0) {
-        for (const [groupId, group] of this.filterGroups.entries()) {
-          params.set(`group_${groupId}`, [...group.filters].join(","));
-          params.set(`groupOp_${groupId}`, group.operator.toLowerCase());
-        }
-        params.set("groupMode", this.groupMode.toLowerCase());
-      }
-
-      // Separate filters by type
+      // Group filters by type
       const filtersByType = {};
-      for (const filter of this.currentFilters) {
-        if (filter !== "*") {
-          const [type, value] = filter.split(":");
+      for (const filter of filters.current) {
+        if (filter !== '*') {
+          const [type, value] = filter.split(':');
           if (!filtersByType[type]) {
             filtersByType[type] = new Set();
           }
@@ -681,379 +3100,1672 @@
         }
       }
 
-      // Add each filter type to the URL
+      // Add filters to params
       Object.entries(filtersByType).forEach(_ref => {
         let [type, values] = _ref;
-        params.set(type, Array.from(values).join(","));
+        params.set(type, Array.from(values).join(','));
       });
-      if (this.currentSearch) {
-        params.set("search", this.currentSearch);
+
+      // Add filter mode if not default
+      if (filters.mode !== 'OR') {
+        params.set('filterMode', filters.mode.toLowerCase());
       }
-      const newURL = `${window.location.pathname}${params.toString() ? "?" + params.toString() : ""}`;
-      window.history.pushState({}, "", newURL);
-      this.log('debug', 'URL updated:', newURL);
+
+      // Add group mode if groups exist and mode isn't default
+      if (filters.groups.size > 0 && filters.groupMode !== 'OR') {
+        params.set('groupMode', filters.groupMode.toLowerCase());
+      }
+
+      // Add filter groups if they exist
+      filters.groups.forEach((group, groupId) => {
+        params.set(`group_${groupId}`, Array.from(group.filters).join(','));
+        if (group.operator !== 'OR') {
+          params.set(`groupOp_${groupId}`, group.operator.toLowerCase());
+        }
+      });
     }
 
     /**
-     * Load filter state from URL
+     * Add range filters to URL parameters
      * @private
+     * @param {URLSearchParams} params
+     * @param {Object} state
      */
-    loadFromURL() {
-      this.log('debug', 'Loading state from URL');
-      const params = new URLSearchParams(window.location.search);
+    addRangesToURL(params, state) {
+      // Handle numeric ranges
+      state.filters.ranges.forEach((range, key) => {
+        const {
+          currentMin,
+          currentMax
+        } = range;
+        if (currentMin !== range.min || currentMax !== range.max) {
+          params.set(`range_${key}`, `${currentMin},${currentMax}`);
+        }
+      });
 
-      // Load groups if they exist
-      this.filterGroups.clear();
-      for (const [key, value] of params.entries()) {
-        if (key.startsWith("group_")) {
-          const groupId = key.replace("group_", "");
-          const operator = params.get(`groupOp_${groupId}`)?.toUpperCase() || "OR";
-          const filters = value.split(",");
-          this.addFilterGroup(groupId, filters, operator);
+      // Handle date ranges
+      state.filters.dateRanges.forEach((range, key) => {
+        const {
+          start,
+          end
+        } = range;
+        params.set(`dateRange_${key}`, `${start.toISOString()},${end.toISOString()}`);
+      });
+    }
+
+    /**
+     * Add search parameters to URL
+     * @private
+     * @param {URLSearchParams} params
+     * @param {Object} state
+     */
+    addSearchToURL(params, state) {
+      if (state.search.query) {
+        params.set('search', state.search.query);
+      }
+    }
+
+    /**
+     * Add sort parameters to URL
+     * @private
+     * @param {URLSearchParams} params
+     * @param {Object} state
+     */
+    addSortToURL(params, state) {
+      if (state.sort.current) {
+        const {
+          key,
+          direction
+        } = state.sort.current;
+        params.set('sort', `${key},${direction}`);
+      }
+    }
+
+    /**
+     * Add pagination parameters to URL
+     * @private
+     * @param {URLSearchParams} params
+     * @param {Object} state
+     */
+    addPaginationToURL(params, state) {
+      const {
+        currentPage,
+        itemsPerPage
+      } = state.pagination;
+      if (currentPage > 1) {
+        params.set('page', currentPage.toString());
+      }
+      if (itemsPerPage !== this.afs.options.get('pagination.itemsPerPage')) {
+        params.set('perPage', itemsPerPage.toString());
+      }
+    }
+
+    /**
+     * Update browser URL
+     * @private
+     * @param {URLSearchParams} params
+     */
+    pushState(params) {
+      const queryString = params.toString();
+      const newURL = `${window.location.pathname}${queryString ? '?' + queryString : ''}`;
+
+      // Only update if URL actually changed
+      if (newURL !== window.location.href) {
+        window.history.pushState({}, '', newURL);
+        this.afs.logger.debug('URL updated:', newURL);
+      }
+    }
+
+    /**
+    * Load filter state from URL
+    * @public
+    */
+    loadFromURL() {
+      this.afs.logger.debug('Loading state from URL');
+      const params = new URLSearchParams(window.location.search);
+      try {
+        // Clear existing state first
+        if (this.afs.filter) {
+          this.afs.filter.clearAllFilters();
+        }
+
+        // Process filter mode first
+        const filterMode = params.get('filterMode');
+        if (filterMode && this.afs.filter) {
+          this.afs.filter.setFilterMode(filterMode.toUpperCase());
+        }
+
+        // Process regular filters
+        const filterParams = Array.from(params.entries()).filter(_ref2 => {
+          let [key] = _ref2;
+          return this.isRegularFilter(key);
+        });
+        if (filterParams.length > 0 && this.afs.filter) {
+          // Remove default '*' filter
+          this.afs.filter.activeFilters.clear();
+
+          // Add filters and update button states
+          filterParams.forEach(_ref3 => {
+            let [type, values] = _ref3;
+            values.split(',').forEach(value => {
+              const filter = `${type}:${value}`;
+              this.afs.filter.activeFilters.add(filter);
+
+              // Update button UI
+              this.afs.filter.filterButtons.forEach((buttonFilter, button) => {
+                if (buttonFilter === filter) {
+                  button.classList.add(this.afs.options.get('activeClass'));
+                } else if (buttonFilter === '*') {
+                  button.classList.remove(this.afs.options.get('activeClass'));
+                }
+              });
+            });
+          });
+        }
+
+        // Apply filters before processing other parameters
+        if (this.afs.filter) {
+          this.afs.filter.applyFilters();
+        }
+
+        // Process search
+        const searchQuery = params.get('search');
+        if (searchQuery && this.afs.search) {
+          this.afs.search.setValue(searchQuery);
+        }
+
+        // Process sort
+        const sortParam = params.get('sort');
+        if (sortParam && this.afs.sort) {
+          const [key, direction] = sortParam.split(',');
+          this.afs.sort.sort(key, direction);
+        }
+
+        // Process pagination
+        const page = parseInt(params.get('page'));
+        if (!isNaN(page) && this.afs.pagination) {
+          this.afs.pagination.goToPage(page);
+        }
+        this.afs.emit('urlStateLoaded', {
+          params: Object.fromEntries(params)
+        });
+        this.afs.logger.info('State loaded from URL');
+      } catch (error) {
+        this.afs.logger.error('Error loading state from URL:', error);
+        // Reset to default state on error
+        if (this.afs.filter) {
+          this.afs.filter.clearAllFilters();
         }
       }
+    }
 
-      // Set group mode if present
-      const groupMode = params.get("groupMode")?.toUpperCase();
-      if (groupMode && ["AND", "OR"].includes(groupMode)) {
-        this.groupMode = groupMode;
-      }
-      this.currentFilters.clear();
-
-      // Si aucun filtre n'est présent, utiliser '*'
+    /**
+     * Process filters from URL parameters
+     * @private
+     * @param {URLSearchParams} params
+     */
+    processFiltersFromURL(params) {
+      const state = this.afs.state.getState();
       let hasFilters = false;
 
-      // Parcourir tous les paramètres
+      // Process filter mode
+      const filterMode = params.get('filterMode');
+      if (filterMode) {
+        state.filters.mode = filterMode.toUpperCase();
+      }
+
+      // Process group mode
+      const groupMode = params.get('groupMode');
+      if (groupMode) {
+        state.filters.groupMode = groupMode.toUpperCase();
+      }
+
+      // Process regular filters
       for (const [type, values] of params.entries()) {
-        if (type !== "search") {
-          hasFilters = true;
-          values.split(",").forEach(value => {
-            this.currentFilters.add(`${type}:${value}`);
+        if (this.isRegularFilter(type)) {
+          values.split(',').filter(Boolean).forEach(value => {
+            hasFilters = true;
+            state.filters.current.add(`${type}:${value}`);
           });
         }
       }
-      if (!hasFilters) {
-        this.currentFilters.add("*");
-      }
 
-      // Update active buttons
-      this.filterButtons.forEach(button => {
-        const filterValue = button.dataset.filter;
-        if (this.currentFilters.has(filterValue) || filterValue === "*" && this.currentFilters.has("*")) {
-          button.classList.add(this.options.activeClass);
-        } else {
-          button.classList.remove(this.options.activeClass);
+      // Process filter groups
+      for (const [key, value] of params.entries()) {
+        if (key.startsWith('group_')) {
+          const groupId = key.replace('group_', '');
+          const operator = params.get(`groupOp_${groupId}`)?.toUpperCase() || 'OR';
+          state.filters.groups.set(groupId, {
+            filters: new Set(value.split(',')),
+            operator
+          });
         }
-      });
+      }
 
-      // Load search
-      const search = params.get("search") || "";
-      if (this.searchInput) {
-        this.searchInput.value = search;
+      // Set default if no filters
+      if (!hasFilters && state.filters.groups.size === 0) {
+        state.filters.current.add('*');
       }
-      this.filter();
-      if (search) {
-        this.search(search);
-      }
-      this.log('info', 'State loaded from URL');
     }
 
     /**
-     * Update results counter
+     * Process range filters from URL parameters
      * @private
-     * @returns {{total: number, visible: number}}
+     * @param {URLSearchParams} params
      */
-    updateCounter() {
-      const total = this.items.length;
-      const visible = this.visibleItems.size;
-      if (this.counter) {
-        this.counter.textContent = `Showing ${visible} of ${total}`;
+    processRangesFromURL(params) {
+      const state = this.afs.state.getState();
+
+      // Process numeric ranges
+      for (const [key, value] of params.entries()) {
+        if (key.startsWith('range_')) {
+          const rangeKey = key.replace('range_', '');
+          const [min, max] = value.split(',').map(Number);
+          state.filters.ranges.set(rangeKey, {
+            currentMin: min,
+            currentMax: max
+          });
+        }
       }
-      this.log('debug', `Counter updated: ${visible}/${total}`);
-      return {
-        total,
-        visible
-      };
-    }
 
-    /**
-     * Set animation options
-     * @public
-     * @param {Object} options - Animation options
-     */
-    setAnimationOptions() {
-      let options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      this.options.animationDuration = options.duration || this.options.animationDuration;
-      this.options.animationType = options.type || "ease-out";
-      this.addStyles(); // Refresh styles with new options
-    }
-
-    /**
-     * Event handling system
-     */
-    addEventSystem() {
-      this.events = {};
-      this.on = (eventName, callback) => {
-        if (!this.events[eventName]) {
-          this.events[eventName] = [];
+      // Process date ranges
+      for (const [key, value] of params.entries()) {
+        if (key.startsWith('dateRange_')) {
+          const rangeKey = key.replace('dateRange_', '');
+          const [start, end] = value.split(',').map(str => new Date(str));
+          state.filters.dateRanges.set(rangeKey, {
+            start,
+            end
+          });
         }
-        this.events[eventName].push(callback);
-      };
-      this.emit = (eventName, data) => {
-        if (this.events[eventName]) {
-          this.events[eventName].forEach(callback => callback(data));
-        }
-      };
+      }
     }
 
     /**
-     * Add pagination
-     * @public
-     * @param {number} itemsPerPage - Number of items per page
+     * Process search from URL parameters
+     * @private
+     * @param {URLSearchParams} params
      */
-    setPagination(itemsPerPage) {
-      this.pagination = {
-        currentPage: 1,
-        itemsPerPage: itemsPerPage,
-        totalPages: Math.ceil(this.visibleItems.size / itemsPerPage)
-      };
-      this.updatePagination();
-    }
-    updatePagination() {
-      const start = (this.pagination.currentPage - 1) * this.pagination.itemsPerPage;
-      const end = start + this.pagination.itemsPerPage;
-      [...this.visibleItems].forEach((item, index) => {
-        if (index >= start && index < end) {
-          this.showItem(item);
-        } else {
-          this.hideItem(item);
-        }
-      });
+    processSearchFromURL(params) {
+      const searchQuery = params.get('search') || '';
+      this.afs.state.setState('search.query', searchQuery);
+      if (this.afs.options.get('searchInput')) {
+        this.afs.options.get('searchInput').value = searchQuery;
+      }
     }
 
     /**
-     * Enable analytics tracking
-     * @public
-     * @param {Function} callback - Analytics callback function
+     * Process sort from URL parameters
+     * @private
+     * @param {URLSearchParams} params
      */
-    enableAnalytics(callback) {
-      this.analyticsCallback = callback;
-      this.on("filter", data => {
-        this.analyticsCallback({
-          type: "filter",
-          filters: [...this.currentFilters],
-          visibleItems: this.visibleItems.size,
-          timestamp: new Date().toISOString()
+    processSortFromURL(params) {
+      const sortParam = params.get('sort');
+      if (sortParam) {
+        const [key, direction] = sortParam.split(',');
+        this.afs.state.setState('sort.current', {
+          key,
+          direction
         });
-      });
-    }
-
-    /**
-     * Sort with custom comparator
-     * @public
-     * @param {string} key - Data attribute key
-     * @param {Function} comparator - Custom comparison function
-     */
-    sortWithComparator(key, comparator) {
-      const items = [...this.items];
-      items.sort((a, b) => {
-        const valueA = a.dataset[key];
-        const valueB = b.dataset[key];
-        return comparator(valueA, valueB);
-      });
-      items.forEach(item => this.container.appendChild(item));
-    }
-
-    /**
-     * Add responsive behavior
-     * @public
-     * @param {Object} breakpoints - Breakpoint configurations
-     */
-    setResponsiveOptions(breakpoints) {
-      window.addEventListener("resize", debounce(() => {
-        const width = window.innerWidth;
-        for (const [breakpoint, options] of Object.entries(breakpoints)) {
-          if (width <= parseInt(breakpoint)) {
-            Object.assign(this.options, options);
-            this.filter();
-            break;
-          }
-        }
-      }, 250));
-    }
-
-    /**
-     * Enable keyboard navigation
-     * @public
-     */
-    enableKeyboardNavigation() {
-      document.addEventListener("keydown", e => {
-        if (e.key === "Enter" && document.activeElement.classList.contains(this.options.filterButtonSelector.slice(1))) {
-          document.activeElement.click();
-        }
-      });
-    }
-
-    /**
-     * Export current filter state
-     * @public
-     * @returns {Object} Filter state
-     */
-    exportState() {
-      return {
-        filters: [...this.currentFilters],
-        search: this.currentSearch,
-        mode: this.options.filterMode,
-        timestamp: new Date().toISOString()
-      };
-    }
-
-    /**
-     * Import filter state
-     * @public
-     * @param {Object} state - Filter state to import
-     */
-    importState(state) {
-      if (state.filters) {
-        this.currentFilters = new Set(state.filters);
-        this.currentSearch = state.search || "";
-        this.options.filterMode = state.mode || "OR";
-        this.filter();
-        this.updateURL();
       }
     }
 
     /**
-     * Save current filter state as preset
-     * @public
-     * @param {string} presetName - Name of the preset
+     * Process pagination from URL parameters
+     * @private
+     * @param {URLSearchParams} params
      */
-    savePreset(presetName) {
-      const preset = {
-        filters: [...this.currentFilters],
-        search: this.currentSearch,
-        mode: this.options.filterMode
-      };
-      localStorage.setItem(`afs_preset_${presetName}`, JSON.stringify(preset));
-      this.log('info', `Preset saved: ${presetName}`);
+    processPaginationFromURL(params) {
+      const page = parseInt(params.get('page')) || 1;
+      const perPage = parseInt(params.get('perPage')) || this.afs.options.get('pagination.itemsPerPage');
+      this.afs.state.setState('pagination', {
+        currentPage: page,
+        itemsPerPage: perPage
+      });
     }
 
     /**
-     * Load filter preset
-     * @public
-     * @param {string} presetName - Name of the preset to load
+     * Check if parameter is a regular filter
+     * @private
+     * @param {string} param - Parameter name
+     * @returns {boolean}
      */
-    loadPreset(presetName) {
-      const preset = JSON.parse(localStorage.getItem(`afs_preset_${presetName}`));
-      if (preset) {
-        this.currentFilters = new Set(preset.filters);
-        this.currentSearch = preset.search;
-        this.options.filterMode = preset.mode;
-        this.filter();
-        this.updateURL();
+    isRegularFilter(param) {
+      const excludedParams = ['search', 'sort', 'page', 'perPage', 'filterMode', 'groupMode'];
+      return !excludedParams.includes(param) && !param.startsWith('group_') && !param.startsWith('groupOp_') && !param.startsWith('range_') && !param.startsWith('dateRange_');
+    }
+
+    /**
+     * Clear URL parameters
+     * @public
+     */
+    clearURL() {
+      window.history.pushState({}, '', window.location.pathname);
+      this.afs.state.reset();
+      if (this.afs.filter) {
+        this.afs.filter.clearAllFilters();
       }
     }
 
     /**
-     * Set filter logic mode (alias for setFilterMode)
+     * Get current URL parameters
      * @public
-     * @param {string} logic - New filter logic ('AND' or 'OR')
+     * @returns {URLSearchParams}
      */
-    setLogic(logic) {
-      if (typeof logic === "boolean") {
-        // Handle boolean input (true = AND, false = OR)
-        this.options.filterMode = logic ? "AND" : "OR";
-        this.filter();
+    getURLParams() {
+      return new URLSearchParams(window.location.search);
+    }
+
+    /**
+     * Check if URL has parameters
+     * @public
+     * @returns {boolean}
+     */
+    hasParams() {
+      return window.location.search.length > 1;
+    }
+
+    /**
+     * Get parameter value
+     * @public
+     * @param {string} param - Parameter name
+     * @returns {string|null}
+     */
+    getParam(param) {
+      return new URLSearchParams(window.location.search).get(param);
+    }
+  }
+
+  /**
+   * @fileoverview Range filter implementation for AFS
+   * @version 1.0.0
+   */
+
+  class RangeFilter {
+    constructor(afs) {
+      this.afs = afs;
+      this.activeRanges = new Map();
+      if (!this.afs.styleManager) {
+        this.afs.styleManager = new StyleManager(this.afs.options);
+      }
+
+      // Apply styles immediately
+      this.afs.styleManager.applyStyles();
+    }
+
+    /**
+     * @typedef {Object} RangeOptions
+     * @property {string} key - Data attribute key
+     * @property {string} type - Type of range ('number' or 'date')
+     * @property {HTMLElement} container - Container element
+     * @property {number|string} [min] - Minimum value
+     * @property {number|string} [max] - Maximum value
+     * @property {number} [step] - Step value
+     */
+
+    /**
+     * Add range slider
+     * @param {RangeOptions} options - Range slider options
+     */
+    addRangeSlider(_ref) {
+      let {
+        key,
+        type,
+        container,
+        min,
+        max,
+        step = 1,
+        ui
+      } = _ref;
+      this.afs.logger.debug(`Adding range slider for ${key}`);
+      if (!container) {
+        this.afs.logger.error("Container element required for range slider");
         return;
       }
-      const mode = logic.toUpperCase();
-      if (["OR", "AND"].includes(mode)) {
-        this.options.filterMode = mode;
-        this.filter();
+
+      // Calculate min/max if not provided
+      const values = this.calculateMinMax(key, type);
+      min = min ?? values.min;
+      max = max ?? values.max;
+
+      // Get global UI options and merge with slider-specific options
+      const globalUiOptions = this.afs.options.get("styles.slider.ui") || {
+        showHistogram: false,
+        bins: 10
+      };
+      const sliderUiOptions = {
+        ...globalUiOptions,
+        ...ui // Override with slider-specific options if provided
+      };
+
+      // Only calculate histogram data if enabled
+      const histogramData = sliderUiOptions.showHistogram ? this.calculateHistogramData(key, sliderUiOptions.bins) : {
+        counts: [],
+        binEdges: [],
+        max: 0
+      };
+
+      // Create slider elements
+      const elements = this.createSliderElements(histogramData, sliderUiOptions);
+      const state = this.initializeState(min, max, step, type);
+
+      // Store histogram data and UI options in state
+      state.ui = sliderUiOptions;
+      if (sliderUiOptions.showHistogram) {
+        state.histogram = histogramData;
+      }
+
+      // Add elements to container
+      this.appendElements(container, elements);
+
+      // Setup event handlers
+      this.setupEventHandlers(elements, state, key);
+
+      // Store state
+      this.activeRanges.set(key, {
+        state,
+        elements
+      });
+
+      // Initial update
+      this.updateSliderUI(key);
+
+      // Setup histogram highlight updates only if enabled
+      if (sliderUiOptions.showHistogram) {
+        this.setupHistogramHighlight(elements, state, histogramData.binEdges);
+      }
+      this.afs.logger.info(`Range slider added for ${key}`);
+    }
+    /**
+     * Calculate min and max values from items
+     * @private
+     */
+    calculateMinMax(key, type) {
+      const values = Array.from(this.afs.items).map(item => {
+        const value = item.dataset[key];
+        return type === "date" ? new Date(value).getTime() : parseFloat(value);
+      }).filter(value => !isNaN(value));
+      return {
+        min: Math.min(...values),
+        max: Math.max(...values)
+      };
+    }
+
+    /**
+     * Create slider DOM elements
+     * @private
+     * @param {Object} histogramData - Histogram data
+     * @param {Object} sliderUiOptions - UI options for this slider
+     */
+    createSliderElements(histogramData, sliderUiOptions) {
+      const styles = this.afs.options.get("styles") || this.afs.styleManager.defaultStyles;
+      const sliderStyles = styles.slider || this.afs.styleManager.defaultStyles.slider;
+      const colors = styles.colors || this.afs.styleManager.defaultStyles.colors;
+      const container = document.createElement("div");
+      container.className = "price-range-container";
+      const slider = document.createElement("div");
+      slider.className = sliderStyles.class;
+      const track = document.createElement("div");
+      track.className = sliderStyles.trackClass;
+
+      // Only add histogram if enabled in the slider-specific options
+      if (sliderUiOptions?.showHistogram && histogramData?.counts?.length > 0) {
+        const histogram = this.createHistogramBars(histogramData, colors);
+        slider.appendChild(histogram);
+      }
+      const selectedRange = document.createElement("div");
+      selectedRange.className = sliderStyles.selectedClass;
+      const minThumb = document.createElement("div");
+      minThumb.className = sliderStyles.thumbClass;
+      const maxThumb = document.createElement("div");
+      maxThumb.className = sliderStyles.thumbClass;
+      const minValue = document.createElement("div");
+      minValue.className = sliderStyles.valueClass;
+      const maxValue = document.createElement("div");
+      maxValue.className = sliderStyles.valueClass;
+
+      // Build the slider
+      slider.appendChild(track);
+      slider.appendChild(selectedRange);
+      slider.appendChild(minThumb);
+      slider.appendChild(maxThumb);
+      slider.appendChild(minValue);
+      slider.appendChild(maxValue);
+      container.appendChild(slider);
+      return {
+        container,
+        slider,
+        track,
+        selectedRange,
+        minThumb,
+        maxThumb,
+        minValue,
+        maxValue
+      };
+    }
+
+    // Add helper method for creating histogram
+    createHistogram(data, colors) {
+      const histogram = document.createElement("div");
+      histogram.className = "afs-histogram";
+
+      // Create histogram bars
+      data.forEach((value, index) => {
+        const bar = document.createElement("div");
+        bar.className = "afs-histogram-bar";
+        bar.style.height = `${value}%`;
+        bar.style.backgroundColor = colors.histogram;
+        histogram.appendChild(bar);
+      });
+      return histogram;
+    }
+
+    /**
+     * Calculate histogram data from items
+     * @private
+     * @param {string} key - Data attribute key (e.g., 'price')
+     * @param {number} [bins=10] - Number of bins for histogram
+     * @returns {Object} Histogram data and metadata
+     */
+    calculateHistogramData(key) {
+      let bins = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 10;
+      try {
+        const values = Array.from(this.afs.items).map(item => parseFloat(item.dataset[key])).filter(value => !isNaN(value));
+        if (values.length === 0) {
+          return {
+            counts: [],
+            binEdges: [],
+            max: 0
+          };
+        }
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        const binWidth = (max - min) / bins;
+        const counts = new Array(bins).fill(0);
+        const binEdges = new Array(bins + 1);
+
+        // Calculate bin edges
+        for (let i = 0; i <= bins; i++) {
+          binEdges[i] = min + i * binWidth;
+        }
+
+        // Count values in each bin
+        values.forEach(value => {
+          if (value === max) {
+            counts[counts.length - 1]++;
+            return;
+          }
+          const binIndex = Math.floor((value - min) / binWidth);
+          counts[binIndex]++;
+        });
+
+        // Normalize heights to be more subtle
+        const maxCount = Math.max(...counts);
+        const normalizedCounts = counts.map(count => Math.max(20, Math.round(count / maxCount * 100)) // Minimum height of 20%
+        );
+        return {
+          counts: normalizedCounts,
+          binEdges,
+          max: maxCount,
+          min,
+          max
+        };
+      } catch (error) {
+        this.afs.logger.error("Error calculating histogram:", error);
+        return {
+          counts: [],
+          binEdges: [],
+          max: 0
+        };
       }
     }
 
     /**
-     * Change filter mode
-     * @public
-     * @param {string} mode - New filter mode ('OR' or 'AND')
+     * Setup histogram highlight on range changes
+     * @private
      */
-    setFilterMode(mode) {
-      if (["OR", "AND"].includes(mode.toUpperCase())) {
-        this.options.filterMode = mode.toUpperCase();
-        this.filter();
+    setupHistogramHighlight(elements, state, binEdges) {
+      const bars = elements.slider.querySelectorAll(".afs-histogram-bar");
+      const updateHistogram = () => {
+        const minVal = state.currentMin;
+        const maxVal = state.currentMax;
+        bars.forEach((bar, index) => {
+          const binStart = binEdges[index];
+          const binEnd = binEdges[index + 1];
+
+          // Highlight bars within the selected range
+          if (binStart >= minVal && binEnd <= maxVal) {
+            bar.classList.add("active");
+          } else {
+            bar.classList.remove("active");
+          }
+        });
+      };
+
+      // Update histogram on range changes using AFS instance
+      this.afs.on("rangeFilter", () => updateHistogram());
+
+      // Initial update
+      updateHistogram();
+    }
+
+    /**
+     * Create histogram bars
+     * @private
+     */
+    createHistogramBars(histogramData, colors) {
+      const {
+        counts
+      } = histogramData;
+      const histogram = document.createElement("div");
+      histogram.className = "afs-histogram";
+      counts.forEach(height => {
+        const bar = document.createElement("div");
+        bar.className = "afs-histogram-bar";
+        bar.style.height = `${height}%`;
+        histogram.appendChild(bar);
+      });
+      return histogram;
+    }
+
+    /**
+     * Initialize slider state
+     * @private
+     */
+    initializeState(min, max, step, type) {
+      return {
+        min,
+        max,
+        currentMin: min,
+        currentMax: max,
+        step,
+        type,
+        isDragging: false
+      };
+    }
+
+    /**
+     * Append elements to container
+     * @private
+     */
+    appendElements(container, elements) {
+      const {
+        slider,
+        track,
+        selectedRange,
+        minThumb,
+        maxThumb,
+        minValue,
+        maxValue
+      } = elements;
+      slider.appendChild(track);
+      slider.appendChild(selectedRange);
+      slider.appendChild(minThumb);
+      slider.appendChild(maxThumb);
+      slider.appendChild(minValue);
+      slider.appendChild(maxValue);
+      container.appendChild(slider);
+    }
+
+    /**
+     * Setup event handlers for slider
+     * @private
+     */
+    setupEventHandlers(elements, state, key) {
+      const {
+        minThumb,
+        maxThumb
+      } = elements;
+      const handleDragStart = isMin => e => {
+        state.isDragging = true;
+        const moveHandler = this.createMoveHandler(elements, state, key, isMin);
+        const stopHandler = () => {
+          state.isDragging = false;
+          window.removeEventListener("mousemove", moveHandler);
+          window.removeEventListener("mouseup", stopHandler);
+          this.applyFilter(key);
+        };
+        window.addEventListener("mousemove", moveHandler);
+        window.addEventListener("mouseup", stopHandler);
+      };
+      minThumb.addEventListener("mousedown", handleDragStart(true));
+      maxThumb.addEventListener("mousedown", handleDragStart(false));
+    }
+
+    /**
+     * Update slider UI
+     * @private
+     */
+    updateSliderUI(key) {
+      const {
+        state,
+        elements
+      } = this.activeRanges.get(key);
+      const {
+        minThumb,
+        maxThumb,
+        selectedRange,
+        minValue,
+        maxValue
+      } = elements;
+
+      // Calculate positions with padding consideration
+      const range = state.max - state.min;
+      const minPos = (state.currentMin - state.min) / range * 100;
+      const maxPos = (state.currentMax - state.min) / range * 100;
+
+      // Ensure thumbs stay within bounds
+      const clampedMinPos = Math.max(0, Math.min(minPos, 100));
+      const clampedMaxPos = Math.max(0, Math.min(maxPos, 100));
+
+      // Position thumbs
+      minThumb.style.left = `${clampedMinPos}%`;
+      maxThumb.style.left = `${clampedMaxPos}%`;
+
+      // Position selected range
+      selectedRange.style.left = `${clampedMinPos}%`;
+      selectedRange.style.width = `${clampedMaxPos - clampedMinPos}%`;
+
+      // Format values
+      const formatValue = state.type === "date" ? value => new Date(value).toLocaleDateString() : value => value.toFixed(2);
+
+      // Update value labels
+      minValue.textContent = formatValue(state.currentMin);
+      maxValue.textContent = formatValue(state.currentMax);
+
+      // Position value labels considering bounds
+      minValue.style.left = `${clampedMinPos}%`;
+      maxValue.style.left = `${clampedMaxPos}%`;
+
+      // Handle edge cases for value label positioning
+      if (clampedMinPos < 5) {
+        minValue.style.transform = "translateX(0)";
+      } else if (clampedMinPos > 95) {
+        minValue.style.transform = "translateX(-100%)";
+      } else {
+        minValue.style.transform = "translateX(-50%)";
+      }
+      if (clampedMaxPos < 5) {
+        maxValue.style.transform = "translateX(0)";
+      } else if (clampedMaxPos > 95) {
+        maxValue.style.transform = "translateX(-100%)";
+      } else {
+        maxValue.style.transform = "translateX(-50%)";
       }
     }
 
-    /**
-     * Add filter by type and value
-     * @public
-     * @param {string} type - Filter type
-     * @param {string} value - Filter value
-     */
-    addFilter(type, value) {
-      this.currentFilters.add(`${type}:${value}`);
-      this.filter();
-      this.updateURL();
+    // Also update the createMoveHandler to respect the padding
+    createMoveHandler(elements, state, key, isMin) {
+      this.afs.logger.debug(`Creating move handler for ${key}`);
+      const {
+        track
+      } = elements;
+      const PADDING = 5;
+      return debounce(e => {
+        const rect = track.getBoundingClientRect();
+        const totalWidth = rect.width;
+        const paddingPixels = PADDING / 100 * totalWidth;
+
+        // Calculate percent with padding consideration
+        const rawPercent = (e.clientX - rect.left - paddingPixels) / (totalWidth - 2 * paddingPixels);
+        const percent = Math.min(Math.max(0, rawPercent), 1);
+
+        // Calculate value considering the full range
+        const value = state.min + (state.max - state.min) * percent;
+        const stepped = Math.round(value / state.step) * state.step;
+        if (isMin) {
+          state.currentMin = Math.min(stepped, state.currentMax);
+        } else {
+          state.currentMax = Math.max(stepped, state.currentMin);
+        }
+        this.updateSliderUI(key);
+      }, 16); // ~60fps
     }
 
     /**
-     * Remove filter by type and value
-     * @public
-     * @param {string} type - Filter type
+     * Apply range filter
+     * @private
      */
-    removeFilter(type, value) {
-      this.currentFilters.delete(`${type}:${value}`);
-      if (this.currentFilters.size === 0) {
-        this.currentFilters.add("*");
-      }
-      this.filter();
-      this.updateURL();
-    }
-
-    /**
-     * Get active filters by type
-     * @public
-     * @param {string} type - Filter type
-     */
-    getActiveFiltersByType(type) {
-      return [...this.currentFilters].filter(filter => filter.startsWith(`${type}:`)).map(filter => filter.split(":")[1]);
-    }
-
-    /**
-     * Clear all filters, url and search
-     *
-     * @public
-     */
-    clearAllFilters() {
-      this.currentFilters.clear();
-      this.currentFilters.add("*");
-      this.filter();
-      this.updateURL();
-
-      // Uncheck all checkboxes if any with activeClass
-      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-      checkboxes.forEach(checkbox => {
-        if (checkbox.classList.contains(this.options.activeClass)) {
-          checkbox.checked = false;
-          checkbox.classList.remove(this.options.activeClass);
+    applyFilter(key) {
+      this.afs.logger.debug(`Applying range filter for ${key}`);
+      const {
+        state
+      } = this.activeRanges.get(key);
+      this.afs.items.forEach(item => {
+        const value = state.type === "date" ? new Date(item.dataset[key]).getTime() : parseFloat(item.dataset[key]);
+        if (value >= state.currentMin && value <= state.currentMax) {
+          this.afs.showItem(item);
+        } else {
+          this.afs.hideItem(item);
         }
       });
+      this.afs.updateCounter();
+      this.afs.urlManager.updateURL();
+      this.afs.emit("rangeFilter", {
+        key,
+        min: state.currentMin,
+        max: state.currentMax
+      });
+    }
 
-      // Clear active on buttons
-      this.filterButtons.forEach(btn => {
-        btn.classList.remove(this.options.activeClass);
+    /**
+     * Get current range values
+     * @param {string} key - Range key
+     * @returns {Object} Current range values
+     */
+    getRangeValues(key) {
+      const range = this.activeRanges.get(key);
+      if (!range) return null;
+      return {
+        min: range.state.currentMin,
+        max: range.state.currentMax,
+        type: range.state.type
+      };
+    }
+
+    /**
+     * Set range values
+     * @param {string} key - Range key
+     * @param {number} min - Minimum value
+     * @param {number} max - Maximum value
+     */
+    setRangeValues(key, min, max) {
+      const range = this.activeRanges.get(key);
+      if (!range) return;
+      range.state.currentMin = min;
+      range.state.currentMax = max;
+      this.updateSliderUI(key);
+      this.applyFilter(key);
+    }
+
+    /**
+     * Remove range slider
+     * @param {string} key - Range key
+     */
+    removeRangeSlider(key) {
+      const range = this.activeRanges.get(key);
+      if (!range) return;
+      range.elements.slider.remove();
+      this.activeRanges.delete(key);
+      this.afs.logger.info(`Range slider removed for ${key}`);
+    }
+  }
+
+  /**
+   * @fileoverview Date filter implementation for AFS
+   * @version 1.0.0
+   */
+
+  class DateFilter {
+    constructor(afs) {
+      this.afs = afs;
+      this.activeDateRanges = new Map();
+      this.defaultFormat = this.afs.options.get('dateFormat') || 'YYYY-MM-DD';
+    }
+
+    /**
+     * @typedef {Object} DateRangeOptions
+     * @property {string} key - Data attribute key
+     * @property {HTMLElement} container - Container element
+     * @property {Date} [minDate] - Minimum date
+     * @property {Date} [maxDate] - Maximum date
+     * @property {string} [format] - Date format (default: YYYY-MM-DD)
+     */
+
+    /**
+     * Add date range filter
+     * @param {DateRangeOptions} options - Date range options
+     */
+    addDateRange(_ref) {
+      let {
+        key,
+        container,
+        minDate,
+        maxDate,
+        format = this.defaultFormat
+      } = _ref;
+      this.afs.logger.debug(`Adding date range for ${key}`);
+      if (!container) {
+        this.afs.logger.error('Container element required for date range');
+        return;
+      }
+
+      // Calculate min/max dates if not provided
+      const dates = this.calculateMinMaxDates(key);
+      minDate = minDate ?? dates.min;
+      maxDate = maxDate ?? dates.max;
+
+      // Create date picker elements
+      const elements = this.createDateElements();
+      const state = this.initializeState(minDate, maxDate, format);
+
+      // Add elements to container
+      this.appendElements(container, elements);
+
+      // Setup event handlers
+      this.setupEventHandlers(elements, state, key);
+
+      // Store state
+      this.activeDateRanges.set(key, {
+        state,
+        elements
       });
 
-      // Clear search input
-      if (this.searchInput) {
-        this.searchInput.value = "";
+      // Initial update
+      this.updateDateUI(key);
+      this.afs.logger.info(`Date range added for ${key}`);
+    }
+
+    /**
+     * Calculate min and max dates from items
+     * @private
+     */
+    calculateMinMaxDates(key) {
+      try {
+        const validDates = Array.from(this.afs.items).map(item => {
+          if (!item || !item.dataset || !item.dataset[key]) {
+            return null;
+          }
+          const date = new Date(item.dataset[key]);
+          return isNaN(date.getTime()) ? null : date;
+        }).filter(date => date !== null);
+        if (validDates.length === 0) {
+          // Return default date range if no valid dates found
+          const today = new Date();
+          return {
+            min: new Date(today.getFullYear(), 0, 1),
+            // January 1st of current year
+            max: new Date(today.getFullYear(), 11, 31) // December 31st of current year
+          };
+        }
+        return {
+          min: new Date(Math.min(...validDates)),
+          max: new Date(Math.max(...validDates))
+        };
+      } catch (error) {
+        this.afs.logger.error('Error calculating date range:', error);
+        // Return default date range on error
+        const today = new Date();
+        return {
+          min: new Date(today.getFullYear(), 0, 1),
+          max: new Date(today.getFullYear(), 11, 31)
+        };
       }
-      this.log('info', 'All filters cleared');
+    }
+
+    /**
+     * Create date picker elements
+     * @private
+     */
+    createDateElements() {
+      this.afs.logger.debug('Creating date picker elements');
+      const container = document.createElement('div');
+      container.className = 'afs-date-range-container';
+      const startContainer = document.createElement('div');
+      startContainer.className = 'afs-date-input-wrapper';
+      const startLabel = document.createElement('label');
+      startLabel.textContent = 'Start Date';
+      const startInput = document.createElement('input');
+      startInput.type = 'date';
+      startInput.className = 'afs-date-input start-date';
+      const endContainer = document.createElement('div');
+      endContainer.className = 'afs-date-input-wrapper';
+      const endLabel = document.createElement('label');
+      endLabel.textContent = 'End Date';
+      const endInput = document.createElement('input');
+      endInput.type = 'date';
+      endInput.className = 'afs-date-input end-date';
+      startContainer.appendChild(startLabel);
+      startContainer.appendChild(startInput);
+      endContainer.appendChild(endLabel);
+      endContainer.appendChild(endInput);
+      container.appendChild(startContainer);
+      container.appendChild(endContainer);
+      return {
+        container,
+        startInput,
+        endInput
+      };
+    }
+
+    /**
+     * Initialize date filter state
+     * @private
+     */
+    initializeState(minDate, maxDate, format) {
+      return {
+        minDate,
+        maxDate,
+        currentStartDate: minDate,
+        currentEndDate: maxDate,
+        format
+      };
+    }
+
+    /**
+     * Append elements to container
+     * @private
+     */
+    appendElements(container, elements) {
+      container.appendChild(elements.container);
+    }
+
+    /**
+     * Setup event handlers
+     * @private
+     */
+    setupEventHandlers(elements, state, key) {
+      this.afs.logger.debug(`Setting up event handlers for date range ${key}`);
+      const {
+        startInput,
+        endInput
+      } = elements;
+      const handleDateChange = debounce(() => {
+        const startDate = new Date(startInput.value);
+        const endDate = new Date(endInput.value);
+        if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+          state.currentStartDate = startDate;
+          state.currentEndDate = endDate;
+          this.applyDateFilter(key);
+        }
+      }, 300);
+      startInput.addEventListener('change', handleDateChange);
+      endInput.addEventListener('change', handleDateChange);
+    }
+
+    /**
+     * Update date picker UI
+     * @private
+     */
+    updateDateUI(key) {
+      try {
+        const {
+          state,
+          elements
+        } = this.activeDateRanges.get(key);
+        const {
+          startInput,
+          endInput
+        } = elements;
+
+        // Format dates for input
+        const formatDate = date => {
+          try {
+            const d = new Date(date);
+            if (isNaN(d.getTime())) {
+              throw new Error('Invalid date');
+            }
+            return d.toISOString().split('T')[0];
+          } catch (error) {
+            this.afs.logger.error('Error formatting date:', error);
+            return '';
+          }
+        };
+
+        // Set min/max constraints
+        startInput.min = formatDate(state.minDate);
+        startInput.max = formatDate(state.maxDate);
+        endInput.min = formatDate(state.minDate);
+        endInput.max = formatDate(state.maxDate);
+
+        // Set current values
+        startInput.value = formatDate(state.currentStartDate);
+        endInput.value = formatDate(state.currentEndDate);
+      } catch (error) {
+        this.afs.logger.error('Error updating date UI:', error);
+      }
+    }
+
+    /**
+     * Apply date filter
+     * @private
+     */
+    applyDateFilter(key) {
+      this.afs.logger.info(`Applying date filter for ${key}`);
+      const {
+        state
+      } = this.activeDateRanges.get(key);
+      this.afs.items.forEach(item => {
+        try {
+          // Check if item and dataset exist
+          if (!item || !item.dataset || !item.dataset[key]) {
+            this.afs.hideItem(item);
+            return;
+          }
+          const itemDate = new Date(item.dataset[key]);
+
+          // Check if date is valid
+          if (isNaN(itemDate.getTime())) {
+            this.afs.hideItem(item);
+            return;
+          }
+
+          // Set time to midnight for consistent comparison
+          const startDate = new Date(state.currentStartDate);
+          startDate.setHours(0, 0, 0, 0);
+          const endDate = new Date(state.currentEndDate);
+          endDate.setHours(23, 59, 59, 999);
+          const compareDate = new Date(itemDate);
+          compareDate.setHours(0, 0, 0, 0);
+          if (compareDate >= startDate && compareDate <= endDate) {
+            this.afs.showItem(item);
+          } else {
+            this.afs.hideItem(item);
+          }
+        } catch (error) {
+          this.afs.logger.error('Error filtering item by date:', error);
+          this.afs.hideItem(item);
+        }
+      });
+      this.afs.updateCounter();
+      this.afs.urlManager.updateURL();
+      this.afs.emit('dateFilter', {
+        key,
+        startDate: state.currentStartDate,
+        endDate: state.currentEndDate
+      });
+    }
+
+    /**
+     * Get current date range
+     * @param {string} key - Date range key
+     * @returns {Object} Current date range
+     */
+    getDateRange(key) {
+      const range = this.activeDateRanges.get(key);
+      if (!range) return null;
+      return {
+        startDate: range.state.currentStartDate,
+        endDate: range.state.currentEndDate
+      };
+    }
+
+    /**
+     * Set date range
+     * @param {string} key - Date range key
+     * @param {Date} startDate - Start date
+     * @param {Date} endDate - End date
+     */
+    setDateRange(key, startDate, endDate) {
+      const range = this.activeDateRanges.get(key);
+      if (!range) return;
+      range.state.currentStartDate = startDate;
+      range.state.currentEndDate = endDate;
+      this.updateDateUI(key);
+      this.applyDateFilter(key);
+    }
+
+    /**
+     * Remove date range
+     * @param {string} key - Date range key
+     */
+    removeDateRange(key) {
+      const range = this.activeDateRanges.get(key);
+      if (!range) return;
+      range.elements.container.remove();
+      this.activeDateRanges.delete(key);
+      this.afs.logger.info(`Date range removed for ${key}`);
+    }
+  }
+
+  /**
+   * @fileoverview Advanced Filter System - Main Class
+   */
+
+  // Version
+  const VERSION = '1.0.6';
+  class AFS extends EventEmitter {
+    /**
+     * @param {Object} options - Configuration options
+     */
+    constructor() {
+      let options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      super();
+      this.initializeCore(options);
+    }
+
+    /**
+     * Initialize core components
+     * @private
+     */
+    initializeCore(options) {
+      try {
+        this.options = new Options(options);
+        this.logger = new Logger(this.options.get("debug") || false, this.options.get("logLevel") || "info");
+        this.state = new State();
+        this.styleManager = new StyleManager(this.options);
+        this.initializeDOM();
+        this.initializeFeatures();
+        this.setupLifecycle();
+      } catch (error) {
+        console.error("AFS initialization error:", error);
+        throw error;
+      }
+    }
+
+    /**
+     * Initialize DOM elements
+     * @private
+     */
+    initializeDOM() {
+      this.logger.debug("Initializing DOM elements");
+      this.container = document.querySelector(this.options.get("containerSelector"));
+      if (!this.container) {
+        throw new Error(`Container not found: ${this.options.get("containerSelector")}`);
+      }
+      this.items = this.container.querySelectorAll(this.options.get("itemSelector"));
+      if (this.items.length === 0) {
+        this.logger.warn("No items found in container");
+      }
+      this.state.setState("items.total", this.items.length);
+      this.state.setState("items.visible", new Set(this.items));
+    }
+
+    /**
+     * Initialize features
+     * @private
+     */
+    initializeFeatures() {
+      this.logger.debug("Initializing features");
+
+      // Then initialize other features
+      this.filter = new Filter(this);
+      this.search = new Search(this);
+      this.sort = new Sort(this);
+      this.pagination = new Pagination(this);
+      this.rangeFilter = new RangeFilter(this);
+      this.urlManager = new URLManager(this);
+      this.dateFilter = new DateFilter(this);
+
+      // Apply styles
+      this.styleManager.applyStyles();
+
+      // Load initial state from URL
+      this.urlManager.loadFromURL();
+    }
+
+    /**
+     * Setup lifecycle events
+     * @private
+     */
+    setupLifecycle() {
+      if (this.options.get("responsive")) {
+        window.addEventListener("resize", this.handleResize.bind(this));
+      }
+      if (this.options.get("preserveState")) {
+        document.addEventListener("visibilitychange", this.handleVisibilityChange.bind(this));
+      }
+      if (this.options.get("observeDOM")) {
+        this.setupMutationObserver();
+      }
+      this.emit("initialized", {
+        itemCount: this.items.length,
+        options: this.options.export()
+      });
+    }
+
+    // Item Management Methods
+    /**
+     * Show item with animation
+     * @public
+     * @param {HTMLElement} item - Item to show
+     */
+    showItem(item) {
+      // Update state first
+      const visibleItems = this.state.getState().items.visible;
+      visibleItems.add(item);
+      this.state.setState("items.visible", visibleItems);
+
+      // Remove hidden class but keep opacity 0 initially
+      item.classList.remove(this.options.get("hiddenClass"));
+
+      // Set initial animation state
+      item.style.opacity = "0";
+      item.style.transform = "scale(0.95)";
+      item.style.display = ""; // Ensure item is not display: none
+
+      // Force reflow before starting animation
+      item.offsetHeight;
+
+      // Add transition class if not present
+      const transitionClass = this.options.get("transitionClass") || "afs-transition";
+      if (!item.classList.contains(transitionClass)) {
+        item.classList.add(transitionClass);
+      }
+
+      // Start animation in next frame
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          // Double RAF for reliable animation
+          item.style.opacity = "1";
+          item.style.transform = "scale(1)";
+        });
+      });
+
+      // Clean up after animation
+      const duration = this.options.get("animationDuration") || 300;
+      setTimeout(() => {
+        // Only clean up if item is still meant to be visible
+        if (visibleItems.has(item)) {
+          item.style.transform = "";
+          item.style.opacity = "";
+        }
+      }, duration);
+    }
+
+    /**
+     * Hide item with animation
+     * @public
+     * @param {HTMLElement} item - Item to hide
+     */
+    hideItem(item) {
+      // Update state first
+      const visibleItems = this.state.getState().items.visible;
+      visibleItems.delete(item);
+      this.state.setState("items.visible", visibleItems);
+
+      // Add transition class if not present
+      const transitionClass = this.options.get("transitionClass") || "afs-transition";
+      if (!item.classList.contains(transitionClass)) {
+        item.classList.add(transitionClass);
+      }
+
+      // Start hide animation
+      requestAnimationFrame(() => {
+        item.style.opacity = "0";
+        item.style.transform = "scale(0.95)";
+      });
+
+      // Add hidden class and clean up after animation
+      const duration = this.options.get("animationDuration") || 300;
+      setTimeout(() => {
+        // Only hide if the item is still meant to be hidden
+        if (!visibleItems.has(item)) {
+          item.classList.add(this.options.get("hiddenClass"));
+          // Clean up styles
+          item.style.transform = "";
+          item.style.opacity = "";
+        }
+      }, duration);
+    }
+
+    /**
+     * Add new items
+     * @public
+     */
+    addItems(newItems) {
+      const items = Array.isArray(newItems) ? newItems : [newItems];
+      const fragment = document.createDocumentFragment();
+      items.forEach(item => {
+        fragment.appendChild(item);
+        this.state.getState().items.visible.add(item);
+      });
+      this.container.appendChild(fragment);
+      this.items = this.container.querySelectorAll(this.options.get("itemSelector"));
+      this.filter.applyFilters();
+    }
+
+    /**
+     * Remove items
+     * @public
+     */
+    removeItems(itemsToRemove) {
+      const items = Array.isArray(itemsToRemove) ? itemsToRemove : [itemsToRemove];
+      const visibleItems = this.state.getState().items.visible;
+      items.forEach(item => {
+        visibleItems.delete(item);
+        item.remove();
+      });
+      this.items = this.container.querySelectorAll(this.options.get("itemSelector"));
+      this.updateCounter();
+    }
+
+    // State Management Methods
+    /**
+     * Save current state
+     * @public
+     */
+    saveState() {
+      if (!this.options.get("preserveState")) return;
+      const state = {
+        filters: Array.from(this.filter.getActiveFilters()),
+        search: this.search.getValue(),
+        sort: this.sort.getCurrentSort(),
+        pagination: this.pagination.getPageInfo(),
+        timestamp: Date.now()
+      };
+      localStorage.setItem("afs_state", JSON.stringify(state));
+      this.logger.debug("State saved");
+    }
+
+    /**
+     * Restore saved state
+     * @public
+     */
+    restoreState() {
+      if (!this.options.get("preserveState")) return;
+      try {
+        const saved = localStorage.getItem("afs_state");
+        if (!saved) return;
+        const state = JSON.parse(saved);
+        if (Date.now() - state.timestamp > this.options.get("stateExpiry")) {
+          localStorage.removeItem("afs_state");
+          return;
+        }
+        this.setState(state);
+        this.logger.debug("State restored");
+      } catch (error) {
+        this.logger.error("Error restoring state:", error);
+      }
+    }
+
+    /**
+     * Get current state
+     * @public
+     */
+    getState() {
+      return this.state.export();
+    }
+
+    /**
+     * Set new state
+     * @public
+     */
+    setState(newState) {
+      this.state.import(newState);
+      this.refresh();
+    }
+
+    // Update Methods
+    /**
+     * Update counter display
+     * @public
+     */
+    updateCounter() {
+      // Get counter element
+      const counterElement = document.querySelector(this.options.get("counterSelector"));
+      if (!counterElement) return;
+      try {
+        // Get count values
+        const total = this.items.length;
+        const visible = this.state.getState().items.visible.size;
+        const filtered = total - visible;
+
+        // Get counter options with defaults
+        const counterOpts = this.options.get("counter") || Options.defaults.counter;
+        const template = counterOpts.template || "Showing {visible} of {total}";
+        const formatter = counterOpts.formatter || (num => num.toLocaleString());
+
+        // Format numbers
+        const formattedVisible = formatter(visible);
+        const formattedTotal = formatter(total);
+        const formattedFiltered = formatter(filtered);
+
+        // Build counter text
+        let counterText = template.replace("{visible}", formattedVisible).replace("{total}", formattedTotal).replace("{filtered}", formattedFiltered);
+
+        // Add filtered count if enabled
+        if (filtered > 0 && counterOpts.showFiltered) {
+          const filteredTemplate = counterOpts.filteredTemplate || "({filtered} filtered)";
+          counterText += " " + filteredTemplate.replace("{filtered}", formattedFiltered);
+        }
+
+        // Show no results message if applicable
+        if (visible === 0 && counterOpts.noResultsTemplate) {
+          counterText = counterOpts.noResultsTemplate;
+        }
+
+        // Update counter element
+        counterElement.textContent = counterText;
+
+        // Emit event
+        this.emit("counterUpdated", {
+          total,
+          visible,
+          filtered,
+          formattedTotal,
+          formattedVisible,
+          formattedFiltered
+        });
+      } catch (error) {
+        // Fallback to basic counter if anything fails
+        this.logger.error("Error updating counter:", error);
+        counterElement.textContent = `${this.state.getState().items.visible.size}/${this.items.length}`;
+      }
+    }
+
+    /**
+     * Update options
+     * @public
+     */
+    updateOptions(newOptions) {
+      this.options.update(newOptions);
+      this.styleManager.updateStyles(newOptions);
+      this.refresh();
+    }
+
+    /**
+     * Refresh system
+     * @public
+     */
+    refresh() {
+      this.logger.debug("Refreshing AFS");
+      this.items = this.container.querySelectorAll(this.options.get("itemSelector"));
+      this.state.setState("items.total", this.items.length);
+      this.filter.applyFilters();
+      this.search.search(this.search.getValue());
+      this.pagination.update();
+      this.emit("refreshed", {
+        itemCount: this.items.length
+      });
+    }
+
+    // Event Handlers
+    /**
+     * Handle resize
+     * @private
+     */
+    handleResize = (() => debounce(() => {
+      this.emit("resize");
+      this.refresh();
+    }, 250))();
+
+    /**
+     * Handle visibility change
+     * @private
+     */
+    handleVisibilityChange() {
+      if (document.hidden) {
+        this.emit("hidden");
+        this.saveState();
+      } else {
+        this.emit("visible");
+        this.restoreState();
+      }
+    }
+
+    /**
+     * Setup mutation observer
+     * @private
+     */
+    setupMutationObserver() {
+      const observer = new MutationObserver(mutations => {
+        if (mutations.some(mutation => mutation.type === "childList")) {
+          this.refresh();
+        }
+      });
+      observer.observe(this.container, {
+        childList: true,
+        subtree: true
+      });
+    }
+
+    // Utility Methods
+    /**
+     * Get version
+     * @public
+     */
+    getVersion() {
+      return VERSION;
+    }
+
+    /**
+     * Check feature support
+     * @public
+     */
+    isFeatureSupported(feature) {
+      const supportedFeatures = {
+        search: !!this.search,
+        pagination: true,
+        animation: typeof document.createElement("div").style.transition !== "undefined",
+        urlState: typeof window.history.pushState === "function",
+        localStorage: (() => {
+          try {
+            localStorage.setItem("test", "test");
+            localStorage.removeItem("test");
+            return true;
+          } catch (e) {
+            return false;
+          }
+        })()
+      };
+      return !!supportedFeatures[feature];
+    }
+
+    /**
+     * Destroy instance
+     * @public
+     */
+    destroy() {
+      this.logger.debug("Destroying AFS instance");
+
+      // Remove event listeners
+      window.removeEventListener("resize", this.handleResize);
+      document.removeEventListener("visibilitychange", this.handleVisibilityChange);
+
+      // Destroy features
+      this.filter.destroy();
+      this.search.destroy();
+      this.sort.destroy();
+      this.pagination.destroy();
+      this.rangeFilter.destroy();
+
+      // Cleanup
+      this.styleManager.removeStyles();
+      this.state.reset();
+      localStorage.removeItem("afs_state");
+
+      // Reset items
+      this.items.forEach(item => {
+        item.style = "";
+        item.classList.remove(this.options.get("hiddenClass"), this.options.get("activeClass"));
+      });
+      this.emit("destroyed");
     }
   }
 
   exports.AFS = AFS;
+  exports.VERSION = VERSION;
 
 }));
 //# sourceMappingURL=AFS.js.map
