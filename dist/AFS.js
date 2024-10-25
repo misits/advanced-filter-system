@@ -6,7 +6,6 @@
 
   /**
    * @fileoverview Logging system for AFS
-   * @version 1.0.0
    */
 
   class Logger {
@@ -118,7 +117,6 @@
 
   /**
    * @fileoverview Configuration management for AFS
-   * @version 1.0.0
    */
 
   class Options {
@@ -202,9 +200,13 @@
       pagination: {
         enabled: false,
         itemsPerPage: 10,
+        container: '.afs-pagination-container',
         pageButtonClass: 'afs-page-button',
         activePageClass: 'afs-page-active',
-        containerClass: 'afs-pagination'
+        containerClass: 'afs-pagination',
+        scrollToTop: false,
+        scrollOffset: 50,
+        scrollBehavior: 'smooth' // or 'auto' for instant scroll
       }
     };
     constructor() {
@@ -360,7 +362,6 @@
 
   /**
    * @fileoverview State management for AFS
-   * @version 1.0.0
    */
 
   class State {
@@ -511,7 +512,6 @@
 
   /**
    * @fileoverview Style management for AFS
-   * @version 1.0.0
    */
 
   class StyleManager {
@@ -847,7 +847,6 @@
 
   /**
    * @fileoverview Event handling system for AFS
-   * @version 1.0.0
    */
 
   class EventEmitter {
@@ -968,6 +967,10 @@
       return (this.events.get(eventName)?.size || 0) + (this.onceEvents.get(eventName)?.size || 0);
     }
   }
+
+  /**
+   * @fileoverview Animation management for AFS
+   */
 
   class Animation {
     constructor(afs) {
@@ -1175,7 +1178,6 @@
 
   /**
    * @fileoverview Filter functionality for AFS
-   * @version 1.0.0
    */
 
   class Filter {
@@ -1329,8 +1331,14 @@
         });
       });
 
+      // Update counter after reset
+      this.afs.updateCounter();
+
       // Update URL after reset
       this.afs.urlManager.updateURL();
+
+      // Emit event
+      this.afs.emit("filtersReset");
     }
 
     /**
@@ -1388,9 +1396,6 @@
       }
       this.applyFilters();
 
-      // update counter
-      this.afs.updateCounter();
-
       // Emit event
       this.afs.emit("filterToggled", {
         filter: filterValue,
@@ -1446,8 +1451,10 @@
         // Force reflow to ensure animations play
         this.afs.container.offsetHeight;
 
-        // Update counter and URL
+        // Update counter - this needs to happen after filter changes
         this.afs.updateCounter();
+
+        // Update URL
         this.afs.urlManager.updateURL();
 
         // Emit final event
@@ -1931,8 +1938,10 @@
       this.filterGroups.clear();
       this.sortOrders.clear();
 
-      // Apply changes
+      // Apply changes and ensure counter is updated
       this.applyFilters();
+
+      // Update URL if URLManager exists
       if (this.afs.urlManager) {
         this.afs.urlManager.updateURL();
       }
@@ -1973,7 +1982,6 @@
 
   /**
    * @fileoverview Utility functions for AFS
-   * @version 1.0.0
    */
 
   /**
@@ -2004,7 +2012,6 @@
 
   /**
    * @fileoverview Search functionality for AFS
-   * @version 1.0.0
    */
 
   class Search {
@@ -2300,7 +2307,6 @@
 
   /**
    * @fileoverview Sort functionality for AFS
-   * @version 1.0.0
    */
 
   class Sort {
@@ -2666,9 +2672,7 @@
 
   /**
    * @fileoverview Pagination functionality for AFS
-   * @version 1.0.0
    */
-
   class Pagination {
     /**
      * @param {import('../AFS').AFS} afs - Main AFS instance
@@ -2676,7 +2680,8 @@
     constructor(afs) {
       this.afs = afs;
       this.container = null;
-      this.options = this.afs.options.get('pagination') || {};
+      this.animation = new Animation(afs);
+      this.options = this.afs.options.get("pagination");
       this.setupPagination();
     }
 
@@ -2685,23 +2690,27 @@
      * @private
      */
     setupPagination() {
-      if (!this.options.enabled) return;
-      this.container = document.createElement('div');
-      this.container.className = this.options.containerClass || 'afs-pagination';
+      this.afs.logger.debug("Setting up pagination");
+      if (!this.afs.options.get('pagination.enabled')) return;
+      console.log('Pagination enabled');
+      this.container = document.createElement("div");
+      this.container.className = this.options.containerClass;
+      const itemsContainer = document.querySelector(this.afs.options.get("pagination.container"));
+      if (!itemsContainer) {
+        this.afs.logger.error("Items container not found.");
+        return;
+      }
+      itemsContainer.appendChild(this.container);
 
-      // Add pagination container after the items container
-      const itemsContainer = this.afs.options.get('container');
-      itemsContainer.parentNode.insertBefore(this.container, itemsContainer.nextSibling);
-
-      // Initialize state
-      this.afs.state.setState('pagination', {
+      // Initialize pagination state with defaults
+      this.afs.state.setState("pagination", {
         currentPage: 1,
-        itemsPerPage: this.options.itemsPerPage || 10,
+        itemsPerPage: this.options.itemsPerPage,
         totalPages: 0
       });
       this.bindEvents();
       this.update();
-      this.afs.logger.debug('Pagination initialized');
+      this.afs.logger.debug("Pagination initialized");
     }
 
     /**
@@ -2709,18 +2718,15 @@
      * @private
      */
     bindEvents() {
-      // Listen for AFS filter events
-      this.afs.on('filter', () => this.update());
-      this.afs.on('search', () => this.update());
-      this.afs.on('sort', () => this.update());
-
-      // Delegate click events for pagination buttons
-      this.container.addEventListener('click', e => {
-        const button = e.target.closest('button');
+      this.afs.on("filter", () => this.update());
+      this.afs.on("search", () => this.update());
+      this.afs.on("sort", () => this.update());
+      this.container.addEventListener("click", e => {
+        const button = e.target.closest("button");
         if (!button) return;
         const page = button.dataset.page;
         if (page) {
-          this.goToPage(parseInt(page));
+          this.goToPage(parseInt(page, 10));
         }
       });
     }
@@ -2730,27 +2736,35 @@
      * @public
      */
     update() {
-      const visibleItems = this.afs.state.getState().items.visible;
+      const visibleItems = Array.from(this.afs.state.getState().items.visible);
       const itemsPerPage = this.afs.state.getState().pagination.itemsPerPage;
-      const totalPages = Math.ceil(visibleItems.size / itemsPerPage);
+      const totalPages = Math.max(1, Math.ceil(visibleItems.length / itemsPerPage));
 
       // Update state
-      this.afs.state.setState('pagination.totalPages', totalPages);
+      const currentState = this.afs.state.getState().pagination;
+      let currentPage = currentState.currentPage;
 
-      // Ensure current page is valid
-      const currentPage = this.afs.state.getState().pagination.currentPage;
+      // Adjust current page if it's beyond the total pages
       if (currentPage > totalPages) {
-        this.goToPage(1);
-        return;
+        currentPage = totalPages;
       }
-      this.updateVisibility();
+
+      // Update pagination state
+      this.afs.state.setState("pagination", {
+        ...currentState,
+        currentPage,
+        totalPages
+      });
+
+      // Update visibility before rendering pagination controls
+      this.updateVisibility(visibleItems);
       this.renderPagination();
       this.afs.urlManager.updateURL();
-      this.afs.emit('pagination', {
+      this.afs.emit("pagination", {
         currentPage,
         totalPages,
         itemsPerPage,
-        visibleItems: visibleItems.size
+        visibleItems: visibleItems.length
       });
     }
 
@@ -2758,21 +2772,43 @@
      * Update items visibility based on current page
      * @private
      */
-    updateVisibility() {
-      const state = this.afs.state.getState();
+    updateVisibility(visibleItems) {
       const {
         currentPage,
         itemsPerPage
-      } = state.pagination;
-      const visibleItems = Array.from(state.items.visible);
+      } = this.afs.state.getState().pagination;
       const startIndex = (currentPage - 1) * itemsPerPage;
       const endIndex = startIndex + itemsPerPage;
-      visibleItems.forEach((item, index) => {
-        if (index >= startIndex && index < endIndex) {
-          this.afs.showItem(item);
-        } else {
-          this.afs.hideItem(item);
-        }
+
+      // First hide all items
+      this.afs.items.forEach(item => {
+        item.style.display = "none";
+        item.classList.add(this.afs.options.get("hiddenClass"));
+      });
+
+      // Then show only the items for the current page
+      const itemsToShow = visibleItems.slice(startIndex, endIndex);
+
+      // Ensure we're not trying to display non-existent items
+      if (itemsToShow.length === 0 && visibleItems.length > 0) {
+        // If we have no items to show but we do have visible items,
+        // we're probably on an invalid page - go to page 1
+        this.goToPage(1);
+        return;
+      }
+
+      // Show items with animation
+      requestAnimationFrame(() => {
+        itemsToShow.forEach(item => {
+          // Remove hidden class and restore display
+          item.style.display = "";
+          item.classList.remove(this.afs.options.get("hiddenClass"));
+
+          // Apply show animation in the next frame
+          requestAnimationFrame(() => {
+            this.animation.applyShowAnimation(item, this.options.animationType || "fade");
+          });
+        });
       });
     }
 
@@ -2781,21 +2817,16 @@
      * @private
      */
     renderPagination() {
-      const state = this.afs.state.getState().pagination;
       const {
         currentPage,
         totalPages
-      } = state;
-
-      // Clear existing controls
-      this.container.innerHTML = '';
-
-      // Don't render if only one page
+      } = this.afs.state.getState().pagination;
+      this.container.innerHTML = "";
       if (totalPages <= 1) {
-        this.container.style.display = 'none';
+        this.container.style.display = "none";
         return;
       }
-      this.container.style.display = 'flex';
+      this.container.style.display = "flex";
       const controls = this.createPaginationControls(currentPage, totalPages);
       this.container.appendChild(controls);
     }
@@ -2809,50 +2840,32 @@
      */
     createPaginationControls(currentPage, totalPages) {
       const fragment = document.createDocumentFragment();
-
-      // Previous button
       if (this.options.showPrevNext) {
-        const prevButton = this.createPageButton('‹', currentPage - 1, {
+        const prevButton = this.createPageButton("‹", currentPage - 1, {
           disabled: currentPage === 1,
-          class: 'afs-pagination-prev'
+          class: "afs-pagination-prev"
         });
         fragment.appendChild(prevButton);
       }
-
-      // First page
-      fragment.appendChild(this.createPageButton('1', 1, {
+      fragment.appendChild(this.createPageButton("1", 1, {
         active: currentPage === 1
       }));
-
-      // Calculate page range
       const range = this.calculatePageRange(currentPage, totalPages);
-
-      // Add ellipsis and pages
-      if (range.start > 2) {
-        fragment.appendChild(this.createEllipsis());
-      }
+      if (range.start > 2) fragment.appendChild(this.createEllipsis());
       for (let i = range.start; i <= range.end; i++) {
         if (i === 1 || i === totalPages) continue;
         fragment.appendChild(this.createPageButton(i.toString(), i, {
           active: currentPage === i
         }));
       }
-      if (range.end < totalPages - 1) {
-        fragment.appendChild(this.createEllipsis());
-      }
-
-      // Last page
-      if (totalPages > 1) {
-        fragment.appendChild(this.createPageButton(totalPages.toString(), totalPages, {
-          active: currentPage === totalPages
-        }));
-      }
-
-      // Next button
+      if (range.end < totalPages - 1) fragment.appendChild(this.createEllipsis());
+      if (totalPages > 1) fragment.appendChild(this.createPageButton(totalPages.toString(), totalPages, {
+        active: currentPage === totalPages
+      }));
       if (this.options.showPrevNext) {
-        const nextButton = this.createPageButton('›', currentPage + 1, {
+        const nextButton = this.createPageButton("›", currentPage + 1, {
           disabled: currentPage === totalPages,
-          class: 'afs-pagination-next'
+          class: "afs-pagination-next"
         });
         fragment.appendChild(nextButton);
       }
@@ -2862,62 +2875,34 @@
     /**
      * Create page button
      * @private
-     * @param {string} text - Button text
-     * @param {number} page - Page number
-     * @param {Object} options - Button options
-     * @returns {HTMLButtonElement} Page button
      */
     createPageButton(text, page) {
       let {
         active = false,
         disabled = false,
-        class: className = ''
+        class: className = ""
       } = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-      const button = document.createElement('button');
+      const button = document.createElement("button");
       button.textContent = text;
       button.dataset.page = page;
-      button.classList.add(this.options.pageButtonClass || 'afs-page-button');
-      if (className) {
-        button.classList.add(className);
-      }
-      if (active) {
-        button.classList.add(this.options.activePageClass || 'afs-page-active');
-      }
-      if (disabled) {
-        button.disabled = true;
-        button.classList.add('afs-page-disabled');
-      }
+      button.classList.add(this.options.pageButtonClass || "afs-page-button");
+      if (className) button.classList.add(className);
+      if (active) button.classList.add(this.options.activePageClass || "afs-page-active");
+      if (disabled) button.disabled = true;
       return button;
     }
-
-    /**
-     * Create ellipsis element
-     * @private
-     * @returns {HTMLSpanElement} Ellipsis element
-     */
     createEllipsis() {
-      const span = document.createElement('span');
-      span.textContent = '...';
-      span.classList.add('afs-pagination-ellipsis');
+      const span = document.createElement("span");
+      span.textContent = "...";
+      span.classList.add("afs-pagination-ellipsis");
       return span;
     }
-
-    /**
-     * Calculate page range to display
-     * @private
-     * @param {number} currentPage - Current page
-     * @param {number} totalPages - Total pages
-     * @returns {Object} Page range
-     */
     calculatePageRange(currentPage, totalPages) {
       const maxButtons = this.options.maxButtons || 7;
-      const sideButtons = Math.floor((maxButtons - 3) / 2); // Subtract first, last, and current
-
+      const sideButtons = Math.floor((maxButtons - 3) / 2);
       let start = Math.max(2, currentPage - sideButtons);
       let end = Math.min(totalPages - 1, start + maxButtons - 3);
-      if (end - start < maxButtons - 3) {
-        start = Math.max(2, end - (maxButtons - 3));
-      }
+      if (end - start < maxButtons - 3) start = Math.max(2, end - (maxButtons - 3));
       return {
         start,
         end
@@ -2927,88 +2912,89 @@
     /**
      * Go to specific page
      * @public
-     * @param {number} page - Target page
      */
     goToPage(page) {
       const state = this.afs.state.getState().pagination;
       const targetPage = Math.max(1, Math.min(page, state.totalPages));
       if (targetPage === state.currentPage) return;
-      this.afs.state.setState('pagination.currentPage', targetPage);
+
+      // Update state
+      this.afs.state.setState("pagination.currentPage", targetPage);
+
+      // Force a reflow before updating
+      this.afs.container.offsetHeight;
+
+      // Update visibility and controls
       this.update();
 
       // Scroll to top if enabled
       if (this.options.scrollToTop) {
-        this.scrollToTop();
+        setTimeout(() => this.scrollToTop(), 100);
       }
-    }
 
-    /**
-     * Scroll to top of container
-     * @private
-     */
+      // Emit page change event
+      this.afs.emit("pageChanged", {
+        previousPage: state.currentPage,
+        currentPage: targetPage,
+        totalPages: state.totalPages
+      });
+    }
     scrollToTop() {
-      const container = this.afs.options.get('container');
-      const offset = this.options.scrollOffset || 0;
+      const container = document.querySelector(this.afs.options.get("pagination.container"));
+      if (!container) {
+        this.afs.logger.warn("Scroll container not found.");
+        return;
+      }
       window.scrollTo({
-        top: container.offsetTop - offset,
-        behavior: 'smooth'
+        top: container.offsetTop - this.options.scrollOffset,
+        behavior: "smooth"
       });
     }
 
     /**
-     * Set items per page
+     * Set pagination mode
      * @public
-     * @param {number} count - Items per page
      */
-    setItemsPerPage(count) {
-      this.afs.state.setState('pagination.itemsPerPage', count);
-      this.afs.state.setState('pagination.currentPage', 1);
-      this.update();
-    }
+    setPaginationMode(enabled) {
+      this.afs.logger.debug(`Setting pagination mode to: ${enabled}`);
 
-    /**
-     * Get current page info
-     * @public
-     * @returns {Object} Page info
-     */
-    getPageInfo() {
-      const state = this.afs.state.getState();
-      const {
-        currentPage,
-        itemsPerPage,
-        totalPages
-      } = state.pagination;
-      const totalItems = state.items.visible.size;
-      const startIndex = (currentPage - 1) * itemsPerPage;
-      const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
-      return {
-        currentPage,
-        itemsPerPage,
-        totalPages,
-        totalItems,
-        startIndex: startIndex + 1,
-        endIndex,
-        hasNextPage: currentPage < totalPages,
-        hasPrevPage: currentPage > 1
-      };
-    }
-
-    /**
-     * Destroy pagination
-     * @public
-     */
-    destroy() {
-      if (this.container) {
+      // Update options
+      this.afs.options.set('pagination.enabled', enabled);
+      if (enabled) {
+        // Enable pagination
+        this.setupPagination();
+      } else {
+        // Disable pagination and show all items
         this.container.remove();
-        this.container = null;
+        this.showAllItems();
       }
-      this.afs.logger.debug('Pagination destroyed');
+
+      // Emit event
+      this.afs.emit('paginationModeChanged', {
+        enabled
+      });
+    }
+
+    /**
+     * Show all items (for infinite scroll mode)
+     * @private
+     */
+    showAllItems() {
+      const visibleItems = Array.from(this.afs.state.getState().items.visible);
+      requestAnimationFrame(() => {
+        visibleItems.forEach(item => {
+          item.style.display = '';
+          item.classList.remove(this.afs.options.get('hiddenClass'));
+          requestAnimationFrame(() => {
+            this.animation.applyShowAnimation(item, this.options.animationType || 'fade');
+          });
+        });
+      });
     }
   }
 
   /**
    * @fileoverview URL state management for AFS
-   * @version 1.0.0
    */
 
   class URLManager {
@@ -3478,7 +3464,6 @@
 
   /**
    * @fileoverview Range filter implementation for AFS
-   * @version 1.0.0
    */
 
   class RangeFilter {
@@ -3816,20 +3801,49 @@
         minThumb,
         maxThumb
       } = elements;
-      const handleDragStart = isMin => e => {
+      const handleStart = isMin => e => {
+        e.preventDefault(); // Prevent scrolling while dragging on mobile
         state.isDragging = true;
-        const moveHandler = this.createMoveHandler(elements, state, key, isMin);
+
+        // Get the correct event coordinates whether mouse or touch
+        const getEventXY = event => {
+          return event.touches ? event.touches[0] : event;
+        };
+        const moveHandler = moveEvent => {
+          const evt = getEventXY(moveEvent);
+          this.createMoveHandler(elements, state, key, isMin)(evt);
+        };
         const stopHandler = () => {
           state.isDragging = false;
-          window.removeEventListener("mousemove", moveHandler);
-          window.removeEventListener("mouseup", stopHandler);
+
+          // Remove both mouse and touch event listeners
+          window.removeEventListener('mousemove', moveHandler);
+          window.removeEventListener('mouseup', stopHandler);
+          window.removeEventListener('touchmove', moveHandler);
+          window.removeEventListener('touchend', stopHandler);
+          window.removeEventListener('touchcancel', stopHandler);
           this.applyFilter(key);
         };
-        window.addEventListener("mousemove", moveHandler);
-        window.addEventListener("mouseup", stopHandler);
+
+        // Add both mouse and touch event listeners
+        window.addEventListener('mousemove', moveHandler);
+        window.addEventListener('mouseup', stopHandler);
+        window.addEventListener('touchmove', moveHandler, {
+          passive: false
+        });
+        window.addEventListener('touchend', stopHandler);
+        window.addEventListener('touchcancel', stopHandler);
       };
-      minThumb.addEventListener("mousedown", handleDragStart(true));
-      maxThumb.addEventListener("mousedown", handleDragStart(false));
+
+      // Add both mouse and touch event listeners to thumbs
+      minThumb.addEventListener('mousedown', handleStart(true));
+      minThumb.addEventListener('touchstart', handleStart(true), {
+        passive: false
+      });
+      maxThumb.addEventListener('mousedown', handleStart(false));
+      maxThumb.addEventListener('touchstart', handleStart(false), {
+        passive: false
+      });
     }
 
     /**
@@ -3902,12 +3916,13 @@
       } = elements;
       const PADDING = 5;
       return debounce(e => {
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const rect = track.getBoundingClientRect();
         const totalWidth = rect.width;
         const paddingPixels = PADDING / 100 * totalWidth;
 
         // Calculate percent with padding consideration
-        const rawPercent = (e.clientX - rect.left - paddingPixels) / (totalWidth - 2 * paddingPixels);
+        const rawPercent = (clientX - rect.left - paddingPixels) / (totalWidth - 2 * paddingPixels);
         const percent = Math.min(Math.max(0, rawPercent), 1);
 
         // Calculate value considering the full range
@@ -3993,7 +4008,6 @@
 
   /**
    * @fileoverview Date filter implementation for AFS
-   * @version 1.0.0
    */
 
   class DateFilter {
@@ -4313,7 +4327,7 @@
    */
 
   // Version
-  const VERSION = '1.0.6';
+  const VERSION = '1.0.7';
   class AFS extends EventEmitter {
     /**
      * @param {Object} options - Configuration options
@@ -4372,10 +4386,10 @@
       this.filter = new Filter(this);
       this.search = new Search(this);
       this.sort = new Sort(this);
-      this.pagination = new Pagination(this);
       this.rangeFilter = new RangeFilter(this);
       this.urlManager = new URLManager(this);
       this.dateFilter = new DateFilter(this);
+      this.pagination = new Pagination(this);
 
       // Apply styles
       this.styleManager.applyStyles();
