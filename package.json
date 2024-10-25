@@ -1,6 +1,6 @@
 {
     "name": "advanced-filter-system",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "description": "Advanced filtering system for DOM elements with multiple features",
     "main": "dist/AFS.js",
     "module": "dist/AFS.esm.js",
