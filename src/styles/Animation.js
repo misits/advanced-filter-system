@@ -67,19 +67,23 @@ export class Animation {
       }
       
     applyShowAnimation(item, animationType = 'fade') {
-      const duration = this.options.get('animationDuration') || '300ms';
-      const animation = this.animations[animationType]?.in || this.animations.fade.in;
-      
-      item.style.display = 'block';
-      requestAnimationFrame(() => {
-        Object.assign(item.style, animation, {
-          transition: `opacity ${duration} ${animation.transitionTimingFunction}, transform ${duration} ${animation.transitionTimingFunction}`,
-        });
+    const duration = this.options.get('animation.duration') || '300ms';
+    const animation = this.animations[animationType]?.in || this.animations.fade.in;
+    
+    // Ensure display is set
+    item.style.display = 'block';
+    item.style.opacity = '0'; // Start with opacity 0
+    
+    // Apply animation in next frame
+    requestAnimationFrame(() => {
+      Object.assign(item.style, animation, {
+        transition: `opacity ${duration} ${animation.transitionTimingFunction}, transform ${duration} ${animation.transitionTimingFunction}`,
       });
-    }
+    });
+  }
   
     applyHideAnimation(item, animationType = 'fade') {
-      const duration = this.options.get('animationDuration') || '300ms';
+      const duration = this.options.get('animation.duration') || '300ms';
       const animation = this.animations[animationType]?.out || this.animations.fade.out;
       
       Object.assign(item.style, animation, {
@@ -94,6 +98,6 @@ export class Animation {
     }
 
     setAnimation(animationType) {
-      this.afs.options.set('animationType', animationType);
+      this.afs.options.set('animation.type', animationType);
     }
 }

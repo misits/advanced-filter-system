@@ -19,17 +19,17 @@ A powerful and flexible vanilla JavaScript filtering system that provides advanc
     - [Sorting](#sorting)
     - [Pagination](#pagination)
   - [Advanced Usage](#advanced-usage)
-    - [Custom Animation](#custom-animation)
     - [Filter Groups](#filter-groups)
     - [Custom Sorting](#custom-sorting)
     - [URL State Management](#url-state-management)
   - [Components](#components)
     - [Filter System](#filter-system)
     - [Range Filter](#range-filter)
+    - [Input Range Filter](#input-range-filter)
     - [Date Filter](#date-filter)
     - [Search System](#search-system)
     - [Sort System](#sort-system)
-    - [Pagination](#pagination-1)
+    - [Pagination System](#pagination-system)
     - [URL Manager](#url-manager)
   - [Styling \& Theming](#styling--theming)
     - [Built-in Themes](#built-in-themes)
@@ -97,7 +97,7 @@ pnpm add advanced-filter-system
 Or include via CDN:
 
 ```html
-<script src="https://unpkg.com/advanced-filter-system@1.0.8/dist/AFS.min.js"></script>
+<script src="https://unpkg.com/advanced-filter-system@1.0.9/dist/AFS.min.js"></script>
 ```
 
 ## Quick Start
@@ -159,7 +159,7 @@ Or include via CDN:
     <div class="pagination-container"></div>
 
     <!-- Scripts -->
-    <script src="https://unpkg.com/advanced-filter-system@1.0.8/dist/AFS.min.js"></script>
+    <script src="https://unpkg.com/advanced-filter-system@1.0.9/dist/AFS.min.js"></script>
     <script>
         const afs = AFS.createAFS({
             containerSelector: '#items-container',
@@ -327,46 +327,6 @@ const info = afs.pagination.getPageInfo();
 
 ## Advanced Usage
 
-### Custom Animation
-
-```javascript
-// Custom animation configuration
-const afs = createAFS({
-    animation: {
-        type: 'custom',
-        duration: 500,
-        easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
-        inClass: 'my-enter',
-        outClass: 'my-leave'
-    }
-});
-
-// CSS
-.my-enter {
-    opacity: 0;
-    transform: scale(0.9);
-}
-
-.my-enter.my-enter-active {
-    opacity: 1;
-    transform: scale(1);
-    transition: opacity 500ms cubic-bezier(0.4, 0, 0.2, 1),
-                transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.my-leave {
-    opacity: 1;
-    transform: scale(1);
-}
-
-.my-leave.my-leave-active {
-    opacity: 0;
-    transform: scale(0.9);
-    transition: opacity 500ms cubic-bezier(0.4, 0, 0.2, 1),
-                transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-```
-
 ### Filter Groups
 
 ```javascript
@@ -437,24 +397,35 @@ const searchQuery = afs.urlManager.getParam('search');
 Each component can be used independently or as part of the AFS system.
 
 ### Filter System
+
 See [Filter Documentation](docs/filter.md)
 
 ### Range Filter
+
 See [Range Filter Documentation](docs/range-filter.md)
 
+### Input Range Filter
+
+See [Input Range Filter Documentation](docs/input-range-filter.md)
+
 ### Date Filter
+
 See [Date Filter Documentation](docs/date-filter.md)
 
 ### Search System
+
 See [Search Documentation](docs/search.md)
 
 ### Sort System
+
 See [Sort Documentation](docs/sort.md)
 
-### Pagination
+### Pagination System
+
 See [Pagination Documentation](docs/pagination.md)
 
 ### URL Manager
+
 See [URL Manager Documentation](docs/url-manager.md)
 
 ## Styling & Theming
@@ -483,16 +454,6 @@ const afs = createAFS({
             background: '#custom-bg',
             text: '#custom-text'
         },
-        components: {
-            button: {
-                borderRadius: '8px',
-                padding: '8px 16px'
-            },
-            input: {
-                borderWidth: '2px',
-                focusRing: '3px'
-            }
-        }
     }
 });
 ```
@@ -504,6 +465,7 @@ const afs = createAFS({
     animation: {
         type: 'fade', // or 'slide', 'scale', etc.
         duration: 300,
+        easing: 'ease-in-out'
     }
 });
 ```

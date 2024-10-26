@@ -154,26 +154,39 @@ export class Filter {
     // Clear filter groups
     this.filterGroups.clear();
   
-    // Force all items to be visible first
-    const visibleItems = new Set(this.afs.items);
-    this.afs.state.setState("items.visible", visibleItems);
+    // Create a promise to track animations
+    const animationPromises = [];
   
     // Show all items with animation
     this.afs.items.forEach(item => {
-      item.classList.remove(this.afs.options.get('hiddenClass'));
-      requestAnimationFrame(() => {
-        this.animation.applyShowAnimation(item, this.afs.options.get("animationType"));
+      const promise = new Promise(resolve => {
+        item.classList.remove(this.afs.options.get('hiddenClass'));
+        item.style.display = 'block'; // Ensure item is visible
+        
+        requestAnimationFrame(() => {
+          this.animation.applyShowAnimation(item, this.afs.options.get("animation.type"));
+          // Resolve after animation duration
+          setTimeout(resolve, this.afs.options.get("animation.duration") || 300);
+        });
       });
+      animationPromises.push(promise);
     });
   
-    // Update counter after reset
-    this.afs.updateCounter();
+    // Update state after all items are visible
+    const visibleItems = new Set(this.afs.items);
+    this.afs.state.setState("items.visible", visibleItems);
   
-    // Update URL after reset
-    this.afs.urlManager.updateURL();
-
-    // Emit event
-    this.afs.emit("filtersReset");
+    // Wait for all animations to complete
+    Promise.all(animationPromises).then(() => {
+      // Update counter
+      this.afs.updateCounter();
+      
+      // Update URL
+      this.afs.urlManager.updateURL();
+  
+      // Emit event
+      this.afs.emit("filtersReset");
+    });
   }
 
   /**
@@ -250,61 +263,66 @@ export class Filter {
  * @public
  */
  applyFilters() {
-  // Log active filters
-  const activeFilters = Array.from(this.activeFilters);
-  this.afs.logger.debug("Active filters:", activeFilters);
-  this.afs.logger.debug("Applying filters");
+    const activeFilters = Array.from(this.activeFilters);
+    this.afs.logger.debug("Active filters:", activeFilters);
 
-  const previouslyVisible = new Set(this.afs.state.getState().items.visible);
-  const visibleItems = new Set();
+    const previouslyVisible = new Set(this.afs.state.getState().items.visible);
+    const visibleItems = new Set();
 
-  // First pass: determine which items should be visible
-  this.afs.items.forEach(item => {
-    if (this.activeFilters.has("*") || this.itemMatchesFilters(item)) {
-      visibleItems.add(item);
-    }
-  });
-
-  // Update state with determined visible items
-  this.afs.state.setState("items.visible", visibleItems);
-
-  // Second pass: apply animations based on visibility changes
-  this.afs.items.forEach(item => {
-    if (visibleItems.has(item)) {
-      // Remove hidden class first
-      item.classList.remove(this.afs.options.get('hiddenClass'));
-      // Then apply show animation in next frame
-      requestAnimationFrame(() => {
-        this.animation.applyShowAnimation(item, this.afs.options.get("animationType"));
-      });
-    } else {
-      // Apply hide animation
-      requestAnimationFrame(() => {
-        this.animation.applyHideAnimation(item, this.afs.options.get("animationType"));
-      });
-    }
-  });
-
-  // Emit events and update UI
-  this.emitFilterEvents(previouslyVisible, visibleItems);
-
-  // Schedule UI updates
-  requestAnimationFrame(() => {
-    // Force reflow to ensure animations play
-    this.afs.container.offsetHeight;
-
-    // Update counter - this needs to happen after filter changes
-    this.afs.updateCounter();
-    
-    // Update URL
-    this.afs.urlManager.updateURL();
-
-    // Emit final event
-    this.afs.emit("filtersApplied", {
-      activeFilters,
-      visibleItems: visibleItems.size,
+    // First determine visibility
+    this.afs.items.forEach(item => {
+        if (this.activeFilters.has("*") || this.itemMatchesFilters(item)) {
+            visibleItems.add(item);
+        }
     });
-  });
+
+    // Update state before animations
+    this.afs.state.setState("items.visible", visibleItems);
+
+    // Track animation promises
+    const animationPromises = [];
+
+    // Apply animations
+    this.afs.items.forEach(item => {
+        const promise = new Promise(resolve => {
+            if (visibleItems.has(item)) {
+                // Show item
+                item.classList.remove(this.afs.options.get('hiddenClass'));
+                requestAnimationFrame(() => {
+                    this.animation.applyShowAnimation(item, this.afs.options.get("animation.type"));
+                    setTimeout(resolve, parseFloat(this.afs.options.get("animation.duration")) || 300);
+                });
+            } else {
+                // Hide item
+                requestAnimationFrame(() => {
+                    this.animation.applyHideAnimation(item, this.afs.options.get("animation.type"));
+                    setTimeout(resolve, parseFloat(this.afs.options.get("animation.duration")) || 300);
+                });
+            }
+        });
+        animationPromises.push(promise);
+    });
+
+    // Handle completion
+    Promise.all(animationPromises).then(() => {
+        // Ensure visible items remain visible
+        visibleItems.forEach(item => {
+            item.style.display = 'block';
+            item.style.opacity = '1';
+        });
+
+        // Update UI
+        this.afs.updateCounter();
+        this.afs.urlManager.updateURL();
+
+        this.afs.emit("filtersApplied", {
+            activeFilters,
+            visibleItems: visibleItems.size,
+        });
+    });
+
+    // Emit visibility change events
+    this.emitFilterEvents(previouslyVisible, visibleItems);
 }
 
   /**

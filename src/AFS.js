@@ -8,6 +8,7 @@ import { StyleManager } from "./styles/StyleManager";
 import { EventEmitter } from "./core/EventEmitter";
 
 import { Filter } from "./features/Filter";
+import { InputRangeFilter } from "./features/InputRangeFilter";
 import { Search } from "./features/Search";
 import { Sort } from "./features/Sort";
 import { Pagination } from "./features/Pagination";
@@ -18,7 +19,7 @@ import { DateFilter } from "./features/DateFilter";
 import { debounce } from "./utils";
 
 // Version
-export const VERSION = '1.0.8';
+export const VERSION = '1.0.9';
 
 export class AFS extends EventEmitter {
   /**
@@ -94,6 +95,7 @@ export class AFS extends EventEmitter {
     this.urlManager = new URLManager(this);
     this.dateFilter = new DateFilter(this);
     this.pagination = new Pagination(this);
+    this.inputRangeFilter = new InputRangeFilter(this);
 
     // Apply styles
     this.styleManager.applyStyles();

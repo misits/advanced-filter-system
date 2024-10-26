@@ -28,39 +28,34 @@ export class Options {
    */
   static defaults = {
     // Selectors
-    containerSelector: '.afs-filter-container',
-    itemSelector: '.afs-filter-item',
-    filterButtonSelector: '.afs-btn-filter',
-    searchInputSelector: '.afs-filter-search',
-    counterSelector: '.afs-filter-counter',
+    containerSelector: ".afs-filter-container",
+    itemSelector: ".afs-filter-item",
+    filterButtonSelector: ".afs-btn-filter",
+    searchInputSelector: ".afs-filter-search",
+    counterSelector: ".afs-filter-counter",
 
     // Classes
-    activeClass: 'active',
-    hiddenClass: 'hidden',
-
-    // Animation
-    animationDuration: 300,
-    animationType: 'fade',
-    animationEasing: 'ease-out',
+    activeClass: "active",
+    hiddenClass: "hidden",
 
     // Filtering
-    filterMode: 'OR',
-    searchKeys: ['title'],
+    filterMode: "OR",
+    searchKeys: ["title"],
     debounceTime: 300,
 
     // Debug
     debug: false,
-    logLevel: 'info',
+    logLevel: "info",
 
     // Date handling
-    dateFormat: 'YYYY-MM-DD',
+    dateFormat: "YYYY-MM-DD",
 
     counter: {
-      template: 'Showing {visible} of {total}',
+      template: "Showing {visible} of {total}",
       showFiltered: true,
-      filteredTemplate: '({filtered} filtered)',
-      noResultsTemplate: 'No items found',
-      formatter: (num) => num.toLocaleString()
+      filteredTemplate: "({filtered} filtered)",
+      noResultsTemplate: "No items found",
+      formatter: (num) => num.toLocaleString(),
     },
 
     // Styles
@@ -71,70 +66,79 @@ export class Options {
           showHistogram: false,
           bins: 10, // Number of bins for histogram
           track: {
-            radius: '2px', // Button radius
-            background: '#e5e7eb', // Track color
+            radius: "0", // Button radius
+            background: "#e5e7eb", // Track color
           },
           thumb: {
-            radius: '50%', // Button radius
-            size: '16px', // Button size
-            background: '#000', // Button color
+            radius: "50%", // Button radius
+            size: "16px", // Button size
+            background: "#000", // Button color
           },
           histogram: {
-            background: '#e5e7eb', // Histogram background
+            background: "#e5e7eb", // Histogram background
             bar: {
-              background: '#000', // Bar color
-            }
-          }
-        }
+              background: "#000", // Bar color
+            },
+          },
+        },
       },
       pagination: {
         ui: {
           button: {
-            background: 'transparent',
-            border: '1px solid #000',
-            borderRadius: '4px',
-            padding: '8px 12px',
-            color: '#000',
+            background: "transparent",
+            border: "1px solid #000",
+            borderRadius: "4px",
+            padding: "8px 12px",
+            color: "#000",
             active: {
-              background: '#000',
-              color: '#fff',
+              background: "#000",
+              color: "#fff",
             },
             hover: {
-              background: '#000',
-              color: '#fff',
-            }
-          }
+              background: "#000",
+              color: "#fff",
+            },
+          },
         },
       },
       colors: {
-        primary: '#000',
-        background: '#e5e7eb',
-        text: '#000',
-      }
+        primary: "#000",
+        background: "#e5e7eb",
+        text: "#000",
+      },
     },
 
     // Slider
     slider: {
-      containerClass: 'afs-range-slider',
-      trackClass: 'afs-range-track',
-      thumbClass: 'afs-range-thumb',
-      valueClass: 'afs-range-value',
-      selectedClass: 'afs-range-selected',
+      containerClass: "afs-range-slider",
+      trackClass: "afs-range-track",
+      thumbClass: "afs-range-thumb",
+      valueClass: "afs-range-value",
+      selectedClass: "afs-range-selected",
     },
 
     // Pagination
     pagination: {
       enabled: false,
       itemsPerPage: 10,
-      container: '.afs-pagination-container',
-      pageButtonClass: 'afs-page-button',
-      activePageClass: 'afs-page-active',
-      containerClass: 'afs-pagination',
+      container: ".afs-pagination-container",
+      pageButtonClass: "afs-page-button",
+      activePageClass: "afs-page-active",
+      containerClass: "afs-pagination",
       scrollToTop: false,
       scrollOffset: 50,
-      scrollBehavior: 'smooth', // or 'auto' for instant scroll
-    }
-  }
+      scrollBehavior: "smooth", // or 'auto' for instant scroll
+    },
+
+    // Animation
+    animation: {
+      type: "fade",
+      duration: 300,
+      easing: "ease-out",
+      inClass: "afs-animation-enter",
+      outClass: "afs-animation-leave",
+    },
+  };
 
   constructor(userOptions = {}) {
     this.options = this.mergeOptions(Options.defaults, userOptions);
@@ -155,9 +159,9 @@ export class Options {
     // Ensure colors object exists and has all required properties
     this.options.styles.colors = {
       ...defaultStyles.colors,
-      ...(currentStyles.colors || {})
+      ...(currentStyles.colors || {}),
     };
-}
+  }
 
   /**
    * Deep merge options
@@ -168,11 +172,15 @@ export class Options {
    */
   mergeOptions(target, source) {
     const result = { ...target };
-  
+
     for (const key in source) {
-      if (source[key] !== null && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+      if (
+        source[key] !== null &&
+        typeof source[key] === "object" &&
+        !Array.isArray(source[key])
+      ) {
         // If the key doesn't exist in target or isn't an object, create/override it
-        if (!target[key] || typeof target[key] !== 'object') {
+        if (!target[key] || typeof target[key] !== "object") {
           result[key] = {};
         }
         // Recursively merge nested objects
@@ -182,7 +190,7 @@ export class Options {
         result[key] = source[key];
       }
     }
-  
+
     return result;
   }
 
@@ -193,37 +201,43 @@ export class Options {
    */
   validate() {
     // Required selectors
-    const requiredSelectors = ['containerSelector', 'itemSelector'];
+    const requiredSelectors = ["containerSelector", "itemSelector"];
     for (const selector of requiredSelectors) {
-      if (typeof this.options[selector] !== 'string') {
+      if (typeof this.options[selector] !== "string") {
         throw new Error(`${selector} must be a string`);
       }
     }
 
     // Animation duration
-    if (typeof this.options.animationDuration !== 'number' || this.options.animationDuration < 0) {
-      throw new Error('animationDuration must be a positive number');
+    if (
+      typeof this.options.animation.duration !== "number" ||
+      this.options.animation.duration < 0
+    ) {
+      throw new Error("animationDuration must be a positive number");
     }
 
     // Filter mode
-    if (!['OR', 'AND'].includes(this.options.filterMode.toUpperCase())) {
+    if (!["OR", "AND"].includes(this.options.filterMode.toUpperCase())) {
       throw new Error('filterMode must be either "OR" or "AND"');
     }
 
     // Search keys
-    if (!Array.isArray(this.options.searchKeys) || this.options.searchKeys.length === 0) {
-      throw new Error('searchKeys must be a non-empty array');
+    if (
+      !Array.isArray(this.options.searchKeys) ||
+      this.options.searchKeys.length === 0
+    ) {
+      throw new Error("searchKeys must be a non-empty array");
     }
 
     // Counter validation
     if (this.options.counter) {
-      if (typeof this.options.counter.template !== 'string') {
-        throw new Error('counter.template must be a string');
+      if (typeof this.options.counter.template !== "string") {
+        throw new Error("counter.template must be a string");
       }
-      if (typeof this.options.counter.showFiltered !== 'boolean') {
+      if (typeof this.options.counter.showFiltered !== "boolean") {
         this.options.counter.showFiltered = true; // Set default
       }
-      if (typeof this.options.counter.formatter !== 'function') {
+      if (typeof this.options.counter.formatter !== "function") {
         this.options.counter.formatter = (num) => num.toLocaleString(); // Set default
       }
     } else {
@@ -237,7 +251,7 @@ export class Options {
    * @returns {any} Option value
    */
   get(path) {
-    return path.split('.').reduce((obj, key) => obj?.[key], this.options);
+    return path.split(".").reduce((obj, key) => obj?.[key], this.options);
   }
 
   /**
@@ -246,7 +260,7 @@ export class Options {
    * @param {any} value - New value
    */
   set(path, value) {
-    const parts = path.split('.');
+    const parts = path.split(".");
     const last = parts.pop();
     const target = parts.reduce((obj, key) => {
       if (!(key in obj)) obj[key] = {};

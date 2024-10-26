@@ -89,23 +89,6 @@
         <section class="container mx-auto px-6 mb-16">
             <h2 class="text-3xl font-bold mb-8">Live Demo</h2>
             <div class="container mx-auto mb-16">
-                <!-- Filter Controls -->
-                <div class="sliders-filter grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-                    <div class="price-range-container p-6 border border-gray-300 bg-white rounded-md">
-                        <label for="price-range" class="block">Price Range</label>
-                        <p class="text-xs mb-10 text-gray-500">Filter by price wiith histogram enabled</p>
-                    </div>
-
-                    <div class="rate-range-container p-6 border border-gray-300 bg-white rounded-md">
-                        <label for="rate-range" class="block">Rate Range</label>
-                        <p class="text-xs mb-10 text-gray-500">Filter by rating</p>
-                    </div>
-
-                    <div class="date-range-container p-6 border border-gray-300 bg-white rounded-md">
-                        <label for="date-range" class="block">Date Range</label>
-                        <p class="text-xs mb-4 text-gray-500">Filter by date</p>
-                    </div>
-                </div>
                 <div class="filter-controls mb-6 flex gap-4 items-center flex-wrap">
                     <!-- Add this toggle button -->
                     <button
@@ -216,6 +199,29 @@
                     </div>
                 </div>
 
+                <!-- Filter Controls -->
+                <div class="sliders-filter grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                    <div class="price-range-container p-6 border border-gray-300 bg-white rounded-md">
+                        <label for="price-range" class="block">Price Range</label>
+                        <p class="text-xs mb-10 text-gray-500">Filter by price with histogram enabled</p>
+                    </div>
+
+                    <div class="rate-range-container p-6 border border-gray-300 bg-white rounded-md">
+                        <label for="rate-range" class="block">Rate Range</label>
+                        <p class="text-xs mb-10 text-gray-500">Filter by ratings</p>
+                    </div>
+
+                    <div class="input-range-container p-6 border border-gray-300 bg-white rounded-md">
+                        <label for="input-range" class="block">Sale Range</label>
+                        <p class="text-xs mb-4 text-gray-500">Filter by sales</p>
+                    </div>
+
+                    <div class="date-range-container p-6 border border-gray-300 bg-white rounded-md">
+                        <label for="date-range" class="block">Date Range</label>
+                        <p class="text-xs mb-4 text-gray-500">Filter by date</p>
+                    </div>
+                </div>
+                
                 <div class="filter-controls mb-6 flex gap-4 items-center flex-wrap">
                     <input type="text" class="filter-search p-2 border border-gray-300 rounded-md w-full sm:w-52"
                         placeholder="Search...">
@@ -474,7 +480,7 @@
                     <h3 class="text-xl font-bold mb-4">Via CDNs</h3>
                     <pre
                         class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-html">&lt;!-- Include the library --&gt;
-&lt;script src="https://unpkg.com/advanced-filter-system@1.0.7/dist/AFS.min.js"&gt;&lt;/script&gt;
+&lt;script src="https://unpkg.com/advanced-filter-system@1.0.9/dist/AFS.min.js"&gt;&lt;/script&gt;
 </code></pre>
                 </div>
             </div>
@@ -558,11 +564,6 @@ const afs = new AFS({
     activeClass: 'active',
     hiddenClass: 'hidden',
     
-    // Animation Settings
-    animationDuration: 300,
-    animationType: 'fade',
-    animationEasing: 'ease-out',
-    
     // Filter & Search Configuration
     filterMode: 'OR',      // or 'AND'
     searchKeys: ['title'], // attributes to search
@@ -604,6 +605,13 @@ const afs = new AFS({
         scrollToTop: false,
         scrollOffset: 50,
         scrollBehavior: 'smooth'  // or 'auto'
+    },
+
+    // Animation Configuration
+    animation: {
+        duration: 300,
+        type: 'fade',
+        easing: 'ease-out',
     }
 });</code></pre>
                         </div>
@@ -637,8 +645,6 @@ const afs = new AFS({
             searchInputSelector: '.filter-search',
             counterSelector: '.filter-counter',
             searchKeys: ['title', 'categories'],
-            animationDuration: 300,
-            animationType: 'fade',
             filterMode: 'OR',  // Set default to OR
             debug: true,
             counter: {
@@ -844,6 +850,16 @@ const afs = new AFS({
             min: 0,  // lowest price from your items
             max: 5, // highest price from your items
             step: 0.1,
+        });
+
+        const soldContainer = document.querySelector('.input-range-container');
+        // Initialize input range filter
+        afs.inputRangeFilter.addInputRange({
+            key: 'sales',
+            container: soldContainer,
+            min: 345,
+            max: 1250,
+            step: 1,
         });
 
         // Add a date range filter

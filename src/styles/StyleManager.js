@@ -21,8 +21,8 @@ export class StyleManager {
     const itemSelector = this.options.get("itemSelector") || ".afs-filter-item";
     const filterButtonSelector = this.options.get("filterButtonSelector") || ".afs-btn-filter";
     const activeClass = this.options.get("activeClass") || "active";
-    const animationDuration = this.options.get("animationDuration") || '300ms';
-    const animationEasing = this.options.get("animationEasing") || 'ease-out';
+    const animationDuration = this.options.get("animation.duration") || '300ms';
+    const animationEasing = this.options.get("animation.easing") || 'ease-out';
     
     return `
       .${hiddenClass} {
@@ -88,8 +88,8 @@ export class StyleManager {
       transform: translateY(-50%);
       width: 100%;
       height: 4px;
-      background: ${sliderStyles.ui.thumb.background || colors.background};
-      border-radius: ${sliderStyles.ui.track.radius || "2px"};
+      background: ${sliderStyles.ui.track.background || colors.background};
+      border-radius: ${sliderStyles.ui.track.radius || "0"};
     }
 
     .${thumbClass} {
@@ -191,6 +191,49 @@ export class StyleManager {
   }
 
   /**
+   * Create date filter styles
+   * @private
+   * @returns {string} CSS styles
+   */
+  createInputRangeStyles() {
+    const colors = this.options.get("styles").colors;
+    return `
+        .afs-input-range-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 10px 0;
+        }
+
+        .afs-input-wrapper {
+            flex: 1;
+        }
+
+        .afs-input-label {
+            display: block;
+            font-size: 0.875rem;
+            color: ${colors.text};
+            margin-bottom: 0.5rem;
+        }
+
+        .afs-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid ${colors.background};
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            color: ${colors.text};
+            transition: border-color 0.2s ease;
+        }
+
+        .afs-input:focus {
+            outline: none;
+            border-color: ${colors.primary};
+        }
+    `;
+}
+
+  /**
    * Apply all styles
    * @public
    */
@@ -211,6 +254,9 @@ export class StyleManager {
 
       /* Search styles */
       ${this.createSearchStyles()}
+
+      /* Input range styles */
+      ${this.createInputRangeStyles()}
     `;
 
       if (this.styleElement) {

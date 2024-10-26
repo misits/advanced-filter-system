@@ -5,6 +5,7 @@
 export { AFS } from './AFS';
 export { DateFilter } from './features/DateFilter';
 export { Filter } from './features/Filter';
+export { InputRangeFilter } from './features/InputRangeFilter';
 export { Search } from './features/Search';
 export { Pagination } from './features/Pagination';
 export { RangeFilter } from './features/RangeFilter';
