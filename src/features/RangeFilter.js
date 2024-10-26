@@ -9,7 +9,7 @@ export class RangeFilter {
   constructor(afs) {
     this.afs = afs;
     this.activeRanges = new Map();
-
+    this.options = this.afs.options.get("slider");
     if (!this.afs.styleManager) {
       this.afs.styleManager = new StyleManager(this.afs.options);
     }
@@ -116,18 +116,17 @@ export class RangeFilter {
   createSliderElements(histogramData, sliderUiOptions) {
     const styles =
       this.afs.options.get("styles") || this.afs.styleManager.defaultStyles;
-    const sliderStyles =
-      styles.slider || this.afs.styleManager.defaultStyles.slider;
     const colors = styles.colors || this.afs.styleManager.defaultStyles.colors;
+    const sliderOptions = this.afs.options.get("slider") || {};
 
     const container = document.createElement("div");
-    container.className = "price-range-container";
+    container.className = "afs-range-container";
 
     const slider = document.createElement("div");
-    slider.className = sliderStyles.class;
+    slider.className = sliderOptions.containerClass;
 
     const track = document.createElement("div");
-    track.className = sliderStyles.trackClass;
+    track.className = sliderOptions.trackClass;
 
     // Only add histogram if enabled in the slider-specific options
     if (sliderUiOptions?.showHistogram && histogramData?.counts?.length > 0) {
@@ -136,19 +135,19 @@ export class RangeFilter {
     }
 
     const selectedRange = document.createElement("div");
-    selectedRange.className = sliderStyles.selectedClass;
+    selectedRange.className = sliderOptions.selectedClass;
 
     const minThumb = document.createElement("div");
-    minThumb.className = sliderStyles.thumbClass;
+    minThumb.className = sliderOptions.thumbClass;
 
     const maxThumb = document.createElement("div");
-    maxThumb.className = sliderStyles.thumbClass;
+    maxThumb.className = sliderOptions.thumbClass;
 
     const minValue = document.createElement("div");
-    minValue.className = sliderStyles.valueClass;
+    minValue.className = sliderOptions.valueClass;
 
     const maxValue = document.createElement("div");
-    maxValue.className = sliderStyles.valueClass;
+    maxValue.className = sliderOptions.valueClass;
 
     // Build the slider
     slider.appendChild(track);

@@ -171,6 +171,11 @@ updateURL() {
    */
   addPaginationToURL(params, state) {
     const { currentPage, itemsPerPage } = state.pagination;
+
+    if (!this.afs.options.get('pagination.enabled')) {
+      return;
+    }
+
     if (currentPage > 1) {
       params.set('page', currentPage.toString());
     }

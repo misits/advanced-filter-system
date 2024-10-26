@@ -28,11 +28,11 @@ export class Options {
    */
   static defaults = {
     // Selectors
-    containerSelector: '.filter-container',
-    itemSelector: '.filter-item',
-    filterButtonSelector: '.btn-filter',
-    searchInputSelector: '.filter-search',
-    counterSelector: '.filter-counter',
+    containerSelector: '.afs-filter-container',
+    itemSelector: '.afs-filter-item',
+    filterButtonSelector: '.afs-btn-filter',
+    searchInputSelector: '.afs-filter-search',
+    counterSelector: '.afs-filter-counter',
 
     // Classes
     activeClass: 'active',
@@ -66,24 +66,60 @@ export class Options {
     // Styles
     styles: {
       slider: {
-        class: 'afs-range-slider',
-        trackClass: 'afs-range-track',
-        thumbClass: 'afs-range-thumb',
-        valueClass: 'afs-range-value',
-        selectedClass: 'afs-range-selected',
         // Add new UI options
         ui: {
           showHistogram: false,
-          bins: 10 // Number of bins for histogram
+          bins: 10, // Number of bins for histogram
+          track: {
+            radius: '2px', // Button radius
+            background: '#e5e7eb', // Track color
+          },
+          thumb: {
+            radius: '50%', // Button radius
+            size: '16px', // Button size
+            background: '#000', // Button color
+          },
+          histogram: {
+            background: '#e5e7eb', // Histogram background
+            bar: {
+              background: '#000', // Bar color
+            }
+          }
         }
+      },
+      pagination: {
+        ui: {
+          button: {
+            background: 'transparent',
+            border: '1px solid #000',
+            borderRadius: '4px',
+            padding: '8px 12px',
+            color: '#000',
+            active: {
+              background: '#000',
+              color: '#fff',
+            },
+            hover: {
+              background: '#000',
+              color: '#fff',
+            }
+          }
+        },
       },
       colors: {
         primary: '#000',
         background: '#e5e7eb',
         text: '#000',
-        histogram: '#e5e7eb', // For histogram bars
-        histogramActive: '#000' // For active histogram bars
       }
+    },
+
+    // Slider
+    slider: {
+      containerClass: 'afs-range-slider',
+      trackClass: 'afs-range-track',
+      thumbClass: 'afs-range-thumb',
+      valueClass: 'afs-range-value',
+      selectedClass: 'afs-range-selected',
     },
 
     // Pagination
@@ -98,7 +134,7 @@ export class Options {
       scrollOffset: 50,
       scrollBehavior: 'smooth', // or 'auto' for instant scroll
     }
-  };
+  }
 
   constructor(userOptions = {}) {
     this.options = this.mergeOptions(Options.defaults, userOptions);

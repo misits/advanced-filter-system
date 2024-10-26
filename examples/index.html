@@ -82,6 +82,9 @@
             </div>
         </section>
 
+        <!-- Features -->
+        <div id="features"></div>
+
         <!-- Live Demo -->
         <section class="container mx-auto px-6 mb-16">
             <h2 class="text-3xl font-bold mb-8">Live Demo</h2>
@@ -103,7 +106,7 @@
                         <p class="text-xs mb-4 text-gray-500">Filter by date</p>
                     </div>
                 </div>
-                <div class="filter-controls mb-6 flex gap-4 items-center flex-wrap">        
+                <div class="filter-controls mb-6 flex gap-4 items-center flex-wrap">
                     <!-- Add this toggle button -->
                     <button
                         class="filter-logic-toggle px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors flex items-center gap-2">
@@ -114,13 +117,14 @@
                             </div>
                         </div>
                     </button>
-        
+
                     <!-- Add this toggle button -->
                     <button
                         class="filter-type-toggle px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors flex items-center gap-2">
                         <span class="type-text">BUTTON</span>
                         <div class="type-indicator w-8 h-4 bg-gray-300 rounded-full relative">
-                            <div class="type-dot absolute w-3 h-3 bg-white rounded-full top-0.5 left-0.5 transition-transform">
+                            <div
+                                class="type-dot absolute w-3 h-3 bg-white rounded-full top-0.5 left-0.5 transition-transform">
                             </div>
                         </div>
                     </button>
@@ -129,7 +133,8 @@
                         class="filter-paginate-toggle px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors flex items-center gap-2">
                         <span class="paginate-text">PAGINATION</span>
                         <div class="paginate-indicator w-8 h-4 bg-gray-300 rounded-full relative">
-                            <div class="paginate-dot absolute w-3 h-3 bg-white rounded-full top-0.5 left-0.5 transition-transform">
+                            <div
+                                class="paginate-dot absolute w-3 h-3 bg-white rounded-full top-0.5 left-0.5 transition-transform">
                             </div>
                         </div>
                     </button>
@@ -140,12 +145,13 @@
                             class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white hover:bg-gray-50 transition-colors"
                             id="dropdownSingleSelectButton">
                             <span class="label">Select Animation</span>
-                            <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                    
+
                         <div id="dropdownSingleSelect"
                             class="hidden absolute left-0 mt-2 w-56 max-h-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-[100] overflow-y-auto">
                             <div class="py-1" role="none">
@@ -211,19 +217,20 @@
                 </div>
 
                 <div class="filter-controls mb-6 flex gap-4 items-center flex-wrap">
-                    <input type="text" class="filter-search p-2 border border-gray-300 rounded-md w-full sm:w-52" placeholder="Search...">
+                    <input type="text" class="filter-search p-2 border border-gray-300 rounded-md w-full sm:w-52"
+                        placeholder="Search...">
                     <!-- Sort Controls -->
                     <div class="order-controls flex gap-4 items-center flex-wrap">
                         <!-- Sort by Title ASC -->
                         <button id="sort-title"
                             class="btn-sort px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors">Sort
                             Title</button>
-                
+
                         <!-- Sort by Price DESC -->
                         <button id="sort-price"
                             class="btn-sort px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors">Sort
                             Price</button>
-                
+
                         <!-- Suffle -->
                         <button id="sort-shuffle"
                             class="btn-sort px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors">Shuffle</button>
@@ -248,17 +255,19 @@
                             class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white hover:bg-gray-50"
                             id="dropdownMultiSelectButton">
                             Categories <span class="selected-filter-counter"></span>
-                            <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                
+
                         <div id="dropdownMultiSelect"
                             class="hidden absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-[100]">
                             <div class="py-1" role="none">
                                 <label class="flex items-center px-4 py-2 text-sm text-gray-700">
-                                    <input type="checkbox" class="btn-filter mr-2" value="category:tech" data-filter="category:tech">
+                                    <input type="checkbox" class="btn-filter mr-2" value="category:tech"
+                                        data-filter="category:tech">
                                     Technology
                                 </label>
                                 <label class="flex items-center px-4 py-2 text-sm text-gray-700">
@@ -267,21 +276,23 @@
                                     Fashion
                                 </label>
                                 <label class="flex items-center px-4 py-2 text-sm text-gray-700">
-                                    <input type="checkbox" class="btn-filter mr-2" value="category:food" data-filter="category:food">
+                                    <input type="checkbox" class="btn-filter mr-2" value="category:food"
+                                        data-filter="category:food">
                                     Food
                                 </label>
                             </div>
                         </div>
                     </div>
-                
+
                     <div class="filter-counter text-gray-500 text-sm"></div>
-                
+
                 </div>
                 <!-- Grid of Items -->
                 <div id="item-grid">
                     <div class="filter-container">
-                        <div class="items-grid-section grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        
+                        <div
+                            class="items-grid-section grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
                             <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
                                 data-categories="category:tech" data-category="tech" data-price="999"
                                 data-title="Smartphone Pro" data-date="2024-03-15" data-rating="4.5" data-sales="1250"
@@ -293,24 +304,24 @@
                                         <div class="card-date text-gray-400 text-sm">15.03.2024</div>
                                     </div>
                                     <div class="card-rating mb-2">
-        
+
                                         <div class="flex items-center gap-1">
                                             ★★★★
                                             <span class="ml-1 text-sm text-gray-600">(4.5)</span>
                                         </div>
-        
+
                                     </div>
                                     <div class="flex justify-between items-center">
                                         <div class="card-price text-gray-700 font-bold">$999</div>
                                         <div class="card-sales text-gray-500 text-sm">1250 sold</div>
                                     </div>
-        
+
                                 </div>
                             </div>
-        
+
                             <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-                                data-categories="category:tech" data-category="tech" data-price="1299" data-title="Laptop Ultra"
-                                data-date="2024-02-20" data-rating="4.8" data-sales="890"
+                                data-categories="category:tech" data-category="tech" data-price="1299"
+                                data-title="Laptop Ultra" data-date="2024-02-20" data-rating="4.8" data-sales="890"
                                 style="opacity: 1; transform: translateY(0px); transition: opacity 0.3s, transform 0.3s;">
                                 <div class="card-content">
                                     <h3 class="card-title mb-2 text-lg font-semibold">Laptop Ultra</h3>
@@ -319,21 +330,21 @@
                                         <div class="card-date text-gray-400 text-sm">20.02.2024</div>
                                     </div>
                                     <div class="card-rating mb-2">
-        
+
                                         <div class="flex items-center gap-1">
                                             ★★★★
                                             <span class="ml-1 text-sm text-gray-600">(4.8)</span>
                                         </div>
-        
+
                                     </div>
                                     <div class="flex justify-between items-center">
                                         <div class="card-price text-gray-700 font-bold">$1299</div>
                                         <div class="card-sales text-gray-500 text-sm">890 sold</div>
                                     </div>
-        
+
                                 </div>
                             </div>
-        
+
                             <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
                                 data-categories="category:fashion" data-category="fashion" data-price="89"
                                 data-title="Designer Jeans" data-date="2024-03-01" data-rating="4.2" data-sales="567"
@@ -345,21 +356,21 @@
                                         <div class="card-date text-gray-400 text-sm">01.03.2024</div>
                                     </div>
                                     <div class="card-rating mb-2">
-        
+
                                         <div class="flex items-center gap-1">
                                             ★★★★
                                             <span class="ml-1 text-sm text-gray-600">(4.2)</span>
                                         </div>
-        
+
                                     </div>
                                     <div class="flex justify-between items-center">
                                         <div class="card-price text-gray-700 font-bold">$89</div>
                                         <div class="card-sales text-gray-500 text-sm">567 sold</div>
                                     </div>
-        
+
                                 </div>
                             </div>
-        
+
                             <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
                                 data-categories="category:fashion" data-category="fashion" data-price="59"
                                 data-title="Casual Shirt" data-date="2024-03-10" data-rating="4" data-sales="432"
@@ -371,24 +382,24 @@
                                         <div class="card-date text-gray-400 text-sm">10.03.2024</div>
                                     </div>
                                     <div class="card-rating mb-2">
-        
+
                                         <div class="flex items-center gap-1">
                                             ★★★★
                                             <span class="ml-1 text-sm text-gray-600">(4)</span>
                                         </div>
-        
+
                                     </div>
                                     <div class="flex justify-between items-center">
                                         <div class="card-price text-gray-700 font-bold">$59</div>
                                         <div class="card-sales text-gray-500 text-sm">432 sold</div>
                                     </div>
-        
+
                                 </div>
                             </div>
-        
+
                             <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-                                data-categories="category:food" data-category="food" data-price="25" data-title="Gourmet Pizza"
-                                data-date="2024-03-18" data-rating="4.7" data-sales="789"
+                                data-categories="category:food" data-category="food" data-price="25"
+                                data-title="Gourmet Pizza" data-date="2024-03-18" data-rating="4.7" data-sales="789"
                                 style="opacity: 1; transform: translateY(0px); transition: opacity 0.3s, transform 0.3s;">
                                 <div class="card-content">
                                     <h3 class="card-title mb-2 text-lg font-semibold">Gourmet Pizza</h3>
@@ -397,24 +408,24 @@
                                         <div class="card-date text-gray-400 text-sm">18.03.2024</div>
                                     </div>
                                     <div class="card-rating mb-2">
-        
+
                                         <div class="flex items-center gap-1">
                                             ★★★★
                                             <span class="ml-1 text-sm text-gray-600">(4.7)</span>
                                         </div>
-        
+
                                     </div>
                                     <div class="flex justify-between items-center">
                                         <div class="card-price text-gray-700 font-bold">$25</div>
                                         <div class="card-sales text-gray-500 text-sm">789 sold</div>
                                     </div>
-        
+
                                 </div>
                             </div>
-        
+
                             <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-                                data-categories="category:food" data-category="food" data-price="15" data-title="Organic Salad"
-                                data-date="2024-03-17" data-rating="4.3" data-sales="345"
+                                data-categories="category:food" data-category="food" data-price="15"
+                                data-title="Organic Salad" data-date="2024-03-17" data-rating="4.3" data-sales="345"
                                 style="opacity: 1; transform: translateY(0px); transition: opacity 0.3s, transform 0.3s;">
                                 <div class="card-content">
                                     <h3 class="card-title mb-2 text-lg font-semibold">Organic Salad</h3>
@@ -423,18 +434,18 @@
                                         <div class="card-date text-gray-400 text-sm">17.03.2024</div>
                                     </div>
                                     <div class="card-rating mb-2">
-        
+
                                         <div class="flex items-center gap-1">
                                             ★★★★
                                             <span class="ml-1 text-sm text-gray-600">(4.3)</span>
                                         </div>
-        
+
                                     </div>
                                     <div class="flex justify-between items-center">
                                         <div class="card-price text-gray-700 font-bold">$15</div>
                                         <div class="card-sales text-gray-500 text-sm">345 sold</div>
                                     </div>
-        
+
                                 </div>
                             </div>
                         </div>
@@ -444,9 +455,6 @@
                 <div class="afs-pagination-container"></div>
             </div>
         </section>
-
-        <!-- Features -->
-        <div id="features"></div>
 
         <!-- Installation -->
         <section id="installation" class="container mx-auto px-6 mb-16">
@@ -463,9 +471,11 @@
                         class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-bash">yarn add advanced-filter-system</code></pre>
                 </div>
                 <div>
-                    <h3 class="text-xl font-bold mb-4">Direct Download</h3>
-                    <p>Download <code class="bg-gray-100 px-2 py-1 rounded">src/AFS.js</code> from this repository and
-                        include it in your project.</p>
+                    <h3 class="text-xl font-bold mb-4">Via CDNs</h3>
+                    <pre
+                        class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-html">&lt;!-- Include the library --&gt;
+&lt;script src="https://unpkg.com/advanced-filter-system@1.0.7/dist/AFS.min.js"&gt;&lt;/script&gt;
+</code></pre>
                 </div>
             </div>
         </section>
@@ -479,26 +489,30 @@
                     <div class="space-y-6">
                         <div>
                             <h4 class="text-xl font-semibold mb-3">HTML Structure</h4>
-                            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-html">&lt;div class="filter-container"&gt;
+                            <p class="description mb-4">
+                                Basic HTML structure for the Advanced Filter System, including filter controls,
+                                filterable items, and pagination container.
+                            </p>
+                            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-html">&lt;div class="afs-filter-container"&gt;
     &lt;!-- Filter Controls --&gt;
-    &lt;div class="filter-controls"&gt;
+    &lt;div class="afs-filter-controls"&gt;
         &lt;!-- Basic Filters --&gt;
         &lt;div class="basic-filters"&gt;
-            &lt;button class="btn-filter" data-filter="*"&gt;All&lt;/button&gt;
-            &lt;button class="btn-filter" data-filter="category:tech"&gt;Technology&lt;/button&gt;
-            &lt;button class="btn-filter" data-filter="category:design"&gt;Design&lt;/button&gt;
+            &lt;button class="afs-btn-filter" data-filter="*"&gt;All&lt;/button&gt;
+            &lt;button class="afs-btn-filter" data-filter="category:tech"&gt;Technology&lt;/button&gt;
+            &lt;button class="afs-btn-filter" data-filter="category:design"&gt;Design&lt;/button&gt;
         &lt;/div&gt;
         
         &lt;!-- Search Input --&gt;
-        &lt;input type="text" class="filter-search" placeholder="Search..."&gt;
+        &lt;input type="text" class="afs-filter-search" placeholder="Search..."&gt;
         
         &lt;!-- Results Counter --&gt;
-        &lt;div class="filter-counter"&gt;&lt;/div&gt;
+        &lt;div class="afs-filter-counter"&gt;&lt;/div&gt;
     &lt;/div&gt;
         
     &lt;!-- Filterable Items --&gt;
-    &lt;div class="filter-items"&gt;
-        &lt;div class="filter-item" 
+    &lt;div class="afs-filter-items"&gt;
+        &lt;div class="afsfilter-item" 
                 data-categories="category:tech price:high" 
                 data-title="Premium Laptop"
                 data-price="1299"
@@ -506,112 +520,91 @@
             &lt;!-- Item content --&gt;
         &lt;/div&gt;
     &lt;/div&gt;
+
+    &lt;!-- Pagination Container --&gt;
+    &lt;div class="afs-pagination-container"&gt;&lt;/div&gt;
 &lt;/div&gt;</code></pre>
                         </div>
 
                         <div>
-                            <h4 class="text-xl font-semibold mb-3">Basic JavaScript Initialization</h4>
+                            <h4 class="text-xl font-semibold mb-3">Complete JavaScript Initialization</h4>
+                            <p class="description mb-4">
+                                Complete configuration options for Advanced Filter System initialization,
+                                including all available settings and their default values.
+                            </p>
+                            <div class="info-box mb-6">
+                                <h3 class="text-lg font-semibold mb-2">
+                                    Configuration Notes:
+                                </h3>
+                                <ul class="list-disc pl-6">
+                                    <li>Required options are marked at the top of the configuration</li>
+                                    <li>All other options will use their default values if not specified</li>
+                                    <li>Style configurations can be customized for each component</li>
+                                    <li>Animation settings affect all transitions in the system</li>
+                                    <li>Debug options are helpful during development and troubleshooting</li>
+                                </ul>
+                            </div>
                             <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">import { AFS } from 'advanced-filter-system';
-        
-const filter = new AFS({
-    // Required options
-    containerSelector: '.filter-container',
-    itemSelector: '.filter-item',
-    filterButtonSelector: '.btn-filter',
-            
-    // Optional configurations
-    searchInputSelector: '.filter-search',
-    counterSelector: '.filter-counter',
+
+const afs = new AFS({
+    // Required Selectors
+    containerSelector: '.afs-filter-container',
+    itemSelector: '.afs-filter-item',
+    filterButtonSelector: '.afs-btn-filter',
+    searchInputSelector: '.afs-filter-search',
+    counterSelector: '.afs-filter-counter',
+    
+    // CSS Classes
     activeClass: 'active',
     hiddenClass: 'hidden',
-    filterMode: 'OR',
-    searchKeys: ['title', 'tags'],
-    debounceTime: 300,
-    animationDuration: 300
-    debug: false, // Enable console logs
-    logLevel: 'info', // 'info', 'warn', 'error', 'debug'
-});</code></pre>
-                        </div>
-                    </div>
-                </div>
-                <!-- Advanced Features -->
-                <div>
-                    <h3 class="text-2xl font-bold mb-4">Advanced Features</h3>
-                    <div class="space-y-6">
-                        <div>
-                            <h4 class="text-xl font-semibold mb-3">Auto-detect ASC/DESC Sorting</h4>
-                            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">// Auto-detect ascending or descending sort order
-document.getElementById('sort-title').addEventListener('click', () => {
-    filter.sortWithOrder('title');
-});</code></pre>
-</div>
-<div>
-    <h4 class="text-xl font-semibold mb-3">Shuffle Sorting</h4>
-    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">// Shuffle items randomly
-document.getElementById('sort-shuffle').addEventListener('click', () => {
-    filter.shuffle();
-});</code></pre>
-</div>
-                        <div>
-                            <h4 class="text-xl font-semibold mb-3">Filter Groups & Logic</h4>
-                            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">// Create filter groups with independent logic
-filter.addFilterGroup('categories', ['category:tech', 'category:design'], 'OR');
-filter.addFilterGroup('pricing', ['price:low', 'price:medium'], 'AND');
-        
-// Set how groups combine
-filter.setGroupMode('AND'); // Must match all groups
-filter.setLogic(true);      // Alternative way (true = AND, false = OR)</code></pre>
-                        </div>
-
-                        <div>
-                            <h4 class="text-xl font-semibold mb-3">Sorting & Range Filtering</h4>
-                            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">// Multi-criteria sorting
-filter.sortMultiple([
-    { key: 'price', direction: 'desc' },
-    { key: 'title', direction: 'asc' }
-]);
-        
-// Range filtering
-filter.addRangeFilter('price', 0, 1000);</code></pre>
-                        </div>
-
-                        <div>
-                            <h4 class="text-xl font-semibold mb-3">State Management & Presets</h4>
-                            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">// Save current state
-const state = filter.exportState();
-        
-// Load a previous state
-filter.importState(state);
-        
-// Save preset for later use
-filter.savePreset('myFilters');
-filter.loadPreset('myFilters');</code></pre>
-                        </div>
-
-                        <div>
-                            <h4 class="text-xl font-semibold mb-3">Responsive Behavior</h4>
-                            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">filter.setResponsiveOptions({
-    '768': {
-            filterMode: 'AND',
-            animationDuration: 200
+    
+    // Animation Settings
+    animationDuration: 300,
+    animationType: 'fade',
+    animationEasing: 'ease-out',
+    
+    // Filter & Search Configuration
+    filterMode: 'OR',      // or 'AND'
+    searchKeys: ['title'], // attributes to search
+    debounceTime: 300,    // search input delay
+    
+    // Debug Options
+    debug: false,
+    logLevel: 'info',     // 'debug', 'info', 'warn', 'error'
+    
+    // Date Handling
+    dateFormat: 'YYYY-MM-DD',
+    
+    // Counter Configuration
+    counter: {
+        template: 'Showing {visible} of {total}',
+        showFiltered: true,
+        filteredTemplate: '({filtered} filtered)',
+        noResultsTemplate: 'No items found',
+        formatter: (num) => num.toLocaleString()
     },
-    '480': {
-            filterMode: 'OR',
-            animationDuration: 0
+    
+    // Slider Configuration
+    slider: {
+        containerClass: 'afs-range-slider',
+        trackClass: 'afs-range-track',
+        thumbClass: 'afs-range-thumb',
+        valueClass: 'afs-range-value',
+        selectedClass: 'afs-range-selected'
+    },
+    
+    // Pagination Configuration
+    pagination: {
+        enabled: false,
+        itemsPerPage: 10,
+        container: '.afs-pagination-container',
+        pageButtonClass: 'afs-page-button',
+        activePageClass: 'afs-page-active',
+        containerClass: 'afs-pagination',
+        scrollToTop: false,
+        scrollOffset: 50,
+        scrollBehavior: 'smooth'  // or 'auto'
     }
-});</code></pre>
-                        </div>
-
-                        <div>
-                            <h4 class="text-xl font-semibold mb-3">Events & Analytics</h4>
-                            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">// Listen for filter changes
-filter.on('filter', (data) => {
-    console.log('Filter changed:', data);
-});
-        
-// Enable analytics tracking
-filter.enableAnalytics((data) => {
-    console.log('Filter analytics:', data);
 });</code></pre>
                         </div>
                     </div>
@@ -815,7 +808,7 @@ filter.enableAnalytics((data) => {
         });
 
         // Event listener for sorting buttons
-       // Example usage for sorting based on the 'title' attribute in ascending order
+        // Example usage for sorting based on the 'title' attribute in ascending order
         document.getElementById('sort-title').addEventListener('click', () => {
             afs.filter.sortWithOrder('title');
         });
@@ -854,7 +847,7 @@ filter.enableAnalytics((data) => {
         });
 
         // Add a date range filter
-        const dateContainer =  document.querySelector('.date-range-container');
+        const dateContainer = document.querySelector('.date-range-container');
         afs.dateFilter.addDateRange({
             key: 'date',
             container: dateContainer,

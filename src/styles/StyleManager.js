@@ -9,24 +9,6 @@ export class StyleManager {
   constructor(options) {
     this.options = options;
     this.styleElement = null;
-    this.defaultStyles = {
-      slider: {
-        class: "afs-range-slider",
-        trackClass: "afs-range-track",
-        thumbClass: "afs-range-thumb",
-        valueClass: "afs-range-value",
-        selectedClass: "afs-range-selected",
-      },
-      colors: {
-        primary: "#000",
-        background: "#ddd",
-        text: "#000",
-      },
-      animation: {
-        duration: "300ms",
-        type: "ease-out",
-      },
-    };
   }
 
   /**
@@ -36,8 +18,8 @@ export class StyleManager {
    */
   createBaseStyles() {
     const hiddenClass = this.options.get("hiddenClass") || "hidden";
-    const itemSelector = this.options.get("itemSelector") || ".filter-item";
-    const filterButtonSelector = this.options.get("filterButtonSelector") || ".btn-filter";
+    const itemSelector = this.options.get("itemSelector") || ".afs-filter-item";
+    const filterButtonSelector = this.options.get("filterButtonSelector") || ".afs-btn-filter";
     const activeClass = this.options.get("activeClass") || "active";
     const animationDuration = this.options.get("animationDuration") || '300ms';
     const animationEasing = this.options.get("animationEasing") || 'ease-out';
@@ -79,13 +61,20 @@ export class StyleManager {
    * @returns {string} CSS styles
    */
   createRangeStyles() {
-    const styles = this.options.get("styles") || this.defaultStyles;
-    const sliderStyles = styles.slider || this.defaultStyles.slider;
-    const colors = styles.colors || this.defaultStyles.colors;
+    const styles = this.options.get("styles");
+    const sliderOptions = this.options.get("slider") || {};
+    const sliderStyles = styles.slider;
+    const colors = styles.colors;
+
+    const containerClass = sliderOptions.containerClass || "afs-range-slider";
+    const trackClass = sliderOptions.trackClass || "afs-range-track";
+    const thumbClass = sliderOptions.thumbClass || "afs-range-thumb";
+    const valueClass = sliderOptions.valueClass || "afs-range-value";
+    const selectedClass = sliderOptions.selectedClass || "afs-range-selected";
 
     return `
     /* Range Slider Styles */
-    .${sliderStyles.class} {
+    .${containerClass} {
       position: relative;
       width: auto;
       height: 40px;
@@ -93,29 +82,29 @@ export class StyleManager {
       padding: 0 8px;
     }
 
-    .${sliderStyles.trackClass} {
+    .${trackClass} {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
       width: 100%;
       height: 4px;
-      background: ${colors.background};
-      border-radius: 2px;
+      background: ${sliderStyles.ui.thumb.background || colors.background};
+      border-radius: ${sliderStyles.ui.track.radius || "2px"};
     }
 
-    .${sliderStyles.thumbClass} {
+    .${thumbClass} {
       position: absolute;
       top: 50%;
-      width: 16px;
-      height: 16px;
-      background: ${colors.primary};
-      border-radius: 50%;
+      width: ${sliderStyles.ui.thumb.size || "16px"};
+      height: ${sliderStyles.ui.thumb.size || "16px"};
+      background: ${sliderStyles.ui.thumb.background || colors.primary};
+      border-radius: ${sliderStyles.ui.thumb.radius || "50%"};
       transform: translate(-50%, -50%);
       cursor: pointer;
       z-index: 2;
     }
 
-    .${sliderStyles.valueClass} {
+    .${valueClass} {
       position: absolute;
       top: -20px;
       transform: translateX(-50%);
@@ -123,7 +112,7 @@ export class StyleManager {
       color: ${colors.text};
     }
 
-    .${sliderStyles.selectedClass} {
+    .${selectedClass} {
       position: absolute;
       height: 4px;
       background: ${colors.primary};
@@ -146,13 +135,13 @@ export class StyleManager {
 
     .afs-histogram-bar {
       flex: 1;
-      background-color: ${colors.background};
+      background-color: ${sliderStyles.ui.histogram.background ||colors.background};
       min-height: 4px;
       transition: background-color 0.2s ease;
     }
 
     .afs-histogram-bar.active {
-      background-color: ${colors.primary};
+      background-color: ${sliderStyles.ui.histogram.bar.background || colors.primary};
     }
   `;
   }
@@ -163,7 +152,7 @@ export class StyleManager {
    * @returns {string} CSS styles
    */
   createDateStyles() {
-    const colors = (this.options.get("styles") || this.defaultStyles).colors;
+    const colors = this.options.get("styles").colors;
 
     return `
     .afs-date-range-container {
@@ -250,12 +239,15 @@ export class StyleManager {
    * @returns {string} CSS styles
    */
   createPaginationStyles() {
+    const styles = this.options.get("styles");
     const paginationOptions = this.options.get("pagination") || {};
-    const colors = (this.options.get("styles") || this.defaultStyles).colors;
+    const colors = this.options.get("styles").colors;
 
     const containerClass = paginationOptions.containerClass || "afs-pagination";
     const buttonClass = paginationOptions.pageButtonClass || "afs-page-button";
     const activeClass = paginationOptions.activePageClass || "afs-page-active";
+
+    const paginationStyles = styles.pagination;
 
     return `
       .${containerClass} {
@@ -266,23 +258,23 @@ export class StyleManager {
       }
 
       .${buttonClass} {
-        padding: 8px 12px;
-        border: 1px solid ${colors.primary};
-        border-radius: 4px;
+        padding: ${paginationStyles.ui.button.padding || '8px 12px'};
+        border: ${paginationStyles.ui.button.border || '1px solid ' + colors.primary};
+        border-radius: ${paginationStyles.ui.button.borderRadius || '4px'};
         cursor: pointer;
         transition: all 200ms ease-out;
-        background: transparent;
-        color: ${colors.primary};
+        background: ${paginationStyles.ui.button.background || 'transparent' };
+        color: ${paginationStyles.ui.button.color || colors.primary};
       }
 
       .${buttonClass}:hover {
-        background: ${colors.primary};
-        color: white;
+        background: ${paginationStyles.ui.button.hover.background || colors.primary};
+        color: ${paginationStyles.ui.button.hover.color || 'white'};
       }
 
       .${buttonClass}.${activeClass} {
-        background: ${colors.primary};
-        color: white;
+        background: ${paginationStyles.ui.button.active.background || colors.primary};
+        color: ${paginationStyles.ui.button.active.color || 'white'};
       }
 
       .${buttonClass}:disabled {
@@ -299,7 +291,7 @@ export class StyleManager {
    */
   createSearchStyles() {
     const searchClass = this.options.get("searchInputClass") || "afs-search";
-    const colors = (this.options.get("styles") || this.defaultStyles).colors;
+    const colors = this.options.get("styles").colors;
 
     return `
       .${searchClass} {
