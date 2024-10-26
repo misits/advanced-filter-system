@@ -5,46 +5,67 @@ const createFeatureSection = (features, containerId = 'features') => {
     // Feature data
     const featureItems = features || [
         {
-            emoji: '🔍',
-            title: 'Multiple Typed Filters',
-            description: 'Support for category, price, and custom filter types'
+          emoji: '🔍',
+          title: 'Multiple Typed Filters',
+          description: 'Support for category, price, and custom filter types'
         },
         {
-            emoji: '🔎',
-            title: 'Text Search',
-            description: 'Debounced search with multiple key support'
+          emoji: '🔎',
+          title: 'Text Search',
+          description: 'Debounced search with multiple key support'
         },
         {
-            emoji: '📊',
-            title: 'Multi-criteria Sorting',
-            description: 'Sort items by multiple criteria simultaneously'
+          emoji: '📊',
+          title: 'Multi-criteria Sorting',
+          description: 'Sort items by multiple criteria simultaneously'
         },
         {
-            emoji: '🔗',
-            title: 'URL State Management',
-            description: 'Filter state persists in URL for sharing'
+          emoji: '🔗',
+          title: 'URL State Management',
+          description: 'Filter state persists in URL for sharing'
         },
         {
-            emoji: '✨',
-            title: 'Smooth Animations',
-            description: 'Fluid transitions between filter states'
+          emoji: '✨',
+          title: 'Smooth Animations',
+          description: 'Fluid transitions between filter states'
         },
         {
-            emoji: '🔢',
-            title: 'Results Counter',
-            description: 'Live count of filtered items displayed'
+          emoji: '🔢',
+          title: 'Results Counter',
+          description: 'Live count of filtered items displayed'
         },
         {
-            emoji: '📱',
-            title: 'Responsive',
-            description: 'Fully adaptive to all screen sizes'
+          emoji: '📱',
+          title: 'Responsive',
+          description: 'Fully adaptive to all screen sizes'
         },
         {
-            emoji: '⚡',
-            title: 'High Performance',
-            description: 'Optimized for large datasets'
+          emoji: '⚡',
+          title: 'High Performance',
+          description: 'Optimized for large datasets'
+        },
+        // Additional features from README
+        {
+          emoji: '↕️',
+          title: 'Flexible Sorting',
+          description: 'Multi-column sort with custom comparators'
+        },
+        {
+          emoji: '📄',
+          title: 'Smart Pagination',
+          description: 'Dynamic page size with custom controls'
+        },
+        {
+          emoji: '💾',
+          title: 'State Management',
+          description: 'Centralized state with import/export support'
+        },
+        {
+          emoji: '🎯',
+          title: 'Event System',
+          description: 'Rich event API with debugging support'
         }
-    ];
+      ];
 
     // Create feature card HTML
     const createFeatureCard = ({ emoji, title, description }) => `
