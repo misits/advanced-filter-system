@@ -145,11 +145,11 @@
      */
     static defaults = {
       // Selectors
-      containerSelector: '.filter-container',
-      itemSelector: '.filter-item',
-      filterButtonSelector: '.btn-filter',
-      searchInputSelector: '.filter-search',
-      counterSelector: '.filter-counter',
+      containerSelector: '.afs-filter-container',
+      itemSelector: '.afs-filter-item',
+      filterButtonSelector: '.afs-btn-filter',
+      searchInputSelector: '.afs-filter-search',
+      counterSelector: '.afs-filter-counter',
       // Classes
       activeClass: 'active',
       hiddenClass: 'hidden',
@@ -176,25 +176,64 @@
       // Styles
       styles: {
         slider: {
-          class: 'afs-range-slider',
-          trackClass: 'afs-range-track',
-          thumbClass: 'afs-range-thumb',
-          valueClass: 'afs-range-value',
-          selectedClass: 'afs-range-selected',
           // Add new UI options
           ui: {
             showHistogram: false,
-            bins: 10 // Number of bins for histogram
+            bins: 10,
+            // Number of bins for histogram
+            track: {
+              radius: '2px',
+              // Button radius
+              background: '#e5e7eb' // Track color
+            },
+            thumb: {
+              radius: '50%',
+              // Button radius
+              size: '16px',
+              // Button size
+              background: '#000' // Button color
+            },
+            histogram: {
+              background: '#e5e7eb',
+              // Histogram background
+              bar: {
+                background: '#000' // Bar color
+              }
+            }
+          }
+        },
+        pagination: {
+          ui: {
+            button: {
+              background: 'transparent',
+              border: '1px solid #000',
+              borderRadius: '4px',
+              padding: '8px 12px',
+              color: '#000',
+              active: {
+                background: '#000',
+                color: '#fff'
+              },
+              hover: {
+                background: '#000',
+                color: '#fff'
+              }
+            }
           }
         },
         colors: {
           primary: '#000',
           background: '#e5e7eb',
-          text: '#000',
-          histogram: '#e5e7eb',
-          // For histogram bars
-          histogramActive: '#000' // For active histogram bars
+          text: '#000'
         }
+      },
+      // Slider
+      slider: {
+        containerClass: 'afs-range-slider',
+        trackClass: 'afs-range-track',
+        thumbClass: 'afs-range-thumb',
+        valueClass: 'afs-range-value',
+        selectedClass: 'afs-range-selected'
       },
       // Pagination
       pagination: {
@@ -521,24 +560,6 @@
     constructor(options) {
       this.options = options;
       this.styleElement = null;
-      this.defaultStyles = {
-        slider: {
-          class: "afs-range-slider",
-          trackClass: "afs-range-track",
-          thumbClass: "afs-range-thumb",
-          valueClass: "afs-range-value",
-          selectedClass: "afs-range-selected"
-        },
-        colors: {
-          primary: "#000",
-          background: "#ddd",
-          text: "#000"
-        },
-        animation: {
-          duration: "300ms",
-          type: "ease-out"
-        }
-      };
     }
 
     /**
@@ -548,8 +569,8 @@
      */
     createBaseStyles() {
       const hiddenClass = this.options.get("hiddenClass") || "hidden";
-      const itemSelector = this.options.get("itemSelector") || ".filter-item";
-      const filterButtonSelector = this.options.get("filterButtonSelector") || ".btn-filter";
+      const itemSelector = this.options.get("itemSelector") || ".afs-filter-item";
+      const filterButtonSelector = this.options.get("filterButtonSelector") || ".afs-btn-filter";
       const activeClass = this.options.get("activeClass") || "active";
       const animationDuration = this.options.get("animationDuration") || '300ms';
       const animationEasing = this.options.get("animationEasing") || 'ease-out';
@@ -590,12 +611,18 @@
      * @returns {string} CSS styles
      */
     createRangeStyles() {
-      const styles = this.options.get("styles") || this.defaultStyles;
-      const sliderStyles = styles.slider || this.defaultStyles.slider;
-      const colors = styles.colors || this.defaultStyles.colors;
+      const styles = this.options.get("styles");
+      const sliderOptions = this.options.get("slider") || {};
+      const sliderStyles = styles.slider;
+      const colors = styles.colors;
+      const containerClass = sliderOptions.containerClass || "afs-range-slider";
+      const trackClass = sliderOptions.trackClass || "afs-range-track";
+      const thumbClass = sliderOptions.thumbClass || "afs-range-thumb";
+      const valueClass = sliderOptions.valueClass || "afs-range-value";
+      const selectedClass = sliderOptions.selectedClass || "afs-range-selected";
       return `
     /* Range Slider Styles */
-    .${sliderStyles.class} {
+    .${containerClass} {
       position: relative;
       width: auto;
       height: 40px;
@@ -603,29 +630,29 @@
       padding: 0 8px;
     }
 
-    .${sliderStyles.trackClass} {
+    .${trackClass} {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
       width: 100%;
       height: 4px;
-      background: ${colors.background};
-      border-radius: 2px;
+      background: ${sliderStyles.ui.thumb.background || colors.background};
+      border-radius: ${sliderStyles.ui.track.radius || "2px"};
     }
 
-    .${sliderStyles.thumbClass} {
+    .${thumbClass} {
       position: absolute;
       top: 50%;
-      width: 16px;
-      height: 16px;
-      background: ${colors.primary};
-      border-radius: 50%;
+      width: ${sliderStyles.ui.thumb.size || "16px"};
+      height: ${sliderStyles.ui.thumb.size || "16px"};
+      background: ${sliderStyles.ui.thumb.background || colors.primary};
+      border-radius: ${sliderStyles.ui.thumb.radius || "50%"};
       transform: translate(-50%, -50%);
       cursor: pointer;
       z-index: 2;
     }
 
-    .${sliderStyles.valueClass} {
+    .${valueClass} {
       position: absolute;
       top: -20px;
       transform: translateX(-50%);
@@ -633,7 +660,7 @@
       color: ${colors.text};
     }
 
-    .${sliderStyles.selectedClass} {
+    .${selectedClass} {
       position: absolute;
       height: 4px;
       background: ${colors.primary};
@@ -656,13 +683,13 @@
 
     .afs-histogram-bar {
       flex: 1;
-      background-color: ${colors.background};
+      background-color: ${sliderStyles.ui.histogram.background || colors.background};
       min-height: 4px;
       transition: background-color 0.2s ease;
     }
 
     .afs-histogram-bar.active {
-      background-color: ${colors.primary};
+      background-color: ${sliderStyles.ui.histogram.bar.background || colors.primary};
     }
   `;
     }
@@ -673,7 +700,7 @@
      * @returns {string} CSS styles
      */
     createDateStyles() {
-      const colors = (this.options.get("styles") || this.defaultStyles).colors;
+      const colors = this.options.get("styles").colors;
       return `
     .afs-date-range-container {
       display: flex;
@@ -758,11 +785,13 @@
      * @returns {string} CSS styles
      */
     createPaginationStyles() {
+      const styles = this.options.get("styles");
       const paginationOptions = this.options.get("pagination") || {};
-      const colors = (this.options.get("styles") || this.defaultStyles).colors;
+      const colors = this.options.get("styles").colors;
       const containerClass = paginationOptions.containerClass || "afs-pagination";
       const buttonClass = paginationOptions.pageButtonClass || "afs-page-button";
       const activeClass = paginationOptions.activePageClass || "afs-page-active";
+      const paginationStyles = styles.pagination;
       return `
       .${containerClass} {
         display: flex;
@@ -772,23 +801,23 @@
       }
 
       .${buttonClass} {
-        padding: 8px 12px;
-        border: 1px solid ${colors.primary};
-        border-radius: 4px;
+        padding: ${paginationStyles.ui.button.padding || '8px 12px'};
+        border: ${paginationStyles.ui.button.border || '1px solid ' + colors.primary};
+        border-radius: ${paginationStyles.ui.button.borderRadius || '4px'};
         cursor: pointer;
         transition: all 200ms ease-out;
-        background: transparent;
-        color: ${colors.primary};
+        background: ${paginationStyles.ui.button.background || 'transparent'};
+        color: ${paginationStyles.ui.button.color || colors.primary};
       }
 
       .${buttonClass}:hover {
-        background: ${colors.primary};
-        color: white;
+        background: ${paginationStyles.ui.button.hover.background || colors.primary};
+        color: ${paginationStyles.ui.button.hover.color || 'white'};
       }
 
       .${buttonClass}.${activeClass} {
-        background: ${colors.primary};
-        color: white;
+        background: ${paginationStyles.ui.button.active.background || colors.primary};
+        color: ${paginationStyles.ui.button.active.color || 'white'};
       }
 
       .${buttonClass}:disabled {
@@ -805,7 +834,7 @@
      */
     createSearchStyles() {
       const searchClass = this.options.get("searchInputClass") || "afs-search";
-      const colors = (this.options.get("styles") || this.defaultStyles).colors;
+      const colors = this.options.get("styles").colors;
       return `
       .${searchClass} {
         padding: 8px;
@@ -3178,6 +3207,9 @@
         currentPage,
         itemsPerPage
       } = state.pagination;
+      if (!this.afs.options.get('pagination.enabled')) {
+        return;
+      }
       if (currentPage > 1) {
         params.set('page', currentPage.toString());
       }
@@ -3470,6 +3502,7 @@
     constructor(afs) {
       this.afs = afs;
       this.activeRanges = new Map();
+      this.options = this.afs.options.get("slider");
       if (!this.afs.styleManager) {
         this.afs.styleManager = new StyleManager(this.afs.options);
       }
@@ -3584,14 +3617,14 @@
      */
     createSliderElements(histogramData, sliderUiOptions) {
       const styles = this.afs.options.get("styles") || this.afs.styleManager.defaultStyles;
-      const sliderStyles = styles.slider || this.afs.styleManager.defaultStyles.slider;
       const colors = styles.colors || this.afs.styleManager.defaultStyles.colors;
+      const sliderOptions = this.afs.options.get("slider") || {};
       const container = document.createElement("div");
-      container.className = "price-range-container";
+      container.className = "afs-range-container";
       const slider = document.createElement("div");
-      slider.className = sliderStyles.class;
+      slider.className = sliderOptions.containerClass;
       const track = document.createElement("div");
-      track.className = sliderStyles.trackClass;
+      track.className = sliderOptions.trackClass;
 
       // Only add histogram if enabled in the slider-specific options
       if (sliderUiOptions?.showHistogram && histogramData?.counts?.length > 0) {
@@ -3599,15 +3632,15 @@
         slider.appendChild(histogram);
       }
       const selectedRange = document.createElement("div");
-      selectedRange.className = sliderStyles.selectedClass;
+      selectedRange.className = sliderOptions.selectedClass;
       const minThumb = document.createElement("div");
-      minThumb.className = sliderStyles.thumbClass;
+      minThumb.className = sliderOptions.thumbClass;
       const maxThumb = document.createElement("div");
-      maxThumb.className = sliderStyles.thumbClass;
+      maxThumb.className = sliderOptions.thumbClass;
       const minValue = document.createElement("div");
-      minValue.className = sliderStyles.valueClass;
+      minValue.className = sliderOptions.valueClass;
       const maxValue = document.createElement("div");
-      maxValue.className = sliderStyles.valueClass;
+      maxValue.className = sliderOptions.valueClass;
 
       // Build the slider
       slider.appendChild(track);
@@ -4327,7 +4360,7 @@
    */
 
   // Version
-  const VERSION = '1.0.7';
+  const VERSION = '1.0.8';
   class AFS extends EventEmitter {
     /**
      * @param {Object} options - Configuration options
