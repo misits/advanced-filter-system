@@ -145,32 +145,28 @@
      */
     static defaults = {
       // Selectors
-      containerSelector: '.afs-filter-container',
-      itemSelector: '.afs-filter-item',
-      filterButtonSelector: '.afs-btn-filter',
-      searchInputSelector: '.afs-filter-search',
-      counterSelector: '.afs-filter-counter',
+      containerSelector: ".afs-filter-container",
+      itemSelector: ".afs-filter-item",
+      filterButtonSelector: ".afs-btn-filter",
+      searchInputSelector: ".afs-filter-search",
+      counterSelector: ".afs-filter-counter",
       // Classes
-      activeClass: 'active',
-      hiddenClass: 'hidden',
-      // Animation
-      animationDuration: 300,
-      animationType: 'fade',
-      animationEasing: 'ease-out',
+      activeClass: "active",
+      hiddenClass: "hidden",
       // Filtering
-      filterMode: 'OR',
-      searchKeys: ['title'],
+      filterMode: "OR",
+      searchKeys: ["title"],
       debounceTime: 300,
       // Debug
       debug: false,
-      logLevel: 'info',
+      logLevel: "info",
       // Date handling
-      dateFormat: 'YYYY-MM-DD',
+      dateFormat: "YYYY-MM-DD",
       counter: {
-        template: 'Showing {visible} of {total}',
+        template: "Showing {visible} of {total}",
         showFiltered: true,
-        filteredTemplate: '({filtered} filtered)',
-        noResultsTemplate: 'No items found',
+        filteredTemplate: "({filtered} filtered)",
+        noResultsTemplate: "No items found",
         formatter: num => num.toLocaleString()
       },
       // Styles
@@ -182,22 +178,22 @@
             bins: 10,
             // Number of bins for histogram
             track: {
-              radius: '2px',
+              radius: "0",
               // Button radius
-              background: '#e5e7eb' // Track color
+              background: "#e5e7eb" // Track color
             },
             thumb: {
-              radius: '50%',
+              radius: "50%",
               // Button radius
-              size: '16px',
+              size: "16px",
               // Button size
-              background: '#000' // Button color
+              background: "#000" // Button color
             },
             histogram: {
-              background: '#e5e7eb',
+              background: "#e5e7eb",
               // Histogram background
               bar: {
-                background: '#000' // Bar color
+                background: "#000" // Bar color
               }
             }
           }
@@ -205,47 +201,55 @@
         pagination: {
           ui: {
             button: {
-              background: 'transparent',
-              border: '1px solid #000',
-              borderRadius: '4px',
-              padding: '8px 12px',
-              color: '#000',
+              background: "transparent",
+              border: "1px solid #000",
+              borderRadius: "4px",
+              padding: "8px 12px",
+              color: "#000",
               active: {
-                background: '#000',
-                color: '#fff'
+                background: "#000",
+                color: "#fff"
               },
               hover: {
-                background: '#000',
-                color: '#fff'
+                background: "#000",
+                color: "#fff"
               }
             }
           }
         },
         colors: {
-          primary: '#000',
-          background: '#e5e7eb',
-          text: '#000'
+          primary: "#000",
+          background: "#e5e7eb",
+          text: "#000"
         }
       },
       // Slider
       slider: {
-        containerClass: 'afs-range-slider',
-        trackClass: 'afs-range-track',
-        thumbClass: 'afs-range-thumb',
-        valueClass: 'afs-range-value',
-        selectedClass: 'afs-range-selected'
+        containerClass: "afs-range-slider",
+        trackClass: "afs-range-track",
+        thumbClass: "afs-range-thumb",
+        valueClass: "afs-range-value",
+        selectedClass: "afs-range-selected"
       },
       // Pagination
       pagination: {
         enabled: false,
         itemsPerPage: 10,
-        container: '.afs-pagination-container',
-        pageButtonClass: 'afs-page-button',
-        activePageClass: 'afs-page-active',
-        containerClass: 'afs-pagination',
+        container: ".afs-pagination-container",
+        pageButtonClass: "afs-page-button",
+        activePageClass: "afs-page-active",
+        containerClass: "afs-pagination",
         scrollToTop: false,
         scrollOffset: 50,
-        scrollBehavior: 'smooth' // or 'auto' for instant scroll
+        scrollBehavior: "smooth" // or 'auto' for instant scroll
+      },
+      // Animation
+      animation: {
+        type: "fade",
+        duration: 300,
+        easing: "ease-out",
+        inClass: "afs-animation-enter",
+        outClass: "afs-animation-leave"
       }
     };
     constructor() {
@@ -283,9 +287,9 @@
         ...target
       };
       for (const key in source) {
-        if (source[key] !== null && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+        if (source[key] !== null && typeof source[key] === "object" && !Array.isArray(source[key])) {
           // If the key doesn't exist in target or isn't an object, create/override it
-          if (!target[key] || typeof target[key] !== 'object') {
+          if (!target[key] || typeof target[key] !== "object") {
             result[key] = {};
           }
           // Recursively merge nested objects
@@ -305,37 +309,37 @@
      */
     validate() {
       // Required selectors
-      const requiredSelectors = ['containerSelector', 'itemSelector'];
+      const requiredSelectors = ["containerSelector", "itemSelector"];
       for (const selector of requiredSelectors) {
-        if (typeof this.options[selector] !== 'string') {
+        if (typeof this.options[selector] !== "string") {
           throw new Error(`${selector} must be a string`);
         }
       }
 
       // Animation duration
-      if (typeof this.options.animationDuration !== 'number' || this.options.animationDuration < 0) {
-        throw new Error('animationDuration must be a positive number');
+      if (typeof this.options.animation.duration !== "number" || this.options.animation.duration < 0) {
+        throw new Error("animationDuration must be a positive number");
       }
 
       // Filter mode
-      if (!['OR', 'AND'].includes(this.options.filterMode.toUpperCase())) {
+      if (!["OR", "AND"].includes(this.options.filterMode.toUpperCase())) {
         throw new Error('filterMode must be either "OR" or "AND"');
       }
 
       // Search keys
       if (!Array.isArray(this.options.searchKeys) || this.options.searchKeys.length === 0) {
-        throw new Error('searchKeys must be a non-empty array');
+        throw new Error("searchKeys must be a non-empty array");
       }
 
       // Counter validation
       if (this.options.counter) {
-        if (typeof this.options.counter.template !== 'string') {
-          throw new Error('counter.template must be a string');
+        if (typeof this.options.counter.template !== "string") {
+          throw new Error("counter.template must be a string");
         }
-        if (typeof this.options.counter.showFiltered !== 'boolean') {
+        if (typeof this.options.counter.showFiltered !== "boolean") {
           this.options.counter.showFiltered = true; // Set default
         }
-        if (typeof this.options.counter.formatter !== 'function') {
+        if (typeof this.options.counter.formatter !== "function") {
           this.options.counter.formatter = num => num.toLocaleString(); // Set default
         }
       } else {
@@ -351,7 +355,7 @@
      * @returns {any} Option value
      */
     get(path) {
-      return path.split('.').reduce((obj, key) => obj?.[key], this.options);
+      return path.split(".").reduce((obj, key) => obj?.[key], this.options);
     }
 
     /**
@@ -360,7 +364,7 @@
      * @param {any} value - New value
      */
     set(path, value) {
-      const parts = path.split('.');
+      const parts = path.split(".");
       const last = parts.pop();
       const target = parts.reduce((obj, key) => {
         if (!(key in obj)) obj[key] = {};
@@ -572,8 +576,8 @@
       const itemSelector = this.options.get("itemSelector") || ".afs-filter-item";
       const filterButtonSelector = this.options.get("filterButtonSelector") || ".afs-btn-filter";
       const activeClass = this.options.get("activeClass") || "active";
-      const animationDuration = this.options.get("animationDuration") || '300ms';
-      const animationEasing = this.options.get("animationEasing") || 'ease-out';
+      const animationDuration = this.options.get("animation.duration") || '300ms';
+      const animationEasing = this.options.get("animation.easing") || 'ease-out';
       return `
       .${hiddenClass} {
         display: none !important;
@@ -636,8 +640,8 @@
       transform: translateY(-50%);
       width: 100%;
       height: 4px;
-      background: ${sliderStyles.ui.thumb.background || colors.background};
-      border-radius: ${sliderStyles.ui.track.radius || "2px"};
+      background: ${sliderStyles.ui.track.background || colors.background};
+      border-radius: ${sliderStyles.ui.track.radius || "0"};
     }
 
     .${thumbClass} {
@@ -738,6 +742,49 @@
     }
 
     /**
+     * Create date filter styles
+     * @private
+     * @returns {string} CSS styles
+     */
+    createInputRangeStyles() {
+      const colors = this.options.get("styles").colors;
+      return `
+        .afs-input-range-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 10px 0;
+        }
+
+        .afs-input-wrapper {
+            flex: 1;
+        }
+
+        .afs-input-label {
+            display: block;
+            font-size: 0.875rem;
+            color: ${colors.text};
+            margin-bottom: 0.5rem;
+        }
+
+        .afs-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid ${colors.background};
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            color: ${colors.text};
+            transition: border-color 0.2s ease;
+        }
+
+        .afs-input:focus {
+            outline: none;
+            border-color: ${colors.primary};
+        }
+    `;
+    }
+
+    /**
      * Apply all styles
      * @public
      */
@@ -758,6 +805,9 @@
 
       /* Search styles */
       ${this.createSearchStyles()}
+
+      /* Input range styles */
+      ${this.createInputRangeStyles()}
     `;
         if (this.styleElement) {
           this.styleElement.textContent = styles;
@@ -1178,9 +1228,14 @@
     }
     applyShowAnimation(item) {
       let animationType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'fade';
-      const duration = this.options.get('animationDuration') || '300ms';
+      const duration = this.options.get('animation.duration') || '300ms';
       const animation = this.animations[animationType]?.in || this.animations.fade.in;
+
+      // Ensure display is set
       item.style.display = 'block';
+      item.style.opacity = '0'; // Start with opacity 0
+
+      // Apply animation in next frame
       requestAnimationFrame(() => {
         Object.assign(item.style, animation, {
           transition: `opacity ${duration} ${animation.transitionTimingFunction}, transform ${duration} ${animation.transitionTimingFunction}`
@@ -1189,7 +1244,7 @@
     }
     applyHideAnimation(item) {
       let animationType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'fade';
-      const duration = this.options.get('animationDuration') || '300ms';
+      const duration = this.options.get('animation.duration') || '300ms';
       const animation = this.animations[animationType]?.out || this.animations.fade.out;
       Object.assign(item.style, animation, {
         transition: `opacity ${duration} ${animation.transitionTimingFunction}, transform ${duration} ${animation.transitionTimingFunction}`
@@ -1201,7 +1256,7 @@
       item.addEventListener('transitionend', handleTransitionEnd);
     }
     setAnimation(animationType) {
-      this.afs.options.set('animationType', animationType);
+      this.afs.options.set('animation.type', animationType);
     }
   }
 
@@ -1348,26 +1403,39 @@
       // Clear filter groups
       this.filterGroups.clear();
 
-      // Force all items to be visible first
-      const visibleItems = new Set(this.afs.items);
-      this.afs.state.setState("items.visible", visibleItems);
+      // Create a promise to track animations
+      const animationPromises = [];
 
       // Show all items with animation
       this.afs.items.forEach(item => {
-        item.classList.remove(this.afs.options.get('hiddenClass'));
-        requestAnimationFrame(() => {
-          this.animation.applyShowAnimation(item, this.afs.options.get("animationType"));
+        const promise = new Promise(resolve => {
+          item.classList.remove(this.afs.options.get('hiddenClass'));
+          item.style.display = 'block'; // Ensure item is visible
+
+          requestAnimationFrame(() => {
+            this.animation.applyShowAnimation(item, this.afs.options.get("animation.type"));
+            // Resolve after animation duration
+            setTimeout(resolve, this.afs.options.get("animation.duration") || 300);
+          });
         });
+        animationPromises.push(promise);
       });
 
-      // Update counter after reset
-      this.afs.updateCounter();
+      // Update state after all items are visible
+      const visibleItems = new Set(this.afs.items);
+      this.afs.state.setState("items.visible", visibleItems);
 
-      // Update URL after reset
-      this.afs.urlManager.updateURL();
+      // Wait for all animations to complete
+      Promise.all(animationPromises).then(() => {
+        // Update counter
+        this.afs.updateCounter();
 
-      // Emit event
-      this.afs.emit("filtersReset");
+        // Update URL
+        this.afs.urlManager.updateURL();
+
+        // Emit event
+        this.afs.emit("filtersReset");
+      });
     }
 
     /**
@@ -1438,60 +1506,64 @@
     * @public
     */
     applyFilters() {
-      // Log active filters
       const activeFilters = Array.from(this.activeFilters);
       this.afs.logger.debug("Active filters:", activeFilters);
-      this.afs.logger.debug("Applying filters");
       const previouslyVisible = new Set(this.afs.state.getState().items.visible);
       const visibleItems = new Set();
 
-      // First pass: determine which items should be visible
+      // First determine visibility
       this.afs.items.forEach(item => {
         if (this.activeFilters.has("*") || this.itemMatchesFilters(item)) {
           visibleItems.add(item);
         }
       });
 
-      // Update state with determined visible items
+      // Update state before animations
       this.afs.state.setState("items.visible", visibleItems);
 
-      // Second pass: apply animations based on visibility changes
+      // Track animation promises
+      const animationPromises = [];
+
+      // Apply animations
       this.afs.items.forEach(item => {
-        if (visibleItems.has(item)) {
-          // Remove hidden class first
-          item.classList.remove(this.afs.options.get('hiddenClass'));
-          // Then apply show animation in next frame
-          requestAnimationFrame(() => {
-            this.animation.applyShowAnimation(item, this.afs.options.get("animationType"));
-          });
-        } else {
-          // Apply hide animation
-          requestAnimationFrame(() => {
-            this.animation.applyHideAnimation(item, this.afs.options.get("animationType"));
-          });
-        }
+        const promise = new Promise(resolve => {
+          if (visibleItems.has(item)) {
+            // Show item
+            item.classList.remove(this.afs.options.get('hiddenClass'));
+            requestAnimationFrame(() => {
+              this.animation.applyShowAnimation(item, this.afs.options.get("animation.type"));
+              setTimeout(resolve, parseFloat(this.afs.options.get("animation.duration")) || 300);
+            });
+          } else {
+            // Hide item
+            requestAnimationFrame(() => {
+              this.animation.applyHideAnimation(item, this.afs.options.get("animation.type"));
+              setTimeout(resolve, parseFloat(this.afs.options.get("animation.duration")) || 300);
+            });
+          }
+        });
+        animationPromises.push(promise);
       });
 
-      // Emit events and update UI
-      this.emitFilterEvents(previouslyVisible, visibleItems);
+      // Handle completion
+      Promise.all(animationPromises).then(() => {
+        // Ensure visible items remain visible
+        visibleItems.forEach(item => {
+          item.style.display = 'block';
+          item.style.opacity = '1';
+        });
 
-      // Schedule UI updates
-      requestAnimationFrame(() => {
-        // Force reflow to ensure animations play
-        this.afs.container.offsetHeight;
-
-        // Update counter - this needs to happen after filter changes
+        // Update UI
         this.afs.updateCounter();
-
-        // Update URL
         this.afs.urlManager.updateURL();
-
-        // Emit final event
         this.afs.emit("filtersApplied", {
           activeFilters,
           visibleItems: visibleItems.size
         });
       });
+
+      // Emit visibility change events
+      this.emitFilterEvents(previouslyVisible, visibleItems);
     }
 
     /**
@@ -2037,6 +2109,310 @@
       timeout = setTimeout(later, wait);
       if (callNow) func.apply(context, args);
     };
+  }
+
+  /**
+   * @fileoverview Input range filter implementation for AFS
+   */
+
+  class InputRangeFilter {
+    constructor(afs) {
+      this.afs = afs;
+      this.activeRanges = new Map();
+    }
+
+    /**
+     * @typedef {Object} InputRangeOptions
+     * @property {string} key - Data attribute key
+     * @property {HTMLElement} container - Container element
+     * @property {number} [min] - Minimum value
+     * @property {number} [max] - Maximum value
+     * @property {number} [step] - Step value
+     * @property {string} [label] - Label for the input range
+     */
+
+    /**
+     * Add input range filter
+     * @param {InputRangeOptions} options - Input range options
+     */
+    addInputRange(_ref) {
+      let {
+        key,
+        container,
+        min,
+        max,
+        step = 1,
+        label = ''
+      } = _ref;
+      this.afs.logger.debug(`Adding input range for ${key}`);
+      if (!container) {
+        this.afs.logger.error('Container element required for input range');
+        return;
+      }
+
+      // Calculate min/max if not provided
+      const values = this.calculateMinMax(key);
+      min = min ?? values.min;
+      max = max ?? values.max;
+
+      // Create input elements
+      const elements = this.createInputElements(label);
+      const state = this.initializeState(min, max, step);
+
+      // Add elements to container
+      this.appendElements(container, elements);
+
+      // Setup event handlers
+      this.setupEventHandlers(elements, state, key);
+
+      // Store state
+      this.activeRanges.set(key, {
+        state,
+        elements
+      });
+
+      // Initial update
+      this.updateInputUI(key);
+      this.afs.logger.info(`Input range added for ${key}`);
+    }
+
+    /**
+     * Calculate min and max values from items
+     * @private
+     */
+    calculateMinMax(key) {
+      try {
+        const values = Array.from(this.afs.items).map(item => {
+          if (!item || !item.dataset || !item.dataset[key]) {
+            return null;
+          }
+          const value = parseFloat(item.dataset[key]);
+          return isNaN(value) ? null : value;
+        }).filter(value => value !== null);
+        if (values.length === 0) {
+          return {
+            min: 0,
+            max: 100
+          };
+        }
+        return {
+          min: Math.min(...values),
+          max: Math.max(...values)
+        };
+      } catch (error) {
+        this.afs.logger.error('Error calculating range:', error);
+        return {
+          min: 0,
+          max: 100
+        };
+      }
+    }
+
+    /**
+     * Create input elements
+     * @private
+     */
+    /**
+    * Create input elements
+    * @private
+    */
+    createInputElements(label) {
+      const container = document.createElement('div');
+      container.className = 'afs-input-range-container';
+      if (label) {
+        const labelElement = document.createElement('div');
+        labelElement.className = 'afs-input-range-label';
+        labelElement.textContent = label;
+        container.appendChild(labelElement);
+      }
+
+      // Min input wrapper
+      const minWrapper = document.createElement('div');
+      minWrapper.className = 'afs-input-wrapper';
+      const minLabel = document.createElement('label');
+      minLabel.textContent = 'Min';
+      minLabel.className = 'afs-input-label';
+      const minInput = document.createElement('input');
+      minInput.type = 'number';
+      minInput.className = 'afs-input min';
+      minWrapper.appendChild(minLabel);
+      minWrapper.appendChild(minInput);
+
+      // Max input wrapper
+      const maxWrapper = document.createElement('div');
+      maxWrapper.className = 'afs-input-wrapper';
+      const maxLabel = document.createElement('label');
+      maxLabel.textContent = 'Max';
+      maxLabel.className = 'afs-input-label';
+      const maxInput = document.createElement('input');
+      maxInput.type = 'number';
+      maxInput.className = 'afs-input max';
+      maxWrapper.appendChild(maxLabel);
+      maxWrapper.appendChild(maxInput);
+      container.appendChild(minWrapper);
+      container.appendChild(maxWrapper);
+      return {
+        container,
+        minInput,
+        maxInput
+      };
+    }
+
+    /**
+     * Initialize input range state
+     * @private
+     */
+    initializeState(min, max, step) {
+      return {
+        min,
+        max,
+        step,
+        currentMin: min,
+        currentMax: max
+      };
+    }
+
+    /**
+     * Append elements to container
+     * @private
+     */
+    appendElements(container, elements) {
+      container.appendChild(elements.container);
+    }
+
+    /**
+     * Setup event handlers
+     * @private
+     */
+    setupEventHandlers(elements, state, key) {
+      const {
+        minInput,
+        maxInput
+      } = elements;
+      const handleInputChange = debounce(() => {
+        const minValue = parseFloat(minInput.value);
+        const maxValue = parseFloat(maxInput.value);
+        if (!isNaN(minValue) && !isNaN(maxValue)) {
+          state.currentMin = Math.max(state.min, Math.min(maxValue, minValue));
+          state.currentMax = Math.min(state.max, Math.max(minValue, maxValue));
+          this.updateInputUI(key);
+          this.applyFilter(key);
+        }
+      }, 300);
+      minInput.addEventListener('input', handleInputChange);
+      maxInput.addEventListener('input', handleInputChange);
+    }
+
+    /**
+     * Update input UI
+     * @private
+     */
+    updateInputUI(key) {
+      try {
+        const {
+          state,
+          elements
+        } = this.activeRanges.get(key);
+        const {
+          minInput,
+          maxInput
+        } = elements;
+
+        // Set constraints
+        minInput.min = state.min;
+        minInput.max = state.max;
+        minInput.step = state.step;
+        maxInput.min = state.min;
+        maxInput.max = state.max;
+        maxInput.step = state.step;
+
+        // Set current values
+        minInput.value = state.currentMin;
+        maxInput.value = state.currentMax;
+      } catch (error) {
+        this.afs.logger.error('Error updating input UI:', error);
+      }
+    }
+
+    /**
+     * Apply filter
+     * @private
+     */
+    applyFilter(key) {
+      this.afs.logger.info(`Applying input filter for ${key}`);
+      const {
+        state
+      } = this.activeRanges.get(key);
+      this.afs.items.forEach(item => {
+        try {
+          if (!item || !item.dataset || !item.dataset[key]) {
+            this.afs.hideItem(item);
+            return;
+          }
+          const itemValue = parseFloat(item.dataset[key]);
+          if (isNaN(itemValue)) {
+            this.afs.hideItem(item);
+            return;
+          }
+          if (itemValue >= state.currentMin && itemValue <= state.currentMax) {
+            this.afs.showItem(item);
+          } else {
+            this.afs.hideItem(item);
+          }
+        } catch (error) {
+          this.afs.logger.error('Error filtering item:', error);
+          this.afs.hideItem(item);
+        }
+      });
+      this.afs.updateCounter();
+      this.afs.urlManager.updateURL();
+      this.afs.emit('inputRangeFilter', {
+        key,
+        min: state.currentMin,
+        max: state.currentMax
+      });
+    }
+
+    /**
+     * Get current range values
+     * @param {string} key - Range key
+     * @returns {Object} Current range values
+     */
+    getRange(key) {
+      const range = this.activeRanges.get(key);
+      if (!range) return null;
+      return {
+        min: range.state.currentMin,
+        max: range.state.currentMax
+      };
+    }
+
+    /**
+     * Set range values
+     * @param {string} key - Range key
+     * @param {number} min - Minimum value
+     * @param {number} max - Maximum value
+     */
+    setRange(key, min, max) {
+      const range = this.activeRanges.get(key);
+      if (!range) return;
+      range.state.currentMin = min;
+      range.state.currentMax = max;
+      this.updateInputUI(key);
+      this.applyFilter(key);
+    }
+
+    /**
+     * Remove input range
+     * @param {string} key - Range key
+     */
+    removeInputRange(key) {
+      const range = this.activeRanges.get(key);
+      if (!range) return;
+      range.elements.container.remove();
+      this.activeRanges.delete(key);
+      this.afs.logger.info(`Input range removed for ${key}`);
+    }
   }
 
   /**
@@ -4360,7 +4736,7 @@
    */
 
   // Version
-  const VERSION = '1.0.8';
+  const VERSION = '1.0.9';
   class AFS extends EventEmitter {
     /**
      * @param {Object} options - Configuration options
@@ -4423,6 +4799,7 @@
       this.urlManager = new URLManager(this);
       this.dateFilter = new DateFilter(this);
       this.pagination = new Pagination(this);
+      this.inputRangeFilter = new InputRangeFilter(this);
 
       // Apply styles
       this.styleManager.applyStyles();
