@@ -22,7 +22,7 @@ export { EventEmitter } from './core/EventEmitter';
 export { StyleManager } from './styles/StyleManager';
 
 // Factory function
-export function createAFS(options) {
+export const createAFS = (options) => {
   return new AFS(options);
 }
 

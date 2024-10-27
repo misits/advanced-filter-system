@@ -9,7 +9,7 @@
  * @param {boolean} [immediate=false] - Execute immediately
  * @returns {Function} Debounced function
  */
-export function debounce(func, wait, immediate = false) {
+export const debounce = (func, wait, immediate = false) => {
     let timeout;
     return function executedFunction(...args) {
       const context = this;
@@ -30,7 +30,7 @@ export function debounce(func, wait, immediate = false) {
    * @param {number} limit - Time limit in milliseconds
    * @returns {Function} Throttled function
    */
-  export function throttle(func, limit) {
+  export const throttle = (func, limit) => {
     let inThrottle;
     return function executedFunction(...args) {
       const context = this;
@@ -48,7 +48,7 @@ export function debounce(func, wait, immediate = false) {
    * @param {string} format - Date format
    * @returns {Date|null} Parsed date object or null if invalid
    */
-  export function parseDate(dateStr, format) {
+  export const parseDate = (dateStr, format) => {
     const formats = {
       'YYYY-MM-DD': /^\d{4}-\d{2}-\d{2}$/,
       'DD-MM-YYYY': /^\d{2}-\d{2}-\d{4}$/,
@@ -79,7 +79,7 @@ export function debounce(func, wait, immediate = false) {
    * @param {string} property - CSS property
    * @returns {string} Computed style value
    */
-  export function getStyle(element, property) {
+  export const getStyle = (element, property) => {
     return window.getComputedStyle(element).getPropertyValue(property);
   }
   
@@ -89,7 +89,7 @@ export function debounce(func, wait, immediate = false) {
    * @param {string} selector - CSS selector
    * @returns {boolean} Whether element matches selector
    */
-  export function matches(element, selector) {
+  export const matches = (element, selector) => {
     return (
       element.matches ||
       element.matchesSelector ||
@@ -105,7 +105,7 @@ export function debounce(func, wait, immediate = false) {
    * @param {Object} obj - Object to clone
    * @returns {Object} Cloned object
    */
-  export function deepClone(obj) {
+  export const deepClone = (obj) => {
     if (obj === null || typeof obj !== 'object') return obj;
     if (obj instanceof Date) return new Date(obj);
     if (obj instanceof Array) return obj.map(item => deepClone(item));
@@ -122,7 +122,7 @@ export function debounce(func, wait, immediate = false) {
    * @param {string} [prefix=''] - ID prefix
    * @returns {string} Unique ID
    */
-  export function uniqueId(prefix = '') {
+  export const uniqueId = (prefix = '') => {
     return `${prefix}${Math.random().toString(36).substr(2, 9)}`;
   }
   

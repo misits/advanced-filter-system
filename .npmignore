@@ -1,7 +1,31 @@
+# Development files
 src/
 tests/
 examples/
-.gitignore
+docs/
+.github/
+.vscode/
+.idea/
+.git/
+
+# Config files
+.babelrc
+.eslintrc
+.prettierrc
 rollup.config.js
+jest.config.js
+tsconfig.json
+bundle-analysis.html
+
+# Logs and caches
 *.log
+.cache/
 coverage/
+node_modules/
+
+# Source maps
+*.map
+
+# Editor files
+*.swp
+.DS_Store
