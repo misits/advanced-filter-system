@@ -44,7 +44,6 @@ const createFeatureSection = (features, containerId = 'features') => {
           title: 'High Performance',
           description: 'Optimized for large datasets'
         },
-        // Additional features from README
         {
           emoji: '↕️',
           title: 'Flexible Sorting',
