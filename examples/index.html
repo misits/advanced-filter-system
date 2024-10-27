@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8" />
@@ -15,7 +15,10 @@
     <link rel="manifest" href="./favicon/site.webmanifest" />
 </head>
 
-<body class="font-mono bg-white text-gray-900">
+<body class="font-mono bg-white text-gray-900 relative">
+    <a href="#demo" class="fixed bottom-4 right-4 bg-black text-white py-2 px-4 rounded-full hover:bg-gray-800 z-[1000]">
+        Try Demo
+    </a>
     <!-- Header with navigation -->
     <header class="sticky top-0 bg-white border-b border-gray-200 z-[1000]">
         <div class="container mx-auto px-6 py-4">
@@ -85,6 +88,8 @@
         <!-- Features -->
         <div id="features"></div>
 
+        <span id="demo"></span>
+
         <!-- Live Demo -->
         <section class="container mx-auto px-6 mb-16">
             <h2 class="text-3xl font-bold mb-8">Live Demo</h2>
@@ -125,7 +130,7 @@
                     <!-- Add this toggle button (Animation) -->
                     <div class="relative inline-block text-left animation-select-filters">
                         <button type="button"
-                            class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white hover:bg-gray-50 transition-colors"
+                            class="inline-flex items-center justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white hover:bg-gray-50 transition-colors"
                             id="dropdownSingleSelectButton">
                             <span class="label">Select Animation</span>
                             <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -200,7 +205,7 @@
                 </div>
 
                 <!-- Filter Controls -->
-                <div class="sliders-filter grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                <div class="sliders-filter grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
                     <div class="price-range-container p-6 border border-gray-300 bg-white rounded-md">
                         <label for="price-range" class="block">Price Range</label>
                         <p class="text-xs mb-10 text-gray-500">Filter by price with histogram enabled</p>
@@ -221,7 +226,7 @@
                         <p class="text-xs mb-4 text-gray-500">Filter by date</p>
                     </div>
                 </div>
-                
+
                 <div class="filter-controls mb-6 flex gap-4 items-center flex-wrap">
                     <input type="text" class="filter-search p-2 border border-gray-300 rounded-md w-full sm:w-52"
                         placeholder="Search...">
@@ -234,8 +239,9 @@
 
                         <!-- Sort by Price DESC -->
                         <button id="sort-price"
-                            class="btn-sort px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors">Sort
-                            Price</button>
+                            class="btn-sort px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors">
+                            Sort Price
+                        </button>
 
                         <!-- Suffle -->
                         <button id="sort-shuffle"
@@ -246,19 +252,22 @@
                             class="btn-filter px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors"
                             data-filter="*">All</button>
                         <button
-                            class="btn-filter px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors"
+                            class="btn-filter px-4 py-2 border border-gray-300 text-gray-700 bg-white rounded-md hover:bg-gray-100 transition-colors"
                             data-filter="category:tech">Technology</button>
                         <button
-                            class="btn-filter px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors"
+                            class="btn-filter px-4 py-2 border border-gray-300 text-gray-700 bg-white rounded-md hover:bg-gray-100 transition-colors"
                             data-filter="category:fashion">Fashion</button>
                         <button
-                            class="btn-filter px-4 py-2 border border-gray-300 bg-white rounded-md hover:bg-gray-100 transition-colors"
+                            class="btn-filter px-4 py-2 border border-gray-300 text-gray-700 bg-white rounded-md hover:bg-gray-100 transition-colors"
                             data-filter="category:food">Food</button>
+                            <button
+                            class="btn-filter px-4 py-2 border border-gray-300 text-gray-700 bg-white rounded-md hover:bg-gray-100 transition-colors"
+                            data-filter="category:book">Book</button>
                     </div>
                     <!-- Dropdown Multi-select -->
                     <div class="relative inline-block text-left select-filters">
                         <button type="button"
-                            class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white hover:bg-gray-50"
+                            class="inline-flex items-center justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white hover:bg-gray-50"
                             id="dropdownMultiSelectButton">
                             Categories <span class="selected-filter-counter"></span>
                             <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -293,170 +302,11 @@
                     <div class="filter-counter text-gray-500 text-sm"></div>
 
                 </div>
+
+               <hr class="border-t border-gray-200 mb-6" />
+            
                 <!-- Grid of Items -->
-                <div id="item-grid">
-                    <div class="filter-container">
-                        <div
-                            class="items-grid-section grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-
-                            <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-                                data-categories="category:tech" data-category="tech" data-price="999"
-                                data-title="Smartphone Pro" data-date="2024-03-15" data-rating="4.5" data-sales="1250"
-                                style="opacity: 1; transform: translateY(0px); transition: opacity 0.3s, transform 0.3s;">
-                                <div class="card-content">
-                                    <h3 class="card-title mb-2 text-lg font-semibold">Smartphone Pro</h3>
-                                    <div class="flex justify-between items-center mb-2">
-                                        <div class="card-category text-gray-500 text-sm">Technology</div>
-                                        <div class="card-date text-gray-400 text-sm">15.03.2024</div>
-                                    </div>
-                                    <div class="card-rating mb-2">
-
-                                        <div class="flex items-center gap-1">
-                                            ★★★★
-                                            <span class="ml-1 text-sm text-gray-600">(4.5)</span>
-                                        </div>
-
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <div class="card-price text-gray-700 font-bold">$999</div>
-                                        <div class="card-sales text-gray-500 text-sm">1250 sold</div>
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-                                data-categories="category:tech" data-category="tech" data-price="1299"
-                                data-title="Laptop Ultra" data-date="2024-02-20" data-rating="4.8" data-sales="890"
-                                style="opacity: 1; transform: translateY(0px); transition: opacity 0.3s, transform 0.3s;">
-                                <div class="card-content">
-                                    <h3 class="card-title mb-2 text-lg font-semibold">Laptop Ultra</h3>
-                                    <div class="flex justify-between items-center mb-2">
-                                        <div class="card-category text-gray-500 text-sm">Technology</div>
-                                        <div class="card-date text-gray-400 text-sm">20.02.2024</div>
-                                    </div>
-                                    <div class="card-rating mb-2">
-
-                                        <div class="flex items-center gap-1">
-                                            ★★★★
-                                            <span class="ml-1 text-sm text-gray-600">(4.8)</span>
-                                        </div>
-
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <div class="card-price text-gray-700 font-bold">$1299</div>
-                                        <div class="card-sales text-gray-500 text-sm">890 sold</div>
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-                                data-categories="category:fashion" data-category="fashion" data-price="89"
-                                data-title="Designer Jeans" data-date="2024-03-01" data-rating="4.2" data-sales="567"
-                                style="opacity: 1; transform: translateY(0px); transition: opacity 0.3s, transform 0.3s;">
-                                <div class="card-content">
-                                    <h3 class="card-title mb-2 text-lg font-semibold">Designer Jeans</h3>
-                                    <div class="flex justify-between items-center mb-2">
-                                        <div class="card-category text-gray-500 text-sm">Fashion</div>
-                                        <div class="card-date text-gray-400 text-sm">01.03.2024</div>
-                                    </div>
-                                    <div class="card-rating mb-2">
-
-                                        <div class="flex items-center gap-1">
-                                            ★★★★
-                                            <span class="ml-1 text-sm text-gray-600">(4.2)</span>
-                                        </div>
-
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <div class="card-price text-gray-700 font-bold">$89</div>
-                                        <div class="card-sales text-gray-500 text-sm">567 sold</div>
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-                                data-categories="category:fashion" data-category="fashion" data-price="59"
-                                data-title="Casual Shirt" data-date="2024-03-10" data-rating="4" data-sales="432"
-                                style="opacity: 1; transform: translateY(0px); transition: opacity 0.3s, transform 0.3s;">
-                                <div class="card-content">
-                                    <h3 class="card-title mb-2 text-lg font-semibold">Casual Shirt</h3>
-                                    <div class="flex justify-between items-center mb-2">
-                                        <div class="card-category text-gray-500 text-sm">Fashion</div>
-                                        <div class="card-date text-gray-400 text-sm">10.03.2024</div>
-                                    </div>
-                                    <div class="card-rating mb-2">
-
-                                        <div class="flex items-center gap-1">
-                                            ★★★★
-                                            <span class="ml-1 text-sm text-gray-600">(4)</span>
-                                        </div>
-
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <div class="card-price text-gray-700 font-bold">$59</div>
-                                        <div class="card-sales text-gray-500 text-sm">432 sold</div>
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-                                data-categories="category:food" data-category="food" data-price="25"
-                                data-title="Gourmet Pizza" data-date="2024-03-18" data-rating="4.7" data-sales="789"
-                                style="opacity: 1; transform: translateY(0px); transition: opacity 0.3s, transform 0.3s;">
-                                <div class="card-content">
-                                    <h3 class="card-title mb-2 text-lg font-semibold">Gourmet Pizza</h3>
-                                    <div class="flex justify-between items-center mb-2">
-                                        <div class="card-category text-gray-500 text-sm">Food</div>
-                                        <div class="card-date text-gray-400 text-sm">18.03.2024</div>
-                                    </div>
-                                    <div class="card-rating mb-2">
-
-                                        <div class="flex items-center gap-1">
-                                            ★★★★
-                                            <span class="ml-1 text-sm text-gray-600">(4.7)</span>
-                                        </div>
-
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <div class="card-price text-gray-700 font-bold">$25</div>
-                                        <div class="card-sales text-gray-500 text-sm">789 sold</div>
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <div class="card filter-item p-6 bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-                                data-categories="category:food" data-category="food" data-price="15"
-                                data-title="Organic Salad" data-date="2024-03-17" data-rating="4.3" data-sales="345"
-                                style="opacity: 1; transform: translateY(0px); transition: opacity 0.3s, transform 0.3s;">
-                                <div class="card-content">
-                                    <h3 class="card-title mb-2 text-lg font-semibold">Organic Salad</h3>
-                                    <div class="flex justify-between items-center mb-2">
-                                        <div class="card-category text-gray-500 text-sm">Food</div>
-                                        <div class="card-date text-gray-400 text-sm">17.03.2024</div>
-                                    </div>
-                                    <div class="card-rating mb-2">
-
-                                        <div class="flex items-center gap-1">
-                                            ★★★★
-                                            <span class="ml-1 text-sm text-gray-600">(4.3)</span>
-                                        </div>
-
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <div class="card-price text-gray-700 font-bold">$15</div>
-                                        <div class="card-sales text-gray-500 text-sm">345 sold</div>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <div id="item-grid"></div>
 
                 <div class="afs-pagination-container"></div>
             </div>
@@ -480,7 +330,7 @@
                     <h3 class="text-xl font-bold mb-4">Via CDNs</h3>
                     <pre
                         class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-html">&lt;!-- Include the library --&gt;
-&lt;script src="https://unpkg.com/advanced-filter-system@1.1.0/dist/afs.modern.js"&gt;&lt;/script&gt;
+&lt;script src="https://unpkg.com/advanced-filter-system@1.1.1/dist/afs.modern.js"&gt;&lt;/script&gt;
 </code></pre>
                 </div>
             </div>
@@ -633,9 +483,11 @@ const afs = new AFS({
     <script type="module">
         import { AFS } from '../dist/afs.modern.js';
         import { createFeatureSection } from './js/features.js';
+        import { createItemGrid } from './js/items-grid.js';
 
         // Use default features
         createFeatureSection();
+        createItemGrid();
 
         // Initialize Filter with OR as default
         const afs = new AFS({

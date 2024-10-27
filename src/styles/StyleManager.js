@@ -55,6 +55,26 @@ export class StyleManager {
     `;
 }
 
+ /**
+     * Add global transition styles
+     * @private
+     */
+ addTransitionStyles() {
+  const style = document.createElement('style');
+  style.textContent = `
+      .afs-transition {
+          transition: opacity 300ms ease-in-out,
+                      transform 300ms ease-in-out,
+                      filter 300ms ease-in-out !important;
+      }
+      .afs-hidden {
+          opacity: 0;
+          pointer-events: none;
+      }
+  `;
+  document.head.appendChild(style);
+}
+
   /**
    * Create range slider styles
    * @private
@@ -115,7 +135,7 @@ export class StyleManager {
     .${selectedClass} {
       position: absolute;
       height: 4px;
-      background: ${colors.primary};
+      background: ${sliderStyles.ui.selected.background || colors.primary};
       top: 50%;
       transform: translateY(-50%);
     }
@@ -240,6 +260,10 @@ export class StyleManager {
   applyStyles() {
     try {
       const styles = `
+      
+      /* Global transition styles */
+      ${this.addTransitionStyles()}
+
       /* Base styles */
       ${this.createBaseStyles()}
 

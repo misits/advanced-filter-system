@@ -97,7 +97,7 @@ pnpm add advanced-filter-system
 Or include via CDN:
 
 ```html
-<script src="https://unpkg.com/advanced-filter-system@1.1.0/dist/afs.modern.js"></script>
+<script src="https://unpkg.com/advanced-filter-system@1.1.1/dist/afs.modern.js"></script>
 ```
 
 ## Quick Start
@@ -119,9 +119,9 @@ Or include via CDN:
     
     <!-- Filter Buttons -->
     <div class="filter-buttons">
-        <button class="btn-filter" data-filter="all">All</button>
-        <button class="btn-filter" data-filter="category1">Category 1</button>
-        <button class="btn-filter" data-filter="category2">Category 2</button>
+        <button class="btn-filter" data-filter="*">All</button>
+        <button class="btn-filter" data-filter="category:category1">Category 1</button>
+        <button class="btn-filter" data-filter="category:category2">Category 2</button>
     </div>
 
     <!-- Sort Buttons -->
@@ -143,7 +143,7 @@ Or include via CDN:
     <!-- Items Container -->
     <div id="items-container">
         <div class="filter-item" 
-             data-categories="category1" 
+             data-categories="category:category1" 
              data-price="99.99"
              data-date="2024-03-15"
              data-title="Item 1"
@@ -159,7 +159,7 @@ Or include via CDN:
     <div class="pagination-container"></div>
 
     <!-- Scripts -->
-    <script src="https://unpkg.com/advanced-filter-system@1.1.0/dist/afs.modern.js"></script>
+    <script src="https://unpkg.com/advanced-filter-system@1.1.1/dist/afs.modern.js"></script>
     <script>
         const afs = AFS.createAFS({
             containerSelector: '#items-container',
@@ -224,10 +224,10 @@ const afs = createAFS({
 
 ```javascript
 // HTML
-<button class="btn-filter" data-filter="category1">Category 1</button>
-<button class="btn-filter" data-filter="category2">Category 2</button>
+<button class="btn-filter" data-filter="category:category1">Category 1</button>
+<button class="btn-filter" data-filter="category:category2">Category 2</button>
 
-<div class="filter-item" data-categories="category1,category2">
+<div class="filter-item" data-categories="category:category1 category:category2">
     Item content
 </div>
 
@@ -276,8 +276,8 @@ afs.search.clearSearch();
 
 ```javascript
 // HTML
-<button class="btn-sort" data-sort-key="price">Sort by Price</button>
-<button class="btn-sort" data-sort-key="date">Sort by Date</button>
+<button class="btn-sort" data-filter="price">Sort by Price</button>
+<button class="btn-sort" data-filter="date">Sort by Date</button>
 
 <div class="filter-item" data-price="99.99" data-date="2024-03-15">
     Item content

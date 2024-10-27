@@ -69,6 +69,9 @@ export class Options {
             radius: "0", // Button radius
             background: "#e5e7eb", // Track color
           },
+          selected: {
+            background: "#000", // Selected color
+          },
           thumb: {
             radius: "50%", // Button radius
             size: "16px", // Button size
