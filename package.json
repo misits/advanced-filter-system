@@ -1,6 +1,6 @@
 {
     "name": "advanced-filter-system",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "description": "Advanced filtering system for DOM elements with multiple features",
     "main": "dist/afs.legacy.js",
     "module": "dist/afs.modern.js",
@@ -8,82 +8,82 @@
     "private": false,
     "type": "module",
     "exports": {
-      ".": {
-        "import": "./dist/afs.modern.js",
-        "require": "./dist/afs.legacy.js",
-        "browser": "./dist/afs.legacy.min.js"
-      }
+        ".": {
+            "import": "./dist/afs.modern.js",
+            "require": "./dist/afs.legacy.js",
+            "browser": "./dist/afs.legacy.min.js"
+        }
     },
     "publishConfig": {
-      "access": "public"
+        "access": "public"
     },
     "sideEffects": false,
     "homepage": "https://misits.github.io/advanced-filter-system",
     "repository": {
-      "type": "git",
-      "url": "https://github.com/misits/advanced-filter-system.git"
+        "type": "git",
+        "url": "git+https://github.com/misits/advanced-filter-system.git"
     },
     "bugs": {
-      "url": "https://github.com/misits/advanced-filter-system/issues"
+        "url": "https://github.com/misits/advanced-filter-system/issues"
     },
     "scripts": {
-      "build": "rollup -c",
-      "build:prod": "cross-env NODE_ENV=production rollup -c",
-      "analyze": "open bundle-analysis.html",
-      "test": "jest",
-      "prepare": "npm run build:prod"
+        "build": "rollup -c",
+        "build:prod": "cross-env NODE_ENV=production rollup -c",
+        "analyze": "open bundle-analysis.html",
+        "test": "jest",
+        "prepare": "npm run build:prod"
     },
     "files": [
-      "dist",
-      "LICENSE",
-      "README.md"
+        "dist",
+        "LICENSE",
+        "README.md"
     ],
     "keywords": [
-      "filter",
-      "filtering",
-      "javascript",
-      "dom",
-      "sorting",
-      "searching",
-      "frontend",
-      "browser",
-      "manipulation",
-      "element-filter",
-      "web"
+        "filter",
+        "filtering",
+        "javascript",
+        "dom",
+        "sorting",
+        "searching",
+        "frontend",
+        "browser",
+        "manipulation",
+        "element-filter",
+        "web"
     ],
     "author": "misits",
     "license": "MIT",
     "devDependencies": {
-      "@babel/core": "^7.23.9",
-      "@babel/plugin-transform-runtime": "^7.23.9",
-      "@babel/preset-env": "^7.23.9",
-      "@babel/runtime": "^7.23.9",
-      "@rollup/plugin-babel": "^6.0.4",
-      "@rollup/plugin-commonjs": "^25.0.7",
-      "@rollup/plugin-node-resolve": "^15.2.3",
-      "@rollup/plugin-strip": "^3.0.4",
-      "@rollup/plugin-terser": "^0.4.4",
-      "babel-jest": "^29.7.0",
-      "babel-plugin-transform-remove-console": "^6.9.4",
-      "core-js": "^3.35.1",
-      "cross-env": "^7.0.3",
-      "jest": "^29.7.0",
-      "jest-environment-jsdom": "^29.7.0",
-      "rollup": "^4.9.6",
-      "rollup-plugin-analyzer": "^4.0.0",
-      "rollup-plugin-filesize": "^10.0.0",
-      "rollup-plugin-visualizer": "^5.12.0"
+        "@babel/core": "^7.23.9",
+        "@babel/plugin-transform-runtime": "^7.23.9",
+        "@babel/preset-env": "^7.23.9",
+        "@babel/runtime": "^7.23.9",
+        "@rollup/plugin-babel": "^6.0.4",
+        "@rollup/plugin-commonjs": "^25.0.7",
+        "@rollup/plugin-node-resolve": "^15.2.3",
+        "@rollup/plugin-strip": "^3.0.4",
+        "@rollup/plugin-terser": "^0.4.4",
+        "babel-jest": "^29.7.0",
+        "babel-plugin-transform-remove-console": "^6.9.4",
+        "core-js": "^3.35.1",
+        "cross-env": "^7.0.3",
+        "jest": "^29.7.0",
+        "jest-environment-jsdom": "^29.7.0",
+        "rollup": "^4.9.6",
+        "rollup-plugin-analyzer": "^4.0.0",
+        "rollup-plugin-filesize": "^10.0.0",
+        "rollup-plugin-visualizer": "^5.12.0"
     },
     "directories": {
-      "example": "examples",
-      "test": "tests"
+        "example": "examples",
+        "test": "tests"
     },
     "engines": {
-      "node": ">=14.0.0"
+        "node": ">=14.0.0"
     },
     "browserslist": [
-      "> 0.25%",
-      "not dead",
-      "not ie 11"
+        "> 0.25%",
+        "not dead",
+        "not ie 11"
     ]
-  }
+}
