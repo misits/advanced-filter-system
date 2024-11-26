@@ -9,10 +9,11 @@ const createItemGrid = (items, containerId = 'item-grid') => {
             categoryLabel: 'Mobile',
             title: 'Smartphone Pro',
             price: 999,
-            date: '2024-03-15',
+            date: '2024-11-26',
             rating: 4.5,
             sales: 1250,
-            color: 'black'
+            color: 'black',
+            canton: 'valais'
         },
         {
             category: 'tech',
@@ -22,7 +23,9 @@ const createItemGrid = (items, containerId = 'item-grid') => {
             date: '2024-02-20',
             rating: 4.8,
             sales: 890,
-            color: 'black'
+            color: 'black',
+            date: '2024-11-27',
+            canton: 'valais'
         },
         {
             category: 'fashion',
@@ -32,7 +35,9 @@ const createItemGrid = (items, containerId = 'item-grid') => {
             date: '2024-03-01',
             rating: 4.2,
             sales: 567,
-            color: 'black'
+            color: 'black',
+            date: '2024-11-28',
+            canton: 'vaud'
         },
         {
             category: 'fashion',
@@ -42,7 +47,9 @@ const createItemGrid = (items, containerId = 'item-grid') => {
             date: '2024-03-10',
             rating: 4.0,
             sales: 432,
-            color: 'black'
+            color: 'black',
+            date: '2024-11-28',
+            canton: 'vaud'
         },
         {
             category: 'food',
@@ -52,7 +59,9 @@ const createItemGrid = (items, containerId = 'item-grid') => {
             date: '2024-03-18',
             rating: 4.7,
             sales: 789,
-            color: 'black'
+            color: 'black',
+            date: '2024-11-28',
+            canton: 'vaud'
         },
         {
             category: 'food',
@@ -62,7 +71,9 @@ const createItemGrid = (items, containerId = 'item-grid') => {
             date: '2024-03-17',
             rating: 4.3,
             sales: 345,
-            color: 'black'
+            color: 'black',
+            date: '2024-11-28',
+            canton: 'vaud'
         },
         {
             category: 'book',
@@ -72,7 +83,9 @@ const createItemGrid = (items, containerId = 'item-grid') => {
             date: '2024-03-05',
             rating: 4.6,
             sales: 678,
-            color: 'black'
+            color: 'black',
+            date: '2024-11-28',
+            canton: 'vaud'
         },
         {
             category: 'book',
@@ -82,7 +95,9 @@ const createItemGrid = (items, containerId = 'item-grid') => {
             date: '2024-03-12',
             rating: 4.1,
             sales: 456,
-            color: 'black'
+            color: 'black',
+            date: '2024-11-28',
+            canton: 'vaud'
         }
     ];
 
@@ -107,9 +122,9 @@ const createItemGrid = (items, containerId = 'item-grid') => {
     };
 
     // Create item card HTML
-    const createItemCard = ({ category, categoryLabel, title, price, date, rating, sales, color }) => `
+    const createItemCard = ({ category, categoryLabel, title, price, date, rating, sales, color, canton }) => `
         <div class="card filter-item afs-transition p-6 bg-white rounded-lg border border-${color}-200 overflow-hidden hover:shadow-md"
-             data-categories="category:${category}" 
+             data-categories="category:${category} date:${date} canton:${canton}" 
              data-category="${category}" 
              data-price="${price}"
              data-title="${title}" 

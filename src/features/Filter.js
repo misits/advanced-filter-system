@@ -125,25 +125,35 @@ export class Filter {
         const selectedValue = dropdown.value;
         const [filterType] = selectedValue.split(':');
 
-        // Remove any existing filters of the same type
+        // Only clear "*" if we're adding a specific filter
+        if (selectedValue !== '*' && !selectedValue.endsWith(':all')) {
+            this.activeFilters.delete('*');
+        }
+
+        // Remove existing filters of the same type
         this.activeFilters.forEach(existingFilter => {
             if (existingFilter.startsWith(`${filterType}:`)) {
                 this.activeFilters.delete(existingFilter);
             }
         });
 
-        // If value is not "*" or "type:all", add the new filter
-        if (!selectedValue.endsWith(':all') && selectedValue !== '*') {
+        // Handle filter addition
+        if (selectedValue === '*' || selectedValue.endsWith(':all')) {
+            // If selecting 'all' for a type, just remove that type's filters
+            // If no filters remain, add '*'
+            if (this.activeFilters.size === 0) {
+                this.activeFilters.add('*');
+            }
+        } else {
+            // Add the new filter
             this.activeFilters.add(selectedValue);
-        } else if (this.activeFilters.size === 0) {
-            // If no filters active, reset to show all
-            this.activeFilters.add('*');
         }
 
         this.applyFilters();
+        this.afs.urlManager.updateURL();
 
-        // Emit an event to notify about the change
-        this.afs.emit("filterChanged", { 
+        // Emit event
+        this.afs.emit("filterChanged", {
             type: filterType,
             value: selectedValue,
             activeFilters: Array.from(this.activeFilters)
@@ -378,29 +388,33 @@ export class Filter {
    * @returns {boolean} Whether item matches filters
    */
   itemMatchesFilters(item) {
-    // Show all items if "*" is active
+    // Show all items if only "*" is active
     if (this.activeFilters.has("*")) {
-      return true;
+        return true;
     }
-  
+
     // Get item categories
-    const itemCategories = new Set(item.dataset.categories?.split(" ") || []);
-  
-    // Group filters by type
+    const itemCategories = item.dataset.categories?.split(" ") || [];
+
+    // Group active filters by type
     const filtersByType = {};
     this.activeFilters.forEach(filter => {
-      const [type, value] = filter.split(':');
-      if (!filtersByType[type]) {
-        filtersByType[type] = new Set();
-      }
-      filtersByType[type].add(filter);
+        const [type, value] = filter.split(':');
+        if (!filtersByType[type]) {
+            filtersByType[type] = new Set();
+        }
+        filtersByType[type].add(value);
     });
-  
-    // Item must match one filter from each type
-    return Object.values(filtersByType).every(typeFilters => {
-      return Array.from(typeFilters).some(filter => itemCategories.has(filter));
+
+    // Item must match at least one value from each filter type
+    return Object.entries(filtersByType).every(([type, values]) => {
+        // Check if there's any match for this filter type
+        return Array.from(values).some(value => {
+            const filterToMatch = `${type}:${value}`;
+            return itemCategories.includes(filterToMatch);
+        });
     });
-  }
+}
 
   /**
    * Check if item matches any active filter (OR mode)
