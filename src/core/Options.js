@@ -31,6 +31,7 @@ export class Options {
     containerSelector: ".afs-filter-container",
     itemSelector: ".afs-filter-item",
     filterButtonSelector: ".afs-btn-filter",
+    filterDropdownSelector: ".afs-filter-dropdown",
     searchInputSelector: ".afs-filter-search",
     counterSelector: ".afs-filter-counter",
 

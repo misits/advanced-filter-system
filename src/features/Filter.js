@@ -43,6 +43,14 @@ export class Filter {
       this.bindFilterEvent(button);
     });
 
+    // Initialize filter dropdowns
+    const filterDropdownSelector = this.afs.options.get("filterDropdownSelector");
+    if (filterDropdownSelector) {
+      document.querySelectorAll(filterDropdownSelector).forEach((dropdown) => {
+        this.bindDropdownEvent(dropdown);
+      });
+    }
+
     this.afs.logger.debug("Filters initialized");
   }
 
@@ -103,6 +111,31 @@ export class Filter {
     this.applyFilters();
     this.afs.urlManager.updateURL();
     this.afs.emit("filtersCleared");
+  }
+
+  /**
+   * Bind filter event to dropdown
+   * @private
+   * @param {HTMLSelectElement} dropdown - Filter dropdown
+   */
+  bindDropdownEvent(dropdown) {
+    this.afs.logger.debug("Binding filter event to dropdown:", dropdown);
+
+    dropdown.addEventListener("change", () => {
+      const selectedValue = dropdown.value;
+
+      if (selectedValue === "*") {
+        this.resetFilters();
+      } else {
+        this.activeFilters.clear();
+        this.activeFilters.add(selectedValue);
+      }
+
+      this.applyFilters();
+
+      // Emit an event to notify about the change
+      this.afs.emit("filterChanged", { selectedValue });
+    });
   }
 
   /**

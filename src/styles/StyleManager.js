@@ -23,6 +23,7 @@ export class StyleManager {
     const activeClass = this.options.get("activeClass") || "active";
     const animationDuration = this.options.get("animation.duration") || '300ms';
     const animationEasing = this.options.get("animation.easing") || 'ease-out';
+    const filterDropdownSelector = this.options.get("filterDropdownSelector") || ".afs-filter-dropdown";
     
     return `
       .${hiddenClass} {
@@ -52,6 +53,16 @@ export class StyleManager {
       ${filterButtonSelector}.${activeClass} {
         opacity: 1;
       }
+
+      ${filterDropdownSelector} {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+        background-color: #fff;
+        cursor: pointer;
+      }
+
     `;
 }
 
