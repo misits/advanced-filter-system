@@ -48,7 +48,7 @@ export class StyleManager {
     // Create SVG arrow with dynamic color
     const arrowColor = encodeURIComponent(textColor);
     const arrowSvg = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='${arrowColor}' d='M6 8L1 3h10z'/%3E%3C/svg%3E`;
-    const arrowSvgWhite = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='white' d='M6 8L1 3h10z'/%3E%3C/svg%3E`;
+    const arrowSvgWhite = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='${textHoverColor}' d='M6 8L1 3h10z'/%3E%3C/svg%3E`;
 
     return `
     /* Hidden state */
