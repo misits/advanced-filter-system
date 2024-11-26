@@ -80,38 +80,78 @@ export class Filter {
   }
 
   /**
-   * Clear all filters
-   * @public
-   */
-  clearAllFilters() {
-    this.afs.logger.debug("Clearing all filters");
+ * Clear all filters and reset selects
+ * @public
+ */
+clearAllFilters() {
+  this.afs.logger.debug("Clearing all filters and resetting selects");
 
-    // Reset filters
-    this.activeFilters.clear();
-    this.activeFilters.add("*");
+  // Reset filters
+  this.activeFilters.clear();
+  this.activeFilters.add("*");
 
-    // Reset filter buttons
-    this.filterButtons.forEach((_, button) => {
+  // Reset filter buttons
+  this.filterButtons.forEach((_, button) => {
       button.classList.remove(this.afs.options.get("activeClass"));
-    });
+  });
 
-    // Reset filter groups
-    this.filterGroups.clear();
+  // Reset filter groups
+  this.filterGroups.clear();
 
-    // Find and activate "all" button if exists
-    const allButton = this.findAllButton();
-    if (allButton) {
+  // Find and activate "all" button if exists
+  const allButton = this.findAllButton();
+  if (allButton) {
       allButton.classList.add(this.afs.options.get("activeClass"));
-    }
-
-    // Clear sorting
-    this.sortOrders.clear();
-
-    // Apply changes and update UI
-    this.applyFilters();
-    this.afs.urlManager.updateURL();
-    this.afs.emit("filtersCleared");
   }
+
+  // Reset all select elements to their default values
+  const filterDropdownSelector = this.afs.options.get("filterDropdownSelector") || '.afs-filter-dropdown';
+  document.querySelectorAll(filterDropdownSelector).forEach(select => {
+      // Get the filter type from the select's data or ID
+      const filterType = select.getAttribute('data-filter-type') || 
+                       select.id.replace('Filter', '').toLowerCase();
+
+      // Find the "all" option for this filter type
+      const allOption = Array.from(select.options).find(option => {
+          const value = option.value;
+          return value === '*' || 
+                 value === `${filterType}:all` || 
+                 value.endsWith(':all');
+      });
+
+      if (allOption) {
+          // Set value and dispatch change event
+          select.value = allOption.value;
+          
+          // Create and dispatch change event
+          const event = new Event('change', {
+              bubbles: true,
+              cancelable: true,
+          });
+          select.dispatchEvent(event);
+      } else {
+          // If no "all" option found, set to first option
+          select.selectedIndex = 0;
+          
+          // Create and dispatch change event
+          const event = new Event('change', {
+              bubbles: true,
+              cancelable: true,
+          });
+          select.dispatchEvent(event);
+      }
+  });
+
+  // Clear sorting
+  this.sortOrders.clear();
+
+  // Apply changes and update UI
+  this.applyFilters();
+  this.afs.urlManager.updateURL();
+  this.afs.emit("filtersCleared");
+
+  this.afs.logger.debug("All filters cleared and selects reset");
+}
 
   /**
    * Bind filter event to dropdown

@@ -12,67 +12,158 @@ export class StyleManager {
   }
 
   /**
-   * Create base styles
+   * Create base styles with option colors
    * @private
    * @returns {string} CSS styles
    */
   createBaseStyles() {
     const hiddenClass = this.options.get("hiddenClass") || "hidden";
     const itemSelector = this.options.get("itemSelector") || ".afs-filter-item";
-    const filterButtonSelector = this.options.get("filterButtonSelector") || ".afs-btn-filter";
+    const filterButtonSelector =
+      this.options.get("filterButtonSelector") || ".afs-btn-filter";
     const activeClass = this.options.get("activeClass") || "active";
-    const animationDuration = this.options.get("animation.duration") || '300ms';
-    const animationEasing = this.options.get("animation.easing") || 'ease-out';
-    const filterDropdownSelector = this.options.get("filterDropdownSelector") || ".afs-filter-dropdown";
-    
+    const animationDuration = this.options.get("animation.duration") || "300ms";
+    const animationEasing = this.options.get("animation.easing") || "ease-out";
+    const filterDropdownSelector =
+      this.options.get("filterDropdownSelector") || ".afs-filter-dropdown";
+
+    // Get colors from options
+    const primaryColor = this.options.get("styles.colors.primary") || "#000";
+    const backgroundColor =
+      this.options.get("styles.colors.background") || "#e5e7eb";
+    const textColor = this.options.get("styles.colors.text") || "#000";
+
+    // Create rgba version of primary color for focus shadow
+    const rgbValues = primaryColor.match(
+      /^#([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i
+    );
+    const rgbaColor = rgbValues
+      ? `rgba(${parseInt(rgbValues[1], 16)}, ${parseInt(
+          rgbValues[2],
+          16
+        )}, ${parseInt(rgbValues[3], 16)}, 0.2)`
+      : "rgba(0, 0, 0, 0.2)";
+
+    // Create SVG arrow with dynamic color
+    const arrowColor = encodeURIComponent(textColor);
+    const arrowSvg = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='${arrowColor}' d='M6 8L1 3h10z'/%3E%3C/svg%3E`;
+
     return `
-      .${hiddenClass} {
-        display: none !important;
+    /* Hidden state */
+    .${hiddenClass} {
+      display: none !important;
+    }
+
+    /* Filterable items */
+    ${itemSelector} {
+      opacity: 1;
+      transform: scale(1);
+      filter: blur(0);
+      transition: opacity ${animationDuration} ${animationEasing},
+                  transform ${animationDuration} ${animationEasing},
+                  filter ${animationDuration} ${animationEasing};
+    }
+
+    ${itemSelector}.${hiddenClass} {
+      opacity: 0;
+      transform: scale(0.95);
+      filter: blur(5px);
+    }
+
+    /* Filter controls container */
+    .afs-filter-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin: 10px 0;
+    }
+
+    /* Common styles for both buttons and dropdowns */
+    ${filterButtonSelector},
+    ${filterDropdownSelector} {
+      appearance: none;
+      -webkit-appearance: none;
+      padding: 8px 16px;
+      border: 1px solid ${backgroundColor};
+      border-radius: 4px;
+      font-size: 14px;
+      background-color: white;
+      color: ${textColor};
+      cursor: pointer;
+      transition: all ${animationDuration} ${animationEasing};
+      min-height: 40px;
+      line-height: 1.5;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      margin: 0;
+    }
+
+    /* Hover state */
+    ${filterButtonSelector}:hover,
+    ${filterDropdownSelector}:hover {
+      border-color: ${primaryColor};
+      background-color: ${backgroundColor};
+    }
+
+    /* Focus state */
+    ${filterButtonSelector}:focus,
+    ${filterDropdownSelector}:focus {
+      outline: none;
+      border-color: ${primaryColor};
+      box-shadow: 0 0 0 2px ${rgbaColor};
+    }
+
+    /* Active state */
+    ${filterButtonSelector}.${activeClass} {
+      background-color: ${primaryColor};
+      border-color: ${primaryColor};
+      color: white;
+    }
+
+    /* Disabled state */
+    ${filterButtonSelector}:disabled,
+    ${filterDropdownSelector}:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background-color: ${backgroundColor};
+    }
+
+    /* Dropdown specific styles */
+    ${filterDropdownSelector} {
+      padding-right: 32px;
+      position: relative;
+      background-image: url("${arrowSvg}");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      text-align: left;
+    }
+
+    /* Mobile optimization */
+    @media (max-width: 768px) {
+      .afs-filter-controls {
+        flex-direction: column;
+        align-items: stretch;
       }
 
-      ${itemSelector} {
-        opacity: 1;
-        transform: scale(1);
-        filter: blur(0);
-        transition: opacity ${animationDuration} ${animationEasing},
-                    transform ${animationDuration} ${animationEasing},
-                    filter ${animationDuration} ${animationEasing};
-      }
-
-      ${itemSelector}.${hiddenClass} {
-        opacity: 0;
-        transform: scale(0.95);
-        filter: blur(5px);
-      }
-
-      ${filterButtonSelector} {
-        opacity: 0.5;
-        transition: opacity ${animationDuration} ${animationEasing};
-      }
-
-      ${filterButtonSelector}.${activeClass} {
-        opacity: 1;
-      }
-
+      ${filterButtonSelector},
       ${filterDropdownSelector} {
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 14px;
-        background-color: #fff;
-        cursor: pointer;
+        width: 100%;
+        justify-content: flex-start;
       }
+    }
+  `;
+  }
 
-    `;
-}
-
- /**
-     * Add global transition styles
-     * @private
-     */
- addTransitionStyles() {
-  const style = document.createElement('style');
-  style.textContent = `
+  /**
+   * Add global transition styles
+   * @private
+   */
+  addTransitionStyles() {
+    const style = document.createElement("style");
+    style.textContent = `
       .afs-transition {
           transition: opacity 300ms ease-in-out,
                       transform 300ms ease-in-out,
@@ -83,8 +174,8 @@ export class StyleManager {
           pointer-events: none;
       }
   `;
-  document.head.appendChild(style);
-}
+    document.head.appendChild(style);
+  }
 
   /**
    * Create range slider styles
@@ -166,13 +257,17 @@ export class StyleManager {
 
     .afs-histogram-bar {
       flex: 1;
-      background-color: ${sliderStyles.ui.histogram.background ||colors.background};
+      background-color: ${
+        sliderStyles.ui.histogram.background || colors.background
+      };
       min-height: 4px;
       transition: background-color 0.2s ease;
     }
 
     .afs-histogram-bar.active {
-      background-color: ${sliderStyles.ui.histogram.bar.background || colors.primary};
+      background-color: ${
+        sliderStyles.ui.histogram.bar.background || colors.primary
+      };
     }
   `;
   }
@@ -262,7 +357,7 @@ export class StyleManager {
             border-color: ${colors.primary};
         }
     `;
-}
+  }
 
   /**
    * Apply all styles
@@ -339,23 +434,29 @@ export class StyleManager {
       }
 
       .${buttonClass} {
-        padding: ${paginationStyles.ui.button.padding || '8px 12px'};
-        border: ${paginationStyles.ui.button.border || '1px solid ' + colors.primary};
-        border-radius: ${paginationStyles.ui.button.borderRadius || '4px'};
+        padding: ${paginationStyles.ui.button.padding || "8px 12px"};
+        border: ${
+          paginationStyles.ui.button.border || "1px solid " + colors.primary
+        };
+        border-radius: ${paginationStyles.ui.button.borderRadius || "4px"};
         cursor: pointer;
         transition: all 200ms ease-out;
-        background: ${paginationStyles.ui.button.background || 'transparent' };
+        background: ${paginationStyles.ui.button.background || "transparent"};
         color: ${paginationStyles.ui.button.color || colors.primary};
       }
 
       .${buttonClass}:hover {
-        background: ${paginationStyles.ui.button.hover.background || colors.primary};
-        color: ${paginationStyles.ui.button.hover.color || 'white'};
+        background: ${
+          paginationStyles.ui.button.hover.background || colors.primary
+        };
+        color: ${paginationStyles.ui.button.hover.color || "white"};
       }
 
       .${buttonClass}.${activeClass} {
-        background: ${paginationStyles.ui.button.active.background || colors.primary};
-        color: ${paginationStyles.ui.button.active.color || 'white'};
+        background: ${
+          paginationStyles.ui.button.active.background || colors.primary
+        };
+        color: ${paginationStyles.ui.button.active.color || "white"};
       }
 
       .${buttonClass}:disabled {
