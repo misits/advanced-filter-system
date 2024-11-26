@@ -144,7 +144,7 @@ export class StyleManager {
       text-align: left;
     }
 
-    ${filterDropdownSelector} {
+    ${filterDropdownSelector}:hover {
       background-image: url("${arrowSvgWhite}");
     }
 
