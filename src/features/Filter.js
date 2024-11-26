@@ -122,21 +122,34 @@ export class Filter {
     this.afs.logger.debug("Binding filter event to dropdown:", dropdown);
 
     dropdown.addEventListener("change", () => {
-      const selectedValue = dropdown.value;
+        const selectedValue = dropdown.value;
+        const [filterType] = selectedValue.split(':');
 
-      if (selectedValue === "*") {
-        this.resetFilters();
-      } else {
-        this.activeFilters.clear();
-        this.activeFilters.add(selectedValue);
-      }
+        // Remove any existing filters of the same type
+        this.activeFilters.forEach(existingFilter => {
+            if (existingFilter.startsWith(`${filterType}:`)) {
+                this.activeFilters.delete(existingFilter);
+            }
+        });
 
-      this.applyFilters();
+        // If value is not "*" or "type:all", add the new filter
+        if (!selectedValue.endsWith(':all') && selectedValue !== '*') {
+            this.activeFilters.add(selectedValue);
+        } else if (this.activeFilters.size === 0) {
+            // If no filters active, reset to show all
+            this.activeFilters.add('*');
+        }
 
-      // Emit an event to notify about the change
-      this.afs.emit("filterChanged", { selectedValue });
+        this.applyFilters();
+
+        // Emit an event to notify about the change
+        this.afs.emit("filterChanged", { 
+            type: filterType,
+            value: selectedValue,
+            activeFilters: Array.from(this.activeFilters)
+        });
     });
-  }
+}
 
   /**
    * Bind filter event to button
@@ -370,18 +383,23 @@ export class Filter {
       return true;
     }
   
-    // Regular filter matching
+    // Get item categories
     const itemCategories = new Set(item.dataset.categories?.split(" ") || []);
   
-    // If using filter groups
-    if (this.filterGroups.size > 0) {
-      return this.itemMatchesFilterGroups(itemCategories);
-    }
+    // Group filters by type
+    const filtersByType = {};
+    this.activeFilters.forEach(filter => {
+      const [type, value] = filter.split(':');
+      if (!filtersByType[type]) {
+        filtersByType[type] = new Set();
+      }
+      filtersByType[type].add(filter);
+    });
   
-    // Regular filtering
-    return this.afs.options.get("filterMode") === "OR"
-      ? this.itemMatchesAnyFilter(itemCategories)
-      : this.itemMatchesAllFilters(itemCategories);
+    // Item must match one filter from each type
+    return Object.values(filtersByType).every(typeFilters => {
+      return Array.from(typeFilters).some(filter => itemCategories.has(filter));
+    });
   }
 
   /**
@@ -533,15 +551,28 @@ export class Filter {
    */
   addFilter(filter) {
     this.afs.logger.debug(`Adding filter: ${filter}`);
-
+  
     if (filter === "*") {
       this.resetFilters();
       return;
     }
-
+  
+    // Extract filter type (e.g., 'date', 'canton')
+    const [filterType] = filter.split(':');
+  
+    // Remove any existing filter of the same type
+    this.activeFilters.forEach(existingFilter => {
+      if (existingFilter.startsWith(`${filterType}:`)) {
+        this.activeFilters.delete(existingFilter);
+      }
+    });
+  
+    // Remove the all filter if it exists
     this.activeFilters.delete("*");
+    
+    // Add the new filter
     this.activeFilters.add(filter);
-
+  
     // Update button states
     this.filterButtons.forEach((value, button) => {
       if (value === filter) {
@@ -550,7 +581,7 @@ export class Filter {
         button.classList.remove(this.afs.options.get("activeClass"));
       }
     });
-
+  
     this.applyFilters();
   }
 

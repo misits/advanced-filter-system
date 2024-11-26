@@ -19,7 +19,7 @@ import { DateFilter } from "./features/DateFilter";
 import { debounce } from "./utils";
 
 // Version
-export const VERSION = '1.1.1';
+export const VERSION = '1.2.2';
 
 export class AFS extends EventEmitter {
   /**
@@ -37,13 +37,19 @@ export class AFS extends EventEmitter {
   initializeCore(options) {
     try {
       this.options = new Options(options);
-      this.logger = new Logger(
-        this.options.get("debug") || false,
-        this.options.get("logLevel") || "info",
-      );
+      
+      // Fix logger initialization
+      const debug = this.options.get("debug") || false;
+      const logLevel = this.options.get("logLevel") || "info";
+      this.logger = new Logger(debug, logLevel);
+  
+      // Test logger initialization
+      this.logger.setDebugMode(debug, logLevel);
+      this.logger.debug("Logger initialized with debug:", debug, "level:", logLevel);
+  
       this.state = new State();
       this.styleManager = new StyleManager(this.options);
-
+  
       this.initializeDOM();
       this.initializeFeatures();
       this.setupLifecycle();

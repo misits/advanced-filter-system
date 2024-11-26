@@ -3,10 +3,6 @@
  */
 
 export class Logger {
-  /**
-   * @param {boolean} [debug=false] - Enable debug mode
-   * @param {string} [logLevel='info'] - Logging level
-   */
   constructor(debug = false, logLevel = 'info') {
     this.enabled = debug;
     this.level = logLevel;
@@ -16,6 +12,11 @@ export class Logger {
       info: 2,
       debug: 3
     };
+
+    // Immediately log initialization if debug is enabled
+    if (this.enabled) {
+      console.debug(`[AFS DEBUG] Logger initialized with level: ${logLevel}`);
+    }
   }
 
   /**
@@ -23,28 +24,18 @@ export class Logger {
    * @private
    */
   _log(level, ...args) {
-    if (!this.enabled) return;
+    // Always log errors regardless of debug mode
+    if (level === 'error' || this.enabled) {
+      const currentLevelValue = this.levels[this.level];
+      const messageLevel = this.levels[level];
 
-    const currentLevelValue = this.levels[this.level];
-    const messageLevel = this.levels[level];
+      if (messageLevel <= currentLevelValue) {
+        const timestamp = new Date().toLocaleTimeString();
+        const prefix = `[AFS ${level.toUpperCase()}]`;
 
-    if (messageLevel <= currentLevelValue) {
-      const timestamp = new Date().toISOString();
-      const prefix = `[AFS ${level.toUpperCase()}] ${timestamp}`;
-
-      switch (level) {
-        case 'error':
-          console.error(prefix, ...args);
-          break;
-        case 'warn':
-          console.warn(prefix, ...args);
-          break;
-        case 'info':
-          console.info(prefix, ...args);
-          break;
-        case 'debug':
-          console.debug(prefix, ...args);
-          break;
+        // Ensure console methods exist
+        const consoleMethod = console[level] || console.log;
+        consoleMethod.apply(console, [prefix, timestamp, ...args]);
       }
     }
   }
@@ -54,6 +45,7 @@ export class Logger {
    * @public
    */
   error(...args) {
+    // Errors always get logged
     this._log('error', ...args);
   }
 
@@ -86,10 +78,30 @@ export class Logger {
    * @public
    */
   setDebugMode(enabled, level = 'info') {
-    this.enabled = enabled;
+    const previousState = this.enabled;
+    this.enabled = Boolean(enabled);
+    
     if (this.levels.hasOwnProperty(level)) {
       this.level = level;
     }
-    this._log('info', `Debug mode ${enabled ? 'enabled' : 'disabled'} with level: ${level}`);
+
+    // Log state change if either previous or new state is enabled
+    if (this.enabled || previousState) {
+      this._log('info', 
+        `Debug mode ${this.enabled ? 'enabled' : 'disabled'} with level: ${this.level}`
+      );
+    }
+  }
+
+  /**
+   * Get current debug state
+   * @public
+   * @returns {Object} Current logger state
+   */
+  getState() {
+    return {
+      enabled: this.enabled,
+      level: this.level
+    };
   }
 }

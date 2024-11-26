@@ -204,80 +204,64 @@ updateURL() {
  * Load filter state from URL
  * @public
  */
-loadFromURL() {
-  this.afs.logger.debug('Loading state from URL');
-  const params = new URLSearchParams(window.location.search);
-
-  try {
-    // Clear existing state first
-    if (this.afs.filter) {
-      this.afs.filter.clearAllFilters();
-    }
-
-    // Process filter mode first
-    const filterMode = params.get('filterMode');
-    if (filterMode && this.afs.filter) {
-      this.afs.filter.setFilterMode(filterMode.toUpperCase());
-    }
-
-    // Process regular filters
-    const filterParams = Array.from(params.entries()).filter(([key]) => this.isRegularFilter(key));
-    if (filterParams.length > 0 && this.afs.filter) {
-      // Remove default '*' filter
-      this.afs.filter.activeFilters.clear();
-      
-      // Add filters and update button states
-      filterParams.forEach(([type, values]) => {
-        values.split(',').forEach(value => {
-          const filter = `${type}:${value}`;
-          this.afs.filter.activeFilters.add(filter);
-          
-          // Update button UI
-          this.afs.filter.filterButtons.forEach((buttonFilter, button) => {
-            if (buttonFilter === filter) {
-              button.classList.add(this.afs.options.get('activeClass'));
-            } else if (buttonFilter === '*') {
-              button.classList.remove(this.afs.options.get('activeClass'));
-            }
-          });
+  loadFromURL() {
+    this.afs.logger.debug('Loading state from URL');
+    const params = new URLSearchParams(window.location.search);
+  
+    try {
+      // Clear existing filters first
+      if (this.afs.filter) {
+        this.afs.filter.clearAllFilters();
+      }
+  
+      // Process filter mode first
+      const filterMode = params.get('filterMode');
+      if (filterMode && this.afs.filter) {
+        this.afs.filter.setFilterMode(filterMode.toUpperCase());
+      }
+  
+      // Get all parameters that are not special parameters
+      const filterParams = Array.from(params.entries()).filter(([key]) => 
+        this.isRegularFilter(key)
+      );
+  
+      if (filterParams.length > 0 && this.afs.filter) {
+        // Remove default '*' filter
+        this.afs.filter.activeFilters.clear();
+  
+        // Process each filter parameter
+        filterParams.forEach(([type, value]) => {
+          if (value) {
+            // Handle comma-separated values if present
+            const values = value.split(',');
+            values.forEach(val => {
+              const filter = `${type}:${val}`;
+              this.afs.filter.addFilter(filter);
+            });
+          }
         });
-      });
-    }
-
-    // Apply filters before processing other parameters
-    if (this.afs.filter) {
-      this.afs.filter.applyFilters();
-    }
-
-    // Process search
-    const searchQuery = params.get('search');
-    if (searchQuery && this.afs.search) {
-      this.afs.search.setValue(searchQuery);
-    }
-
-    // Process sort
-    const sortParam = params.get('sort');
-    if (sortParam && this.afs.sort) {
-      const [key, direction] = sortParam.split(',');
-      this.afs.sort.sort(key, direction);
-    }
-
-    // Process pagination
-    const page = parseInt(params.get('page'));
-    if (!isNaN(page) && this.afs.pagination) {
-      this.afs.pagination.goToPage(page);
-    }
-
-    this.afs.emit('urlStateLoaded', { params: Object.fromEntries(params) });
-    this.afs.logger.info('State loaded from URL');
-  } catch (error) {
-    this.afs.logger.error('Error loading state from URL:', error);
-    // Reset to default state on error
-    if (this.afs.filter) {
-      this.afs.filter.clearAllFilters();
+      }
+  
+      // Apply filters before processing other parameters
+      if (this.afs.filter) {
+        this.afs.filter.applyFilters();
+      }
+  
+      // Process other parameters...
+      this.processSearchFromURL(params);
+      this.processSortFromURL(params);
+      this.processPaginationFromURL(params);
+  
+      this.afs.emit('urlStateLoaded', { params: Object.fromEntries(params) });
+      this.afs.logger.info('State loaded from URL');
+    } catch (error) {
+      this.afs.logger.error('Error loading state from URL:', error);
+      // Reset to default state on error
+      if (this.afs.filter) {
+        this.afs.filter.clearAllFilters();
+      }
     }
   }
-}
   
   /**
    * Process filters from URL parameters
