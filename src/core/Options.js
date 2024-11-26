@@ -109,6 +109,7 @@ export class Options {
         primary: "#000",
         background: "#e5e7eb",
         text: "#000",
+        textHover: "#fff",
       },
     },
 
