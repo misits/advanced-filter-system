@@ -390,6 +390,7 @@ clearAllFilters() {
                 });
             } else {
                 // Hide item
+                item.classList.add(this.afs.options.get('hiddenClass'));
                 requestAnimationFrame(() => {
                     this.animation.applyHideAnimation(item, this.afs.options.get("animation.type"));
                     setTimeout(resolve, parseFloat(this.afs.options.get("animation.duration")) || 300);
