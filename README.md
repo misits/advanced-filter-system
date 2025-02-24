@@ -97,7 +97,7 @@ pnpm add advanced-filter-system
 Or include via CDN:
 
 ```html
-<script src="https://unpkg.com/advanced-filter-system@1.2.9/dist/afs.modern.js"></script>
+<script src="https://unpkg.com/advanced-filter-system@1.2.10/dist/afs.modern.js"></script>
 ```
 
 ## Quick Start
