@@ -38,13 +38,10 @@ export class AFS extends EventEmitter {
     try {
       this.options = new Options(options);
       
-      // Fix logger initialization
-      const debug = this.options.get("debug") || false;
-      const logLevel = this.options.get("logLevel") || "info";
+      // Setup logger with options
+      const debug = this.options.get("debug");
+      const logLevel = this.options.get("logLevel");
       this.logger = new Logger(debug, logLevel);
-  
-      // Test logger initialization
-      this.logger.setDebugMode(debug, logLevel);
       this.logger.debug("Logger initialized with debug:", debug, "level:", logLevel);
   
       this.state = new State();
@@ -160,8 +157,7 @@ export class AFS extends EventEmitter {
     item.offsetHeight;
 
     // Add transition class if not present
-    const transitionClass =
-      this.options.get("transitionClass") || "afs-transition";
+    const transitionClass = this.options.get("transitionClass");
     if (!item.classList.contains(transitionClass)) {
       item.classList.add(transitionClass);
     }
@@ -176,7 +172,7 @@ export class AFS extends EventEmitter {
     });
 
     // Clean up after animation
-    const duration = this.options.get("animationDuration") || 300;
+    const duration = this.options.get("animation.duration") || 300;
     setTimeout(() => {
       // Only clean up if item is still meant to be visible
       if (visibleItems.has(item)) {
@@ -198,8 +194,7 @@ export class AFS extends EventEmitter {
     this.state.setState("items.visible", visibleItems);
 
     // Add transition class if not present
-    const transitionClass =
-      this.options.get("transitionClass") || "afs-transition";
+    const transitionClass = this.options.get("transitionClass");
     if (!item.classList.contains(transitionClass)) {
       item.classList.add(transitionClass);
     }
@@ -211,7 +206,7 @@ export class AFS extends EventEmitter {
     });
 
     // Add hidden class and clean up after animation
-    const duration = this.options.get("animationDuration") || 300;
+    const duration = this.options.get("animation.duration") || 300;
     setTimeout(() => {
       // Only hide if the item is still meant to be hidden
       if (!visibleItems.has(item)) {

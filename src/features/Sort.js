@@ -21,7 +21,14 @@ export class Sort {
     if (!sortSelector) return;
 
     // Find and setup sort buttons
-    document.querySelectorAll(sortSelector).forEach((button) => {
+    const buttons = document.querySelectorAll(sortSelector);
+    
+    if (buttons.length === 0) {
+      this.afs.logger.warn("No sort buttons found with selector:", sortSelector);
+      return;
+    }
+    
+    buttons.forEach((button) => {
       const key = button.dataset.sortKey;
       if (!key) {
         this.afs.logger.warn(
@@ -93,26 +100,46 @@ export class Sort {
    * @public
    * @param {string} key - Sort key
    * @param {string} direction - Sort direction ('asc' or 'desc')
+   * @returns {boolean} Success status
    */
   sort(key, direction = "asc") {
     this.afs.logger.debug(`Sorting by ${key} in ${direction} order`);
 
     try {
+      if (!key) {
+        throw new Error("Sort key is required");
+      }
+      
+      if (!["asc", "desc"].includes(direction.toLowerCase())) {
+        this.afs.logger.warn(`Invalid sort direction: ${direction}, defaulting to "asc"`);
+        direction = "asc";
+      }
+
       // Update state
       this.afs.state.setState("sort.current", { key, direction });
 
       // Get all items as array
       const items = Array.from(this.afs.items);
+      
+      if (items.length === 0) {
+        this.afs.logger.info("No items to sort");
+        return true;
+      }
 
       // Determine sort type
       const sortType = this.determineSortType(items[0], key);
+      this.afs.logger.debug(`Determined sort type for key "${key}": ${sortType}`);
 
       // Sort items
       items.sort((a, b) => {
-        const valueA = this.getSortValue(a, key, sortType);
-        const valueB = this.getSortValue(b, key, sortType);
-
-        return this.compareValues(valueA, valueB, direction);
+        try {
+          const valueA = this.getSortValue(a, key, sortType);
+          const valueB = this.getSortValue(b, key, sortType);
+          return this.compareValues(valueA, valueB, direction);
+        } catch (error) {
+          this.afs.logger.error("Error during sort comparison:", error);
+          return 0; // Keep original order for failed comparisons
+        }
       });
 
       // Reorder DOM elements
@@ -120,27 +147,50 @@ export class Sort {
 
       // Update URL and emit event
       this.afs.urlManager.updateURL();
-      this.afs.emit("sort", { key, direction });
+      this.afs.emit("sort", { key, direction, sortType, itemCount: items.length });
 
-      this.afs.logger.info(`Sorted items by ${key} ${direction}`);
+      this.afs.logger.info(`Sorted ${items.length} items by ${key} ${direction} (${sortType})`);
+      return true;
     } catch (error) {
       this.afs.logger.error("Sort error:", error);
+      return false;
     }
   }
 
   /**
-   * Determine sort type from first item
+   * Determine sort type from item
    * @private
    * @param {HTMLElement} item - First item
    * @param {string} key - Sort key
    * @returns {string} Sort type
    */
   determineSortType(item, key) {
-    const value = item.dataset[key];
+    // Guard against empty items array
+    if (!item) {
+      this.afs.logger.warn(`Cannot determine sort type: No items available for key ${key}`);
+      return "string"; // Default to string sorting
+    }
 
-    if (!value) return "string";
-    if (!isNaN(value)) return "number";
-    if (/^\d{4}-\d{2}-\d{2}/.test(value)) return "date";
+    // Check if dataset exists and has the key
+    if (!item.dataset || !(key in item.dataset)) {
+      this.afs.logger.warn(`Item missing dataset key: ${key}`, item);
+      return "string";
+    }
+
+    const value = item.dataset[key];
+    
+    // Empty value check
+    if (value === undefined || value === null || value === "") {
+      return "string";
+    }
+
+    // Type detection with more robust checks
+    if (!isNaN(parseFloat(value)) && isFinite(value)) return "number";
+    if (/^\d{4}-\d{2}-\d{2}/.test(value)) {
+      // Validate it's actually a valid date
+      const date = new Date(value);
+      return !isNaN(date.getTime()) ? "date" : "string";
+    }
 
     return "string";
   }
@@ -154,15 +204,34 @@ export class Sort {
    * @returns {any} Sort value
    */
   getSortValue(item, key, type) {
+    // Handle undefined or null item
+    if (!item) {
+      this.afs.logger.warn("Undefined item in getSortValue");
+      return null;
+    }
+
+    // Handle undefined dataset or key
+    if (!item.dataset || !Object.prototype.hasOwnProperty.call(item.dataset, key)) {
+      this.afs.logger.warn(`Missing data attribute: ${key} on item`, item);
+      return type === "number" ? 0 : type === "date" ? 0 : "";
+    }
+
     const value = item.dataset[key];
+    
+    // Handle empty values
+    if (value === undefined || value === null || value === "") {
+      return type === "number" ? 0 : type === "date" ? 0 : "";
+    }
 
     switch (type) {
       case "number":
-        return parseFloat(value);
+        const num = parseFloat(value);
+        return isNaN(num) ? 0 : num;
       case "date":
-        return new Date(value).getTime();
+        const date = new Date(value).getTime();
+        return isNaN(date) ? 0 : date;
       default:
-        return value.toLowerCase();
+        return String(value).toLowerCase();
     }
   }
 
@@ -190,31 +259,94 @@ export class Sort {
    * @param {HTMLElement[]} items - Sorted items
    */
   reorderItems(items) {
-    const container = this.afs.options.get("container");
+    const containerSelector = this.afs.options.get("containerSelector");
+    const container = document.querySelector(containerSelector);
+    
+    if (!container) {
+      this.afs.logger.error("Container not found:", containerSelector);
+      return;
+    }
+    
+    // Performance optimization: only move elements if needed
+    // Use document position to determine if reordering is necessary
+    let needsReordering = false;
+    
+    // Check if any items are out of order
+    for (let i = 0; i < items.length - 1; i++) {
+      if (!(items[i].compareDocumentPosition(items[i + 1]) & Node.DOCUMENT_POSITION_FOLLOWING)) {
+        needsReordering = true;
+        break;
+      }
+    }
+    
+    if (!needsReordering) {
+      this.afs.logger.debug("Items already in correct order, skipping DOM operations");
+      return;
+    }
+    
+    // Batch reordering with document fragment for better performance
     const fragment = document.createDocumentFragment();
-
-    items.forEach((item) => fragment.appendChild(item));
+    items.forEach(item => fragment.appendChild(item));
     container.appendChild(fragment);
+    
+    this.afs.logger.debug(`Reordered ${items.length} items`);
   }
+
   /**
    * Sort with multiple criteria
    * @public
    * @param {Array<{key: string, direction: string}>} criteria - Sort criteria
+   * @returns {boolean} Success status
    */
   sortMultiple(criteria) {
     this.afs.logger.debug("Sorting by multiple criteria:", criteria);
 
     try {
+      // Validate criteria
+      if (!Array.isArray(criteria) || criteria.length === 0) {
+        throw new Error("Sort criteria must be a non-empty array");
+      }
+      
+      // Validate each criterion
+      criteria.forEach((criterion, index) => {
+        if (!criterion.key) {
+          throw new Error(`Sort criterion at index ${index} missing key property`);
+        }
+        
+        if (criterion.direction && !["asc", "desc"].includes(criterion.direction.toLowerCase())) {
+          this.afs.logger.warn(`Invalid sort direction in criterion ${index}: ${criterion.direction}, defaulting to "asc"`);
+          criterion.direction = "asc";
+        }
+      });
+
       const items = Array.from(this.afs.items);
+      
+      if (items.length === 0) {
+        this.afs.logger.info("No items to sort");
+        return true;
+      }
+
+      // Cache sort types for performance
+      const sortTypes = {};
+      criteria.forEach(criterion => {
+        if (!sortTypes[criterion.key]) {
+          sortTypes[criterion.key] = this.determineSortType(items[0], criterion.key);
+        }
+      });
 
       items.sort((a, b) => {
-        for (const { key, direction } of criteria) {
-          const type = this.determineSortType(items[0], key);
-          const valueA = this.getSortValue(a, key, type);
-          const valueB = this.getSortValue(b, key, type);
+        for (const { key, direction = "asc" } of criteria) {
+          try {
+            const type = sortTypes[key] || "string";
+            const valueA = this.getSortValue(a, key, type);
+            const valueB = this.getSortValue(b, key, type);
 
-          const comparison = this.compareValues(valueA, valueB, direction);
-          if (comparison !== 0) return comparison;
+            const comparison = this.compareValues(valueA, valueB, direction);
+            if (comparison !== 0) return comparison;
+          } catch (error) {
+            this.afs.logger.error(`Error comparing values for key ${key}:`, error);
+            // Continue to next criterion
+          }
         }
         return 0;
       });
@@ -227,9 +359,17 @@ export class Sort {
       }
 
       this.afs.urlManager.updateURL();
-      this.afs.emit("multiSort", { criteria });
+      this.afs.emit("multiSort", { 
+        criteria, 
+        itemCount: items.length,
+        sortTypes 
+      });
+      
+      this.afs.logger.info(`Multi-sorted ${items.length} items with ${criteria.length} criteria`);
+      return true;
     } catch (error) {
       this.afs.logger.error("Multiple sort error:", error);
+      return false;
     }
   }
 
@@ -238,35 +378,85 @@ export class Sort {
    * @public
    * @param {string} key - Sort key
    * @param {Function} comparator - Custom comparison function
+   * @returns {boolean} Success status
    */
   sortWithComparator(key, comparator) {
     this.afs.logger.debug(`Sorting by ${key} with custom comparator`);
 
     try {
+      // Validate parameters
+      if (!key) {
+        throw new Error("Sort key is required");
+      }
+      
+      if (typeof comparator !== "function") {
+        throw new Error("Comparator must be a function");
+      }
+
       const items = Array.from(this.afs.items);
+      
+      if (items.length === 0) {
+        this.afs.logger.info("No items to sort");
+        return true;
+      }
 
       items.sort((a, b) => {
-        const valueA = a.dataset[key];
-        const valueB = b.dataset[key];
-        return comparator(valueA, valueB);
+        try {
+          // Check if the items have the necessary data attribute
+          if (!a.dataset || !b.dataset || !(key in a.dataset) || !(key in b.dataset)) {
+            this.afs.logger.warn(`Missing data attribute ${key} in one or both items being compared`);
+            return 0;
+          }
+          
+          const valueA = a.dataset[key];
+          const valueB = b.dataset[key];
+          return comparator(valueA, valueB);
+        } catch (error) {
+          this.afs.logger.error("Error in custom comparator:", error);
+          return 0; // Keep original order for failed comparisons
+        }
       });
 
       this.reorderItems(items);
-      this.afs.emit("customSort", { key, comparator });
+      
+      // Don't update state with custom sort since it's not easily serializable
+      
+      this.afs.emit("customSort", { 
+        key, 
+        comparatorName: comparator.name || "anonymous", 
+        itemCount: items.length 
+      });
+      
+      this.afs.logger.info(`Custom sorted ${items.length} items by ${key}`);
+      return true;
     } catch (error) {
       this.afs.logger.error("Custom sort error:", error);
+      return false;
     }
   }
 
   /**
    * Shuffle items randomly
    * @public
+   * @returns {boolean} Success status
    */
   shuffle() {
     this.afs.logger.debug("Shuffling items");
 
     try {
       const items = Array.from(this.afs.items);
+      
+      if (items.length === 0) {
+        this.afs.logger.info("No items to shuffle");
+        return true;
+      }
+      
+      if (items.length === 1) {
+        this.afs.logger.info("Only one item to shuffle, no change needed");
+        return true;
+      }
+
+      this.afs.logger.debug(`Shuffling ${items.length} items`);
 
       // Fisher-Yates shuffle algorithm
       for (let i = items.length - 1; i > 0; i--) {
@@ -287,37 +477,52 @@ export class Sort {
       });
 
       this.afs.urlManager.updateURL();
-      this.afs.emit("shuffle");
+      this.afs.emit("shuffle", { itemCount: items.length });
+      
+      this.afs.logger.info(`Shuffled ${items.length} items`);
+      return true;
     } catch (error) {
       this.afs.logger.error("Shuffle error:", error);
+      return false;
     }
   }
 
   /**
    * Reset sort to default state
    * @public
+   * @returns {boolean} Success status
    */
   reset() {
     this.afs.logger.debug("Resetting sort");
 
-    // Clear sort state
-    this.afs.state.setState("sort.current", null);
+    try {
+      // Clear sort state
+      this.afs.state.setState("sort.current", null);
 
-    // Reset UI
-    this.sortButtons.forEach((_, button) => {
-      button.classList.remove(this.afs.options.get("activeSortClass"));
-      const indicator = button.querySelector(".sort-direction");
-      if (indicator) indicator.textContent = "";
-    });
+      // Reset UI
+      this.sortButtons.forEach((_, button) => {
+        button.classList.remove(this.afs.options.get("activeSortClass"));
+        const indicator = button.querySelector(".sort-direction");
+        if (indicator) indicator.textContent = "";
+      });
 
-    // Reset sort data
-    this.sortButtons.forEach((data, button) => {
-      data.direction = "asc";
-      this.sortButtons.set(button, data);
-    });
+      // Reset sort data
+      let buttonCount = 0;
+      this.sortButtons.forEach((data, button) => {
+        data.direction = "asc";
+        this.sortButtons.set(button, data);
+        buttonCount++;
+      });
 
-    this.afs.urlManager.updateURL();
-    this.afs.emit("sortReset");
+      this.afs.urlManager.updateURL();
+      this.afs.emit("sortReset", { buttonCount });
+      
+      this.afs.logger.info(`Sort reset: ${buttonCount} sort buttons reset to default state`);
+      return true;
+    } catch (error) {
+      this.afs.logger.error("Sort reset error:", error);
+      return false;
+    }
   }
 
   /**

@@ -8,12 +8,17 @@ export class Options {
    * @property {string} containerSelector - Main container selector
    * @property {string} itemSelector - Items to filter selector
    * @property {string} filterButtonSelector - Filter buttons selector
+   * @property {string} filterDropdownSelector - Filter dropdown selector
    * @property {string} searchInputSelector - Search input selector
    * @property {string} counterSelector - Results counter selector
+   * @property {string} sortButtonSelector - Sort buttons selector
    * @property {string} activeClass - Active state class
    * @property {string} hiddenClass - Hidden state class
+   * @property {string} activeSortClass - Active sort button class
+   * @property {string} transitionClass - Transition animation class
    * @property {number} animationDuration - Animation duration in ms
    * @property {string} filterMode - Filter mode ('OR' or 'AND')
+   * @property {string} groupMode - Group filter mode ('OR' or 'AND')
    * @property {string[]} searchKeys - Data attributes to search in
    * @property {number} debounceTime - Search debounce delay in ms
    * @property {boolean} debug - Enable debug mode
@@ -21,6 +26,10 @@ export class Options {
    * @property {string} dateFormat - Date format
    * @property {Object} counter - Counter-related options
    * @property {Object} styles - Style-related options
+   * @property {boolean} responsive - Enable responsive mode
+   * @property {boolean} preserveState - Preserve state between sessions
+   * @property {number} stateExpiry - State expiry time in milliseconds
+   * @property {boolean} observeDOM - Observe DOM changes
    */
 
   /**
@@ -34,19 +43,29 @@ export class Options {
     filterDropdownSelector: ".afs-filter-dropdown",
     searchInputSelector: ".afs-filter-search",
     counterSelector: ".afs-filter-counter",
+    sortButtonSelector: ".afs-btn-sort",
 
     // Classes
     activeClass: "active",
     hiddenClass: "hidden",
+    activeSortClass: "sort-active",
+    transitionClass: "afs-transition",
 
     // Filtering
     filterMode: "OR",
+    groupMode: "AND",
     searchKeys: ["title"],
     debounceTime: 300,
 
     // Debug
     debug: false,
     logLevel: "info",
+
+    // Lifecycle and state
+    responsive: true,
+    preserveState: false,
+    stateExpiry: 86400000, // 24 hours in milliseconds
+    observeDOM: false,
 
     // Date handling
     dateFormat: "YYYY-MM-DD",
@@ -145,6 +164,11 @@ export class Options {
     },
   };
 
+  /**
+   * Create Options instance
+   * @param {Object} userOptions - User-provided options to override defaults
+   * @throws {Error} If required options are missing or invalid
+   */
   constructor(userOptions = {}) {
     this.options = this.mergeOptions(Options.defaults, userOptions);
     this.initializeStyles();
@@ -215,15 +239,20 @@ export class Options {
 
     // Animation duration
     if (
-      typeof this.options.animation.duration !== "number" ||
-      this.options.animation.duration < 0
+      typeof this.options.animation?.duration !== "number" ||
+      this.options.animation?.duration < 0
     ) {
-      throw new Error("animationDuration must be a positive number");
+      throw new Error("animation.duration must be a positive number");
     }
 
     // Filter mode
     if (!["OR", "AND"].includes(this.options.filterMode.toUpperCase())) {
       throw new Error('filterMode must be either "OR" or "AND"');
+    }
+
+    // Group mode
+    if (!["OR", "AND"].includes(this.options.groupMode.toUpperCase())) {
+      throw new Error('groupMode must be either "OR" or "AND"');
     }
 
     // Search keys
