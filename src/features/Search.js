@@ -100,38 +100,58 @@ export class Search {
       // Create search regex
       const regex = this.createSearchRegex(normalizedQuery);
 
+      // Track animation promises
+      const animationPromises = [];
+
       // Search through items
       this.afs.items.forEach(item => {
         const searchText = this.getItemSearchText(item);
         const matchesSearch = regex.test(searchText);
 
-        if (matchesSearch) {
-          this.afs.showItem(item);
-          this.highlightMatches(item, regex);
-          matches++;
-        } else {
-          this.afs.hideItem(item);
-          this.removeHighlights(item);
-        }
+        const promise = new Promise(resolve => {
+          if (matchesSearch) {
+            this.afs.showItem(item);
+            this.highlightMatches(item, regex);
+            matches++;
+          } else {
+            this.afs.hideItem(item);
+            this.removeHighlights(item);
+          }
+          // Resolve after animation duration
+          setTimeout(resolve, this.afs.options.get('animation.duration') || 300);
+        });
+        animationPromises.push(promise);
       });
 
-      // Update URL and emit event
-      this.afs.urlManager.updateURL();
-      this.afs.emit('search', {
-        query: normalizedQuery,
-        matches,
-        total: this.afs.items.length
-      });
+      // Wait for all animations to complete
+      Promise.all(animationPromises).then(() => {
+        // Ensure hidden items are properly hidden with display: none
+        this.afs.items.forEach(item => {
+          const visibleItems = this.afs.state.getState().items.visible;
+          if (!visibleItems.has(item)) {
+            item.style.display = 'none';
+          } else {
+            item.style.display = '';
+            item.style.opacity = '1';
+          }
+        });
 
-      this.afs.logger.info(`Search complete. Found ${matches} matches`);
+        // Update URL and emit event
+        this.afs.urlManager.updateURL();
+        this.afs.emit('search', {
+          query: normalizedQuery,
+          matches,
+          total: this.afs.items.length
+        });
+
+        // Update counter
+        this.afs.updateCounter();
+        
+        this.afs.logger.info(`Search complete. Found ${matches} matches`);
+      });
     } catch (error) {
       this.afs.logger.error('Search error:', error);
     }
-
-    // Update counter after animation
-    setTimeout(() => {
-      this.afs.updateCounter();
-    }, this.afs.options.get('animationDuration'));
   }
 
   /**
@@ -157,12 +177,13 @@ export class Search {
     // Escape special regex characters
     const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     
-    // Split into words for whole word matching
+    // Split into words
     const words = escapedQuery.split(' ').filter(Boolean);
     
-    // Create regex pattern
+    // Create regex pattern that matches parts of words
+    // Using lookaheads to ensure all words are present somewhere in the string
     const pattern = words
-      .map(word => `(?=.*\\b${word})`)
+      .map(word => `(?=.*${word})`)
       .join('');
     
     return new RegExp(pattern, 'i');
@@ -200,7 +221,8 @@ export class Search {
       let highlightedText = text;
       words.forEach(word => {
         if (!word) return;
-        const wordRegex = new RegExp(`(${word})`, 'gi');
+        // Match parts of words using more flexible pattern (no word boundary)
+        const wordRegex = new RegExp(`(${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
         highlightedText = highlightedText.replace(
           wordRegex,
           `<span class="${this.highlightClass}">$1</span>`
@@ -246,20 +268,35 @@ export class Search {
     // Clear state
     this.afs.state.setState('search.query', '');
 
-    // Show all items
+    // Track animation promises
+    const animationPromises = [];
+
+    // Show all items with animation
     this.afs.items.forEach(item => {
-      this.afs.showItem(item);
-      this.removeHighlights(item);
+      const promise = new Promise(resolve => {
+        this.afs.showItem(item);
+        this.removeHighlights(item);
+        // Resolve after animation duration
+        setTimeout(resolve, this.afs.options.get('animation.duration') || 300);
+      });
+      animationPromises.push(promise);
     });
 
-    // Update URL and emit event
-    this.afs.urlManager.updateURL();
-    this.afs.emit('searchCleared');
+    // Wait for all animations to complete
+    Promise.all(animationPromises).then(() => {
+      // Ensure all items are visible
+      this.afs.items.forEach(item => {
+        item.style.display = '';
+        item.style.opacity = '1';
+      });
 
-    // Update counter
-    setTimeout(() => {
+      // Update URL and emit event
+      this.afs.urlManager.updateURL();
+      this.afs.emit('searchCleared');
+
+      // Update counter
       this.afs.updateCounter();
-    }, this.afs.options.get('animationDuration'));
+    });
   }
 
   /**
