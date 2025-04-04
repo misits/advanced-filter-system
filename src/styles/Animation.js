@@ -193,6 +193,11 @@ export class Animation {
     // Set initial state
     item.style.display = "";
     item.style.visibility = "visible";
+    
+    // Special handling for mobile - immediately remove any blur
+    if (window.innerWidth <= 768) {
+      item.style.filter = "none";
+    }
 
     // Force reflow
     void item.offsetHeight;
@@ -213,6 +218,25 @@ export class Animation {
         Object.assign(item.style, animation);
       });
     });
+    
+    // Ensure cleanup after animation completes
+    const duration = this.afs.options.get("animation.duration") || 300;
+    setTimeout(() => {
+      // Special handling for mobile - explicitly clean up all transition styles
+      if (window.innerWidth <= 768) {
+        item.style.transform = "";
+        item.style.opacity = "1";
+        item.style.filter = "none";
+        item.style.transition = "";
+      } else if (this.afs.state.getState().items.visible.has(item)) {
+        // Only clean up if item is still meant to be visible
+        Object.assign(item.style, {
+          transform: "",
+          opacity: "",
+          filter: "blur(0)"
+        });
+      }
+    }, duration + 50); // Add a small buffer for animation completion
   }
 
   /**

@@ -414,7 +414,11 @@ export class AFS extends EventEmitter {
 
     this.filter.applyFilters();
     this.search.search(this.search.getValue());
-    this.pagination.update();
+    
+    // Only update pagination if it's enabled
+    if (this.options.get("pagination.enabled")) {
+      this.pagination.update();
+    }
 
     this.emit("refreshed", { itemCount: this.items.length });
   }

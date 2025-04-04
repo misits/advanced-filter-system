@@ -21,8 +21,15 @@ export class Pagination {
    */
   setupPagination() {
     this.afs.logger.debug("Setting up pagination");
-    if (!this.afs.options.get('pagination.enabled')) return;
-    console.log('Pagination enabled');
+    if (!this.afs.options.get('pagination.enabled')) {
+      // Make sure we initialize the state even if pagination is disabled
+      this.afs.state.setState("pagination", {
+        currentPage: 1,
+        itemsPerPage: this.options.itemsPerPage || 10,
+        totalPages: 1,
+      });
+      return;
+    }
 
     this.container = document.createElement("div");
     this.container.className = this.options.containerClass;
@@ -53,6 +60,9 @@ export class Pagination {
    * @private
    */
   bindEvents() {
+    // Only bind events if pagination is enabled
+    if (!this.afs.options.get('pagination.enabled') || !this.container) return;
+    
     this.afs.on("filter", () => this.update());
     this.afs.on("search", () => this.update());
     this.afs.on("sort", () => this.update());
@@ -73,6 +83,12 @@ export class Pagination {
    * @public
    */
   update() {
+    // If pagination is not enabled, make all items visible and return
+    if (!this.afs.options.get('pagination.enabled')) {
+      this.showAllItems();
+      return;
+    }
+    
     const visibleItems = Array.from(this.afs.state.getState().items.visible);
     const itemsPerPage = this.afs.state.getState().pagination.itemsPerPage;
     const totalPages = Math.max(
@@ -98,7 +114,12 @@ export class Pagination {
 
     // Update visibility before rendering pagination controls
     this.updateVisibility(visibleItems);
-    this.renderPagination();
+    
+    // Only render pagination if container exists
+    if (this.container) {
+      this.renderPagination();
+    }
+    
     this.afs.urlManager.updateURL();
 
     this.afs.emit("pagination", {
@@ -114,6 +135,12 @@ export class Pagination {
    * @private
    */
   updateVisibility(visibleItems) {
+    // If pagination is not enabled, show all items
+    if (!this.afs.options.get('pagination.enabled')) {
+      this.showAllItems();
+      return;
+    }
+    
     const { currentPage, itemsPerPage } = this.afs.state.getState().pagination;
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
@@ -158,6 +185,11 @@ export class Pagination {
    * @private
    */
   renderPagination() {
+    // Safety check: don't render if container doesn't exist or pagination is disabled
+    if (!this.container || !this.afs.options.get('pagination.enabled')) {
+      return;
+    }
+    
     const { currentPage, totalPages } = this.afs.state.getState().pagination;
 
     this.container.innerHTML = "";
@@ -338,21 +370,55 @@ export class Pagination {
   }
 
   /**
-   * Show all items (for infinite scroll mode)
+   * Show all items (for infinite scroll mode or when pagination is disabled)
    * @private
    */
   showAllItems() {
-    const visibleItems = Array.from(this.afs.state.getState().items.visible);
-    
-    requestAnimationFrame(() => {
-      visibleItems.forEach(item => {
-        item.style.display = '';
-        item.classList.remove(this.afs.options.get('hiddenClass'));
-        
-        requestAnimationFrame(() => {
-          this.animation.applyShowAnimation(item, this.options.animationType || 'fade');
+    try {
+      const visibleItems = Array.from(this.afs.state.getState().items.visible);
+      
+      // Check if we're on a mobile device
+      const isMobile = window.innerWidth <= 768;
+      
+      requestAnimationFrame(() => {
+        visibleItems.forEach(item => {
+          item.style.display = '';
+          item.classList.remove(this.afs.options.get('hiddenClass'));
+          
+          // For mobile, skip animation to improve performance and prevent blur issues
+          if (isMobile) {
+            item.style.opacity = '1';
+            item.style.transform = '';
+            item.style.filter = 'none';
+          } else {
+            requestAnimationFrame(() => {
+              this.animation.applyShowAnimation(item, this.options?.animationType || 'fade');
+            });
+          }
         });
+        
+        // Extra cleanup for mobile devices to ensure no blur filters remain
+        if (isMobile) {
+          setTimeout(() => {
+            visibleItems.forEach(item => {
+              item.style.opacity = '1';
+              item.style.transform = '';
+              item.style.filter = 'none';
+            });
+          }, 50);
+        }
       });
-    });
+    } catch (error) {
+      this.afs.logger.error('Error in showAllItems:', error);
+      // Fallback: make sure items are visible even if there's an error
+      this.afs.items.forEach(item => {
+        if (this.afs.state.getState().items.visible.has(item)) {
+          item.style.display = '';
+          item.classList.remove(this.afs.options.get('hiddenClass'));
+          item.style.opacity = '1';
+          item.style.filter = 'none';
+        }
+      });
+    }
   }
 }

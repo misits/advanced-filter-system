@@ -253,17 +253,31 @@ clearAllFilters() {
     // Create a promise to track animations
     const animationPromises = [];
   
+    // Special handling for mobile devices
+    const isMobile = window.innerWidth <= 768;
+  
     // Show all items with animation
     this.afs.items.forEach(item => {
       const promise = new Promise(resolve => {
         item.classList.remove(this.afs.options.get('hiddenClass'));
-        item.style.display = 'block'; // Ensure item is visible
         
-        requestAnimationFrame(() => {
-          this.animation.applyShowAnimation(item, this.afs.options.get("animation.type"));
-          // Resolve after animation duration
-          setTimeout(resolve, this.afs.options.get("animation.duration") || 300);
-        });
+        // For mobile devices, immediately set styles without animation
+        if (isMobile) {
+          item.style.display = 'block';
+          item.style.opacity = '1';
+          item.style.transform = '';
+          item.style.filter = 'none';
+          setTimeout(resolve, 10);
+        } else {
+          // For desktop, use animations
+          item.style.display = 'block'; // Ensure item is visible
+          
+          requestAnimationFrame(() => {
+            this.animation.applyShowAnimation(item, this.afs.options.get("animation.type"));
+            // Resolve after animation duration
+            setTimeout(resolve, this.afs.options.get("animation.duration") || 300);
+          });
+        }
       });
       animationPromises.push(promise);
     });
@@ -274,6 +288,16 @@ clearAllFilters() {
   
     // Wait for all animations to complete
     Promise.all(animationPromises).then(() => {
+      // Final cleanup for mobile devices
+      if (isMobile) {
+        this.afs.items.forEach(item => {
+          item.style.display = 'block';
+          item.style.opacity = '1';
+          item.style.transform = '';
+          item.style.filter = 'none';
+        });
+      }
+      
       // Update counter
       this.afs.updateCounter();
       
@@ -375,6 +399,9 @@ clearAllFilters() {
     // Update state before animations
     this.afs.state.setState("items.visible", visibleItems);
 
+    // Special handling for all items visible case (no filters or "*" filter)
+    const showingAllItems = this.activeFilters.has("*") || this.activeFilters.size === 0;
+    
     // Track animation promises
     const animationPromises = [];
 
@@ -384,10 +411,20 @@ clearAllFilters() {
             if (visibleItems.has(item)) {
                 // Show item
                 item.classList.remove(this.afs.options.get('hiddenClass'));
-                requestAnimationFrame(() => {
-                    this.animation.applyShowAnimation(item, this.afs.options.get("animation.type"));
-                    setTimeout(resolve, parseFloat(this.afs.options.get("animation.duration")) || 300);
-                });
+                
+                // Special handling for mobile devices when showing all items
+                if (window.innerWidth <= 768 && showingAllItems) {
+                    item.style.display = 'block';
+                    item.style.opacity = '1';
+                    item.style.transform = '';
+                    item.style.filter = 'none';
+                    setTimeout(resolve, 10); // Quick resolve for mobile all-items case
+                } else {
+                    requestAnimationFrame(() => {
+                        this.animation.applyShowAnimation(item, this.afs.options.get("animation.type"));
+                        setTimeout(resolve, parseFloat(this.afs.options.get("animation.duration")) || 300);
+                    });
+                }
             } else {
                 // Hide item
                 item.classList.add(this.afs.options.get('hiddenClass'));
@@ -406,6 +443,12 @@ clearAllFilters() {
         visibleItems.forEach(item => {
             item.style.display = 'block';
             item.style.opacity = '1';
+            
+            // Special handling for mobile devices
+            if (window.innerWidth <= 768) {
+                item.style.filter = 'none';
+                item.style.transform = '';
+            }
         });
 
         // Update UI
