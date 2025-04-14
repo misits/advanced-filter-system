@@ -19,7 +19,7 @@ import { DateFilter } from "./features/DateFilter";
 import { debounce } from "./utils";
 
 // Version
-export const VERSION = '1.3.2';
+export const VERSION = '1.3.3';
 
 export class AFS extends EventEmitter {
   /**

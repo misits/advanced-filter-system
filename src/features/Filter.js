@@ -16,6 +16,7 @@ export class Filter {
     this.currentFilters = new Set(["*"]);
     this.filterGroups = new Map();
     this.sortOrders = new Map();
+    this.itemDisplayTypes = new Map(); // Store original display types
     this.setupFilters();
   }
 
@@ -51,6 +52,12 @@ export class Filter {
       });
     }
 
+    // Store original display types for all items
+    this.afs.items.forEach(item => {
+      const computedStyle = window.getComputedStyle(item);
+      this.itemDisplayTypes.set(item, computedStyle.display === 'none' ? 'block' : computedStyle.display);
+    });
+
     this.afs.logger.debug("Filters initialized");
   }
 
@@ -80,78 +87,78 @@ export class Filter {
   }
 
   /**
- * Clear all filters and reset selects
- * @public
- */
-clearAllFilters() {
-  this.afs.logger.debug("Clearing all filters and resetting selects");
+   * Clear all filters and reset selects
+   * @public
+   */
+  clearAllFilters() {
+    this.afs.logger.debug("Clearing all filters and resetting selects");
 
-  // Reset filters
-  this.activeFilters.clear();
-  this.activeFilters.add("*");
+    // Reset filters
+    this.activeFilters.clear();
+    this.activeFilters.add("*");
 
-  // Reset filter buttons
-  this.filterButtons.forEach((_, button) => {
-      button.classList.remove(this.afs.options.get("activeClass"));
-  });
+    // Reset filter buttons
+    this.filterButtons.forEach((_, button) => {
+        button.classList.remove(this.afs.options.get("activeClass"));
+    });
 
-  // Reset filter groups
-  this.filterGroups.clear();
+    // Reset filter groups
+    this.filterGroups.clear();
 
-  // Find and activate "all" button if exists
-  const allButton = this.findAllButton();
-  if (allButton) {
-      allButton.classList.add(this.afs.options.get("activeClass"));
+    // Find and activate "all" button if exists
+    const allButton = this.findAllButton();
+    if (allButton) {
+        allButton.classList.add(this.afs.options.get("activeClass"));
+    }
+
+    // Reset all select elements to their default values
+    const filterDropdownSelector = this.afs.options.get("filterDropdownSelector") || '.afs-filter-dropdown';
+    document.querySelectorAll(filterDropdownSelector).forEach(select => {
+        // Get the filter type from the select's data or ID
+        const filterType = select.getAttribute('data-filter-type') || 
+                         select.id.replace('Filter', '').toLowerCase();
+
+        // Find the "all" option for this filter type
+        const allOption = Array.from(select.options).find(option => {
+            const value = option.value;
+            return value === '*' || 
+                   value === `${filterType}:all` || 
+                   value.endsWith(':all');
+        });
+
+        if (allOption) {
+            // Set value and dispatch change event
+            select.value = allOption.value;
+            
+            // Create and dispatch change event
+            const event = new Event('change', {
+                bubbles: true,
+                cancelable: true,
+            });
+            select.dispatchEvent(event);
+        } else {
+            // If no "all" option found, set to first option
+            select.selectedIndex = 0;
+            
+            // Create and dispatch change event
+            const event = new Event('change', {
+                bubbles: true,
+                cancelable: true,
+            });
+            select.dispatchEvent(event);
+        }
+    });
+
+    // Clear sorting
+    this.sortOrders.clear();
+
+    // Apply changes and update UI
+    this.applyFilters();
+    this.afs.urlManager.updateURL();
+    this.afs.emit("filtersCleared");
+
+    this.afs.logger.debug("All filters cleared and selects reset");
   }
-
-  // Reset all select elements to their default values
-  const filterDropdownSelector = this.afs.options.get("filterDropdownSelector") || '.afs-filter-dropdown';
-  document.querySelectorAll(filterDropdownSelector).forEach(select => {
-      // Get the filter type from the select's data or ID
-      const filterType = select.getAttribute('data-filter-type') || 
-                       select.id.replace('Filter', '').toLowerCase();
-
-      // Find the "all" option for this filter type
-      const allOption = Array.from(select.options).find(option => {
-          const value = option.value;
-          return value === '*' || 
-                 value === `${filterType}:all` || 
-                 value.endsWith(':all');
-      });
-
-      if (allOption) {
-          // Set value and dispatch change event
-          select.value = allOption.value;
-          
-          // Create and dispatch change event
-          const event = new Event('change', {
-              bubbles: true,
-              cancelable: true,
-          });
-          select.dispatchEvent(event);
-      } else {
-          // If no "all" option found, set to first option
-          select.selectedIndex = 0;
-          
-          // Create and dispatch change event
-          const event = new Event('change', {
-              bubbles: true,
-              cancelable: true,
-          });
-          select.dispatchEvent(event);
-      }
-  });
-
-  // Clear sorting
-  this.sortOrders.clear();
-
-  // Apply changes and update UI
-  this.applyFilters();
-  this.afs.urlManager.updateURL();
-  this.afs.emit("filtersCleared");
-
-  this.afs.logger.debug("All filters cleared and selects reset");
-}
 
   /**
    * Bind filter event to dropdown
@@ -263,14 +270,14 @@ clearAllFilters() {
         
         // For mobile devices, immediately set styles without animation
         if (isMobile) {
-          item.style.display = 'block';
+          this.showItem(item);
           item.style.opacity = '1';
           item.style.transform = '';
           item.style.filter = 'none';
           setTimeout(resolve, 10);
         } else {
           // For desktop, use animations
-          item.style.display = 'block'; // Ensure item is visible
+          this.showItem(item); // Ensure item is visible with original display type
           
           requestAnimationFrame(() => {
             this.animation.applyShowAnimation(item, this.afs.options.get("animation.type"));
@@ -291,7 +298,7 @@ clearAllFilters() {
       // Final cleanup for mobile devices
       if (isMobile) {
         this.afs.items.forEach(item => {
-          item.style.display = 'block';
+          this.showItem(item);
           item.style.opacity = '1';
           item.style.transform = '';
           item.style.filter = 'none';
@@ -414,7 +421,7 @@ clearAllFilters() {
                 
                 // Special handling for mobile devices when showing all items
                 if (window.innerWidth <= 768 && showingAllItems) {
-                    item.style.display = 'block';
+                    this.showItem(item);
                     item.style.opacity = '1';
                     item.style.transform = '';
                     item.style.filter = 'none';
@@ -441,7 +448,7 @@ clearAllFilters() {
     Promise.all(animationPromises).then(() => {
         // Ensure visible items remain visible
         visibleItems.forEach(item => {
-            item.style.display = 'block';
+            this.showItem(item);
             item.style.opacity = '1';
             
             // Special handling for mobile devices
@@ -1032,5 +1039,25 @@ clearAllFilters() {
     this.activeFilters.clear();
     this.filterGroups.clear();
     this.afs.logger.debug("Filter functionality destroyed");
+  }
+
+  /**
+   * Get the original display type for an item
+   * @private
+   * @param {HTMLElement} item - DOM element
+   * @returns {string} Original display type or 'block' if not stored
+   */
+  getItemDisplayType(item) {
+    return this.itemDisplayTypes.get(item) || 'block';
+  }
+
+  /**
+   * Show an item with its original display value
+   * @private
+   * @param {HTMLElement} item - DOM element to show
+   */
+  showItem(item) {
+    const displayType = this.getItemDisplayType(item);
+    item.style.display = displayType;
   }
 }
