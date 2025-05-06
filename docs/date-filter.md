@@ -13,7 +13,6 @@ The Date Filter component provides date range filtering capabilities with suppor
 - [API Reference](#api-reference)
 - [Events](#events)
 - [Examples](#examples)
-- [TypeScript](#typescript)
 - [Best Practices](#best-practices)
 
 ## Installation
@@ -23,7 +22,10 @@ import { DateFilter } from 'advanced-filter-system';
 
 // As part of AFS
 const afs = createAFS({
-    dateFormat: 'YYYY-MM-DD'
+    dateFilter: {
+        enabled: true,
+        format: 'YYYY-MM-DD'
+    }
 });
 
 // Access date filter
@@ -39,8 +41,8 @@ const dateFilter = afs.dateFilter;
 <div id="date-filter"></div>
 
 <!-- Filterable Items -->
-<div class="filter-item" data-date="2024-03-15">Event 1</div>
-<div class="filter-item" data-date="2024-04-20">Event 2</div>
+<div class="afs-filter-item" data-date="2024-03-15">Event 1</div>
+<div class="afs-filter-item" data-date="2024-04-20">Event 2</div>
 ```
 
 ### JavaScript Implementation
@@ -62,11 +64,12 @@ afs.dateFilter.addDateRange({
 
 ```javascript
 {
-    key: string;           // Data attribute key
-    container: Element;    // Container element
-    format?: string;      // Date format (default: 'YYYY-MM-DD')
-    minDate?: Date;       // Minimum selectable date
-    maxDate?: Date;       // Maximum selectable date
+    enabled: boolean;           // Enable date filter
+    key: string;               // Data attribute key
+    container: Element;        // Container element
+    format?: string;          // Date format (default: 'YYYY-MM-DD')
+    minDate?: Date;           // Minimum selectable date
+    maxDate?: Date;           // Maximum selectable date
 }
 ```
 
@@ -96,13 +99,55 @@ The date filter consists of:
 <div class="afs-date-range-container">
     <div class="afs-date-input-wrapper">
         <label>Start Date</label>
-        <input type="date" class="afs-date-input start-date">
+        <input type="date" class="afs-date-input afs-date-input-start">
     </div>
     <div class="afs-date-input-wrapper">
         <label>End Date</label>
-        <input type="date" class="afs-date-input end-date">
+        <input type="date" class="afs-date-input afs-date-input-end">
     </div>
 </div>
+```
+
+### CSS Styling
+
+```css
+.afs-date-range-container {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.afs-date-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.afs-date-input {
+    padding: 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    width: 150px;
+    transition: border-color 0.2s;
+}
+
+.afs-date-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.afs-date-input:invalid {
+    border-color: #ef4444;
+}
+
+.afs-date-picker {
+    position: absolute;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    z-index: 50;
+}
 ```
 
 ## API Reference
@@ -172,7 +217,7 @@ interface DateState {
 
 ```javascript
 // Date range changed
-afs.on('dateFilter', (data) => {
+afs.on('dateFilterApplied', (data) => {
     console.log('Key:', data.key);
     console.log('Start:', data.startDate);
     console.log('End:', data.endDate);
@@ -228,124 +273,29 @@ afs.dateFilter.addDateRange({
 });
 ```
 
-### Preset Ranges
-
-```javascript
-// Create preset date ranges
-function createPresetRanges() {
-    const today = new Date();
-    
-    return {
-        'Last 7 Days': {
-            start: new Date(today.setDate(today.getDate() - 7)),
-            end: new Date()
-        },
-        'Last 30 Days': {
-            start: new Date(today.setDate(today.getDate() - 30)),
-            end: new Date()
-        },
-        'This Year': {
-            start: new Date(today.getFullYear(), 0, 1),
-            end: new Date(today.getFullYear(), 11, 31)
-        }
-    };
-}
-
-// Apply preset range
-function applyPresetRange(presetName) {
-    const ranges = createPresetRanges();
-    const range = ranges[presetName];
-    
-    if (range) {
-        afs.dateFilter.setDateRange('eventDate', range.start, range.end);
-    }
-}
-```
-
-## TypeScript
-
-```typescript
-interface DateRangeOptions {
-    key: string;
-    container: HTMLElement;
-    format?: string;
-    minDate?: Date;
-    maxDate?: Date;
-}
-
-interface DateRange {
-    startDate: Date;
-    endDate: Date;
-}
-
-interface DateFilterEvent {
-    key: string;
-    startDate: Date;
-    endDate: Date;
-}
-```
-
 ## Best Practices
 
-1. **Date Validation**
+1. **Date Configuration**
+   - Use consistent date formats
+   - Set appropriate date ranges
+   - Handle timezone differences
 
-   ```javascript
-   function validateDateRange(start, end) {
-       if (start > end) {
-           throw new Error('Start date must be before end date');
-       }
-       
-       if (start < minDate || end > maxDate) {
-           throw new Error('Dates must be within allowed range');
-       }
-   }
-   ```
+2. **User Experience**
+   - Provide clear date feedback
+   - Support keyboard navigation
+   - Show date validation errors
 
-2. **Localization**
+3. **Performance**
+   - Debounce date updates
+   - Cache date calculations
+   - Optimize date picker rendering
 
-   ```javascript
-   // Set locale-specific date format
-   const locale = navigator.language;
-   const dateFormat = new Intl.DateTimeFormat(locale).format;
-   
-   afs.dateFilter.addDateRange({
-       key: 'date',
-       container: element,
-       format: dateFormat
-   });
-   ```
+4. **Accessibility**
+   - Use semantic HTML
+   - Include ARIA attributes
+   - Support keyboard controls
 
-3. **Error Handling**
-
-   ```javascript
-   try {
-       afs.dateFilter.setDateRange('eventDate', startDate, endDate);
-   } catch (error) {
-       console.error('Date range error:', error);
-       // Handle error appropriately
-   }
-   ```
-
-4. **Performance**
-
-   ```javascript
-   // Cache date calculations
-   const cachedDates = new Map();
-   
-   function getFormattedDate(date, format) {
-       const key = `${date.toISOString()}-${format}`;
-       if (!cachedDates.has(key)) {
-           cachedDates.set(key, formatDate(date, format));
-       }
-       return cachedDates.get(key);
-   }
-   ```
-
-5. **Accessibility**
-
-   ```javascript
-   // Add ARIA labels
-   const startInput = document.querySelector('.start-date');
-   startInput.setAttribute('aria-label', 'Start date');
-   startInput.setAttribute('aria-required', 'true');
-   ```
+5. **Error Handling**
+   - Validate date inputs
+   - Handle invalid dates
+   - Provide clear feedback

@@ -13,7 +13,6 @@ The URL Manager handles state persistence through URL parameters, enabling share
 - [API Reference](#api-reference)
 - [Events](#events)
 - [Examples](#examples)
-- [TypeScript](#typescript)
 - [Best Practices](#best-practices)
 
 ## Installation
@@ -23,7 +22,9 @@ import { URLManager } from 'advanced-filter-system';
 
 // As part of AFS
 const afs = createAFS({
-    urlStateEnabled: true
+    urlState: {
+        enabled: true
+    }
 });
 
 // Access URL manager
@@ -36,9 +37,11 @@ const urlManager = afs.urlManager;
 
 ```javascript
 const afs = createAFS({
-    urlStateEnabled: true,
-    urlStateKey: 'filter', // Optional URL prefix
-    urlStateDelay: 100    // Delay before initial state load
+    urlState: {
+        enabled: true,
+        key: 'filter', // Optional URL prefix
+        delay: 100    // Delay before initial state load
+    }
 });
 ```
 
@@ -58,11 +61,11 @@ window.addEventListener('popstate', () => {
 ```javascript
 {
     enabled: boolean;           // Enable URL state
-    stateKey?: string;         // URL parameter prefix
+    key?: string;              // URL parameter prefix
     delay?: number;            // Initial load delay
     pushState?: boolean;       // Use pushState or replaceState
     encodeValues?: boolean;    // URL encode parameter values
-    parameterMapping?: {       // Custom parameter names
+    mapping?: {               // Custom parameter names
         filter: string;
         search: string;
         sort: string;
@@ -199,15 +202,15 @@ afs.on('urlCleared', () => {
 
 ```javascript
 // Update URL when state changes
-afs.on('filter', () => {
+afs.on('filterApplied', () => {
     afs.urlManager.updateURL();
 });
 
-afs.on('search', () => {
+afs.on('searchApplied', () => {
     afs.urlManager.updateURL();
 });
 
-afs.on('sort', () => {
+afs.on('sortApplied', () => {
     afs.urlManager.updateURL();
 });
 ```
@@ -249,127 +252,43 @@ afs.urlManager.processCustomParam = (key, value) => {
 ### Shareable URLs
 
 ```javascript
-// Create shareable URL
+// Generate shareable URL
 function getShareableURL() {
+    const url = new URL(window.location.href);
     afs.urlManager.updateURL();
-    return window.location.href;
+    return url.toString();
 }
 
-// Share button implementation
-const shareButton = document.createElement('button');
-shareButton.addEventListener('click', () => {
+// Copy URL to clipboard
+function copyShareableURL() {
     const url = getShareableURL();
     navigator.clipboard.writeText(url);
-    alert('URL copied to clipboard!');
-});
-```
-
-## TypeScript
-
-```typescript
-interface URLManagerOptions {
-    enabled: boolean;
-    stateKey?: string;
-    delay?: number;
-    pushState?: boolean;
-    encodeValues?: boolean;
-    parameterMapping?: ParameterMapping;
-}
-
-interface ParameterMapping {
-    filter: string;
-    search: string;
-    sort: string;
-    page: string;
-}
-
-interface URLStateEvent {
-    params: Record<string, string>;
-    source: 'url' | 'history';
-}
-
-interface URLUpdateEvent {
-    url: string;
-    state: URLState;
 }
 ```
 
 ## Best Practices
 
-1. **State Serialization**
+1. **URL Structure**
+   - Keep URLs clean and readable
+   - Use consistent parameter naming
+   - Avoid unnecessary parameters
 
-   ```javascript
-   // Efficient state serialization
-   function serializeState(state) {
-       return Object.entries(state)
-           .filter(([_, value]) => value !== null && value !== undefined)
-           .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
-           .join('&');
-   }
-   ```
+2. **State Management**
+   - Update URL only when necessary
+   - Handle browser navigation properly
+   - Clear URL when resetting state
 
-2. **History Management**
+3. **Performance**
+   - Debounce URL updates
+   - Minimize URL parameter size
+   - Cache URL state when possible
 
-   ```javascript
-   // Handle browser navigation properly
-   window.addEventListener('popstate', (event) => {
-       if (event.state) {
-           afs.urlManager.loadFromURL(true); // Skip history update
-       }
-   });
-   ```
+4. **Security**
+   - Sanitize URL parameters
+   - Validate parameter values
+   - Handle malformed URLs gracefully
 
-3. **Error Handling**
-
-   ```javascript
-   try {
-       afs.urlManager.loadFromURL();
-   } catch (error) {
-       console.error('URL state error:', error);
-       afs.urlManager.clearURL(); // Reset to clean state
-   }
-   ```
-
-4. **Performance**
-
-   ```javascript
-   // Debounce URL updates
-   const debouncedUpdate = debounce(() => {
-       afs.urlManager.updateURL();
-   }, 300);
-   
-   afs.on('filter', debouncedUpdate);
-   afs.on('search', debouncedUpdate);
-   ```
-
-5. **Clean URLs**
-
-   ```javascript
-   // Remove empty parameters
-   function cleanURL(params) {
-       Array.from(params.entries()).forEach(([key, value]) => {
-           if (!value || value === '[]' || value === '{}') {
-               params.delete(key);
-           }
-       });
-       return params;
-   }
-   ```
-
-6. **State Validation**
-
-   ```javascript
-   // Validate URL parameters
-   function validateURLState(params) {
-       const allowedParams = new Set(['filter', 'search', 'sort', 'page']);
-       let isValid = true;
-       
-       params.forEach((value, key) => {
-           if (!allowedParams.has(key)) {
-               isValid = false;
-           }
-       });
-       
-       return isValid;
-   }
-   ```
+5. **User Experience**
+   - Provide clear URL feedback
+   - Support bookmarking
+   - Enable easy sharing

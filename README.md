@@ -47,6 +47,7 @@ A powerful and flexible vanilla JavaScript filtering system that provides advanc
   - AND/OR logic
   - Filter groups
   - Dynamic filters
+  - Multiple categories per item
 - 🔎 **Smart Search**
   - Real-time search
   - Multiple fields
@@ -69,8 +70,8 @@ A powerful and flexible vanilla JavaScript filtering system that provides advanc
   - Efficient DOM manipulation
   - Minimal reflows
 - 🎨 **Rich Animation**
-  - 15+ built-in animations
-  - Custom transitions
+  - Smooth transitions
+  - Custom animations
   - Hardware acceleration
 - 💾 **State Management**
   - Centralized state
@@ -97,7 +98,7 @@ pnpm add advanced-filter-system
 Or include via CDN:
 
 ```html
-<script src="https://unpkg.com/advanced-filter-system@1.3.3/dist/afs.modern.js"></script>
+<script src="https://unpkg.com/advanced-filter-system@latest/dist/afs.modern.js"></script>
 ```
 
 ## Quick Start
@@ -143,7 +144,7 @@ Or include via CDN:
     <!-- Items Container -->
     <div id="items-container">
         <div class="afs-filter-item" 
-             data-categories="category:category1" 
+             data-categories="category:category1 category:category2" 
              data-price="99.99"
              data-date="2024-03-15"
              data-title="Item 1"
@@ -159,7 +160,7 @@ Or include via CDN:
     <div class="pagination-container"></div>
 
     <!-- Scripts -->
-    <script src="https://unpkg.com/advanced-filter-system@1.3.3/dist/afs.modern.js"></script>
+    <script src="https://unpkg.com/advanced-filter-system@latest/dist/afs.modern.js"></script>
     <script>
         const afs = AFS.createAFS({
             containerSelector: '#items-container',
@@ -222,16 +223,28 @@ const afs = createAFS({
 
 ### Filtering
 
-```javascript
-// HTML
-<button class="afs-btn-filter" data-filter="category:category1">Category 1</button>
-<button class="afs-btn-filter" data-filter="category:category2">Category 2</button>
+Multiple categories can be specified using space-separated values in the `data-categories` attribute:
 
-<div class="afs-filter-item" data-categories="category:category1 category:category2">
+```html
+<!-- Single category -->
+<div class="afs-filter-item" data-categories="category:category1">
     Item content
 </div>
 
-// JavaScript
+<!-- Multiple categories -->
+<div class="afs-filter-item" data-categories="category:category1 category:category2 category:category3">
+    Item content
+</div>
+
+<!-- Multiple filter types -->
+<div class="afs-filter-item" data-categories="category:category1 month:january season:2024">
+    Item content
+</div>
+```
+
+JavaScript API:
+
+```javascript
 // Set filter mode
 afs.filter.setFilterMode('AND'); // or 'OR'
 
@@ -248,81 +261,48 @@ afs.filter.clearAllFilters();
 ### Searching
 
 ```javascript
-// HTML
-<input type="text" class="filter-search">
-<div class="afs-filter-item" 
-     data-title="Product Name" 
-     data-description="Product description">
-    Item content
-</div>
-
-// JavaScript
 // Configure search
-afs.search.updateConfig({
-    searchKeys: ['title', 'description'],
-    minSearchLength: 2,
-    highlightMatches: true,
-    debounceTime: 300
+afs.search.configure({
+    keys: ['title', 'description'],
+    minLength: 2,
+    debounce: 300
 });
 
-// Perform search programmatically
+// Search programmatically
 afs.search.search('query');
-
-// Clear search
-afs.search.clearSearch();
 ```
 
 ### Sorting
 
 ```javascript
-// HTML
-<button class="afs-btn-sort" data-filter="price">Sort by Price</button>
-<button class="afs-btn-sort" data-filter="date">Sort by Date</button>
-
-<div class="afs-filter-item" data-price="99.99" data-date="2024-03-15">
-    Item content
-</div>
-
-// JavaScript
-// Basic sort
+// Single column sort
 afs.sort.sort('price', 'asc');
 
-// Multiple criteria sort
+// Multiple column sort
 afs.sort.sortMultiple([
     { key: 'category', direction: 'asc' },
     { key: 'price', direction: 'desc' }
 ]);
 
-// Reset sort
-afs.sort.reset();
+// Custom sort
+afs.sort.sortWithComparator('title', (a, b) => {
+    return a.localeCompare(b);
+});
 ```
 
 ### Pagination
 
 ```javascript
-// HTML
-<div class="afs-pagination-container"></div>
-
-// JavaScript
 // Configure pagination
-const afs = createAFS({
-    pagination: {
-        enabled: true,
-        itemsPerPage: 10,
-        maxButtons: 7,
-        showPrevNext: true,
-        scrollToTop: true
-    }
+afs.pagination.configure({
+    itemsPerPage: 10,
+    showControls: true
 });
 
 // Navigate pages
 afs.pagination.goToPage(2);
-
-// Change items per page
-afs.pagination.setItemsPerPage(20);
-
-// Get pagination info
-const info = afs.pagination.getPageInfo();
+afs.pagination.nextPage();
+afs.pagination.previousPage();
 ```
 
 ## Advanced Usage
@@ -330,42 +310,22 @@ const info = afs.pagination.getPageInfo();
 ### Filter Groups
 
 ```javascript
-// Create filter groups with different operators
-afs.filter.addFilterGroup('price', {
-    ranges: [[0, 100], [101, 500], [501, 1000]],
+// Create filter group
+afs.filter.createGroup('group1', {
+    filters: ['category:category1', 'category:category2'],
     operator: 'OR'
 });
 
-afs.filter.addFilterGroup('categories', {
-    filters: ['electronics', 'books'],
-    operator: 'AND'
-});
-
 // Set group mode
-afs.filter.setGroupMode('AND');
-
-// Remove group
-afs.filter.removeFilterGroup('price');
+afs.filter.setGroupMode('AND'); // or 'OR'
 ```
 
 ### Custom Sorting
 
 ```javascript
-// Custom comparator for special sorting needs
-afs.sort.sortWithComparator('title', (a, b) => {
-    // Sort by last word
-    const getLastWord = str => str.split(' ').pop();
-    const lastA = getLastWord(a);
-    const lastB = getLastWord(b);
-    return lastA.localeCompare(lastB);
-});
-
-// Sort with multiple languages
-afs.sort.sortWithComparator('title', (a, b) => {
-    return a.localeCompare(b, 'es', { 
-        sensitivity: 'base',
-        numeric: true
-    });
+// Custom sort function
+afs.sort.sortWithComparator('price', (a, b) => {
+    return parseFloat(a) - parseFloat(b);
 });
 ```
 
@@ -373,23 +333,13 @@ afs.sort.sortWithComparator('title', (a, b) => {
 
 ```javascript
 // Enable URL state
-const afs = createAFS({
-    urlStateEnabled: true,
-    urlStateKey: 'filter'
-});
+afs.urlManager.enable();
 
-// Handle state changes
-afs.on('urlStateLoaded', (state) => {
-    console.log('State loaded:', state);
-});
+// Get current state
+const state = afs.urlManager.getState();
 
-// Manual control
-afs.urlManager.updateURL();
-afs.urlManager.loadFromURL();
-afs.urlManager.clearURL();
-
-// Get specific parameter
-const searchQuery = afs.urlManager.getParam('search');
+// Set state
+afs.urlManager.setState(state);
 ```
 
 ## Components
@@ -472,21 +422,11 @@ const afs = createAFS({
 
 ## Browser Support
 
-- Chrome (last 2 versions)
-- Firefox (last 2 versions)
-- Safari (last 2 versions)
-- Edge (last 2 versions)
-- iOS Safari (last 2 versions)
-- Android Chrome (last 2 versions)
-
-Required browser features:
-
-- CSS Transitions
-- Flexbox
-- CSS Grid (optional)
-- History API
-- localStorage
-- MutationObserver
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+- Opera (latest)
 
 ## TypeScript Support
 

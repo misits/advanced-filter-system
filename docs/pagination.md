@@ -13,7 +13,6 @@ The Pagination component provides flexible pagination capabilities with customiz
 - [API Reference](#api-reference)
 - [Events](#events)
 - [Examples](#examples)
-- [TypeScript](#typescript)
 - [Best Practices](#best-practices)
 
 ## Installation
@@ -40,13 +39,13 @@ const pagination = afs.pagination;
 ```html
 <!-- Items Container -->
 <div id="items-container">
-    <div class="filter-item">Item 1</div>
-    <div class="filter-item">Item 2</div>
+    <div class="afs-filter-item">Item 1</div>
+    <div class="afs-filter-item">Item 2</div>
     <!-- More items... -->
 </div>
 
 <!-- Pagination Container -->
-<div class="pagination-container"></div>
+<div class="afs-pagination-container"></div>
 ```
 
 ### JavaScript Implementation
@@ -55,13 +54,13 @@ const pagination = afs.pagination;
 // Initialize with pagination configuration
 const afs = createAFS({
     containerSelector: '#items-container',
-    itemSelector: '.filter-item',
+    itemSelector: '.afs-filter-item',
     pagination: {
         enabled: true,
         itemsPerPage: 10,
         maxButtons: 7,
-        container: '.pagination-container',
-        showPrevNext: true,
+        container: '.afs-pagination-container',
+        showControls: true,
         scrollToTop: true,
         scrollOffset: 50
     }
@@ -77,8 +76,7 @@ const afs = createAFS({
     enabled: boolean;           // Enable pagination
     itemsPerPage: number;       // Items per page
     maxButtons: number;         // Maximum page buttons shown
-    showPrevNext: boolean;      // Show previous/next buttons
-    showFirstLast: boolean;     // Show first/last page buttons
+    showControls: boolean;      // Show pagination controls
     scrollToTop: boolean;       // Scroll to top on page change
     scrollOffset: number;       // Offset for scroll to top
     containerClass: string;     // Pagination container class
@@ -87,8 +85,6 @@ const afs = createAFS({
     template: {
         prev: string;          // Previous button text/HTML
         next: string;          // Next button text/HTML
-        first: string;         // First page button text/HTML
-        last: string;          // Last page button text/HTML
         ellipsis: string;      // Ellipsis text/HTML
     }
 }
@@ -123,16 +119,24 @@ const afs = createAFS({
     border: 1px solid #e5e7eb;
     border-radius: 4px;
     cursor: pointer;
+    background-color: white;
+    transition: all 0.2s;
 }
 
-.afs-page-button.active {
+.afs-page-button:hover {
+    background-color: #f3f4f6;
+}
+
+.afs-page-button.afs-active {
     background-color: #3b82f6;
     color: white;
+    border-color: #3b82f6;
 }
 
 .afs-page-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    background-color: #f3f4f6;
 }
 ```
 
@@ -148,12 +152,31 @@ Navigate to specific page.
 afs.pagination.goToPage(2);
 ```
 
-#### `setItemsPerPage(count: number): void`
+#### `nextPage(): void`
 
-Set number of items per page.
+Go to next page.
 
 ```javascript
-afs.pagination.setItemsPerPage(20);
+afs.pagination.nextPage();
+```
+
+#### `previousPage(): void`
+
+Go to previous page.
+
+```javascript
+afs.pagination.previousPage();
+```
+
+#### `configure(options: PaginationOptions): void`
+
+Update pagination configuration.
+
+```javascript
+afs.pagination.configure({
+    itemsPerPage: 20,
+    showControls: true
+});
 ```
 
 #### `getPageInfo(): PageInfo`
@@ -162,22 +185,6 @@ Get current pagination information.
 
 ```javascript
 const info = afs.pagination.getPageInfo();
-```
-
-#### `update(): void`
-
-Update pagination state and UI.
-
-```javascript
-afs.pagination.update();
-```
-
-#### `refresh(): void`
-
-Refresh pagination with current state.
-
-```javascript
-afs.pagination.refresh();
 ```
 
 ### Properties
@@ -199,7 +206,7 @@ interface PageInfo {
 
 ```javascript
 // Page changed
-afs.on('pagination', (data) => {
+afs.on('pageChanged', (data) => {
     console.log('Current page:', data.currentPage);
     console.log('Total pages:', data.totalPages);
 });
@@ -235,11 +242,10 @@ const afs = createAFS({
 // Custom pagination template
 const afs = createAFS({
     pagination: {
+        enabled: true,
         template: {
             prev: '← Previous',
             next: 'Next →',
-            first: '|←',
-            last: '→|',
             ellipsis: '...'
         }
     }
@@ -249,150 +255,35 @@ const afs = createAFS({
 ### Dynamic Page Size
 
 ```javascript
-// Add page size selector
-const pageSizeSelector = document.createElement('select');
-[10, 20, 50, 100].forEach(size => {
-    const option = document.createElement('option');
-    option.value = size;
-    option.textContent = `${size} per page`;
-    pageSizeSelector.appendChild(option);
+// Change items per page
+afs.pagination.configure({
+    itemsPerPage: 20
 });
-
-pageSizeSelector.addEventListener('change', (e) => {
-    afs.pagination.setItemsPerPage(Number(e.target.value));
-});
-```
-
-### Infinite Scroll
-
-```javascript
-// Implement infinite scroll
-window.addEventListener('scroll', () => {
-    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-    
-    if (scrollTop + clientHeight >= scrollHeight - 100) {
-        const info = afs.pagination.getPageInfo();
-        if (info.hasNextPage) {
-            afs.pagination.goToPage(info.currentPage + 1);
-        }
-    }
-});
-```
-
-## TypeScript
-
-```typescript
-interface PaginationOptions {
-    enabled: boolean;
-    itemsPerPage: number;
-    maxButtons?: number;
-    showPrevNext?: boolean;
-    showFirstLast?: boolean;
-    scrollToTop?: boolean;
-    scrollOffset?: number;
-    containerClass?: string;
-    pageButtonClass?: string;
-    activePageClass?: string;
-    template?: PaginationTemplate;
-}
-
-interface PaginationTemplate {
-    prev?: string;
-    next?: string;
-    first?: string;
-    last?: string;
-    ellipsis?: string;
-}
-
-interface PageInfo {
-    currentPage: number;
-    itemsPerPage: number;
-    totalPages: number;
-    totalItems: number;
-    startIndex: number;
-    endIndex: number;
-    hasNextPage: boolean;
-    hasPrevPage: boolean;
-}
-
-interface PaginationEvent {
-    currentPage: number;
-    totalPages: number;
-    itemsPerPage: number;
-}
 ```
 
 ## Best Practices
 
-1. **Performance Optimization**
+1. **Configuration**
+   - Set appropriate items per page
+   - Enable scroll to top for better UX
+   - Use consistent styling
 
-   ```javascript
-   // Cache page calculations
-   const pageCache = new Map();
-   
-   function getPageItems(page) {
-       const cacheKey = `page_${page}`;
-       if (!pageCache.has(cacheKey)) {
-           pageCache.set(cacheKey, calculatePageItems(page));
-       }
-       return pageCache.get(cacheKey);
-   }
-   ```
+2. **User Experience**
+   - Show clear page indicators
+   - Provide easy navigation controls
+   - Display total items/pages when relevant
 
-2. **Memory Management**
-
-   ```javascript
-   // Clear cache on filter/sort
-   afs.on('filter', () => pageCache.clear());
-   afs.on('sort', () => pageCache.clear());
-   ```
-
-3. **Error Handling**
-
-   ```javascript
-   try {
-       afs.pagination.goToPage(page);
-   } catch (error) {
-       console.error('Pagination error:', error);
-       afs.pagination.goToPage(1); // Fallback to first page
-   }
-   ```
+3. **Performance**
+   - Use efficient DOM updates
+   - Cache page calculations
+   - Limit number of visible pages
 
 4. **Accessibility**
+   - Use semantic HTML for controls
+   - Include proper ARIA attributes
+   - Ensure keyboard navigation works correctly
 
-   ```javascript
-   // Add ARIA attributes
-   const paginationContainer = document.querySelector('.afs-pagination');
-   paginationContainer.setAttribute('role', 'navigation');
-   paginationContainer.setAttribute('aria-label', 'Pagination');
-   
-   // Announce page changes
-   afs.on('pagination', (data) => {
-       announcePageChange(data.currentPage, data.totalPages);
-   });
-   ```
-
-5. **URL Integration**
-
-   ```javascript
-   // Update URL with page number
-   afs.on('pagination', (data) => {
-       const url = new URL(window.location);
-       url.searchParams.set('page', data.currentPage.toString());
-       window.history.pushState({}, '', url);
-   });
-   ```
-
-6. **Responsive Design**
-
-   ```javascript
-   // Adjust buttons based on screen size
-   function updatePaginationLayout() {
-       const width = window.innerWidth;
-       afs.pagination.updateConfig({
-           maxButtons: width < 768 ? 3 : 7
-       });
-   }
-   
-   window.addEventListener('resize', updatePaginationLayout);
-   ```
+5. **Error Handling**
+   - Handle invalid page numbers gracefully
+   - Provide feedback for navigation limits
+   - Validate configuration options

@@ -13,7 +13,6 @@ The Range Filter component provides interactive range sliders for numerical and 
 - [API Reference](#api-reference)
 - [Events](#events)
 - [Examples](#examples)
-- [TypeScript](#typescript)
 - [Best Practices](#best-practices)
 
 ## Installation
@@ -23,7 +22,9 @@ import { RangeFilter } from 'advanced-filter-system';
 
 // As part of AFS
 const afs = createAFS({
-    // Range filter configurations
+    rangeFilter: {
+        enabled: true
+    }
 });
 
 // Access range filter
@@ -39,8 +40,8 @@ const rangeFilter = afs.rangeFilter;
 <div id="price-range"></div>
 
 <!-- Filterable Items -->
-<div class="filter-item" data-price="99.99">Product 1</div>
-<div class="filter-item" data-price="149.99">Product 2</div>
+<div class="afs-filter-item" data-price="99.99">Product 1</div>
+<div class="afs-filter-item" data-price="149.99">Product 2</div>
 ```
 
 ### JavaScript Implementation
@@ -66,12 +67,13 @@ afs.rangeFilter.addRangeSlider({
 
 ```javascript
 {
-    key: string;           // Data attribute key
-    container: Element;    // Container element
-    type?: 'number';      // Filter type
-    min?: number;         // Minimum value
-    max?: number;         // Maximum value
-    step?: number;        // Step value
+    enabled: boolean;           // Enable range filter
+    key: string;               // Data attribute key
+    container: Element;        // Container element
+    type?: 'number';          // Filter type
+    min?: number;             // Minimum value
+    max?: number;             // Maximum value
+    step?: number;            // Step value
     ui?: {
         showHistogram: boolean;
         bins: number;
@@ -112,6 +114,15 @@ The range slider consists of:
     background: #3b82f6;
     border-radius: 50%;
     cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.afs-range-thumb:hover {
+    transform: scale(1.1);
+}
+
+.afs-range-thumb:active {
+    transform: scale(0.95);
 }
 ```
 
@@ -125,9 +136,10 @@ The range slider consists of:
 
 .afs-histogram-bar {
     background: #e5e7eb;
+    transition: background-color 0.2s;
 }
 
-.afs-histogram-bar.active {
+.afs-histogram-bar.afs-active {
     background: #3b82f6;
 }
 ```
@@ -191,7 +203,7 @@ interface RangeState {
 
 ```javascript
 // Range updated
-afs.on('rangeFilter', (data) => {
+afs.on('rangeFilterApplied', (data) => {
     console.log('Key:', data.key);
     console.log('Min:', data.min);
     console.log('Max:', data.max);
@@ -251,101 +263,38 @@ afs.rangeFilter.addRangeSlider({
     max: 1000
 });
 
-// Rating range
+// Weight range
 afs.rangeFilter.addRangeSlider({
-    key: 'rating',
-    container: document.querySelector('#rating-range'),
+    key: 'weight',
+    container: document.querySelector('#weight-range'),
     min: 0,
-    max: 5,
-    step: 0.5
+    max: 100
 });
-```
-
-### Dynamic Updates
-
-```javascript
-// Update range values programmatically
-function updatePriceRange(min, max) {
-    afs.rangeFilter.setRangeValues('price', min, max);
-}
-
-// React to range changes
-afs.on('rangeFilter', (data) => {
-    if (data.key === 'price') {
-        updateProductList(data.min, data.max);
-    }
-});
-```
-
-## TypeScript
-
-```typescript
-interface RangeOptions {
-    key: string;
-    container: HTMLElement;
-    type?: 'number';
-    min?: number;
-    max?: number;
-    step?: number;
-    ui?: {
-        showHistogram: boolean;
-        bins: number;
-    };
-}
-
-interface RangeValues {
-    min: number;
-    max: number;
-    type: string;
-}
-
-interface RangeFilterEvent {
-    key: string;
-    min: number;
-    max: number;
-}
 ```
 
 ## Best Practices
 
-1. **Performance**
+1. **Range Configuration**
+   - Set appropriate min/max values
+   - Use meaningful step sizes
+   - Consider data distribution
 
-   ```javascript
-   // Optimize histogram calculation
-   const options = {
-       ui: {
-           showHistogram: true,
-           bins: 10 // Balance between detail and performance
-       }
-   };
-   ```
+2. **User Experience**
+   - Provide clear value feedback
+   - Use smooth animations
+   - Support keyboard navigation
 
-2. **Responsive Design**
-
-   ```javascript
-   // Listen for container resize
-   window.addEventListener('resize', debounce(() => {
-       afs.rangeFilter.refresh();
-   }, 250));
-   ```
-
-3. **Error Handling**
-
-   ```javascript
-   try {
-       afs.rangeFilter.setRangeValues('price', min, max);
-   } catch (error) {
-       console.error('Range error:', error);
-       // Handle error appropriately
-   }
-   ```
+3. **Performance**
+   - Debounce range updates
+   - Optimize histogram rendering
+   - Cache range calculations
 
 4. **Accessibility**
+   - Use semantic HTML
+   - Include ARIA attributes
+   - Support keyboard controls
 
-   ```javascript
-   // Add ARIA attributes
-   const slider = document.querySelector('.afs-range-slider');
-   slider.setAttribute('role', 'slider');
-   slider.setAttribute('aria-valuemin', min);
-   slider.setAttribute('aria-valuemax', max);
-   ```
+5. **Error Handling**
+   - Validate range values
+   - Handle edge cases
+   - Provide fallback UI

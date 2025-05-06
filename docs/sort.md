@@ -13,7 +13,6 @@ The Sort System provides flexible sorting capabilities with support for multiple
 - [API Reference](#api-reference)
 - [Events](#events)
 - [Examples](#examples)
-- [TypeScript](#typescript)
 - [Best Practices](#best-practices)
 
 ## Installation
@@ -23,7 +22,10 @@ import { Sort } from 'advanced-filter-system';
 
 // As part of AFS
 const afs = createAFS({
-    sortButtonSelector: '.btn-sort'
+    sort: {
+        enabled: true,
+        buttonSelector: '.afs-btn-sort'
+    }
 });
 
 // Access sort
@@ -36,15 +38,15 @@ const sort = afs.sort;
 
 ```html
 <!-- Sort Buttons -->
-<button class="btn-sort" data-sort-key="price" data-sort-direction="asc">
-    Price <span class="sort-direction">↑</span>
+<button class="afs-btn-sort" data-sort-key="price" data-sort-direction="asc">
+    Price <span class="afs-sort-direction">↑</span>
 </button>
-<button class="btn-sort" data-sort-key="date" data-sort-direction="desc">
-    Date <span class="sort-direction">↓</span>
+<button class="afs-btn-sort" data-sort-key="date" data-sort-direction="desc">
+    Date <span class="afs-sort-direction">↓</span>
 </button>
 
 <!-- Sortable Items -->
-<div class="filter-item" data-price="99.99" data-date="2024-03-15">
+<div class="afs-filter-item" data-price="99.99" data-date="2024-03-15">
     <h3>Product Name</h3>
     <p>$99.99</p>
 </div>
@@ -55,11 +57,14 @@ const sort = afs.sort;
 ```javascript
 // Initialize with sort configuration
 const afs = createAFS({
-    sortButtonSelector: '.btn-sort',
-    activeSortClass: 'active',
-    defaultSort: {
-        key: 'price',
-        direction: 'asc'
+    sort: {
+        enabled: true,
+        buttonSelector: '.afs-btn-sort',
+        activeClass: 'afs-active',
+        defaultSort: {
+            key: 'price',
+            direction: 'asc'
+        }
     }
 });
 ```
@@ -70,13 +75,14 @@ const afs = createAFS({
 
 ```javascript
 {
-    sortButtonSelector: string;     // Sort button selector
-    activeSortClass: string;       // Active button class
-    defaultSort?: {                // Default sort configuration
+    enabled: boolean;           // Enable sorting
+    buttonSelector: string;     // Sort button selector
+    activeClass: string;        // Active button class
+    defaultSort?: {            // Default sort configuration
         key: string;
         direction: 'asc' | 'desc';
     };
-    sortTypes?: {                 // Custom sort type definitions
+    sortTypes?: {             // Custom sort type definitions
         [key: string]: 'string' | 'number' | 'date' | Function;
     };
 }
@@ -108,7 +114,7 @@ afs.sort.sortMultiple([
 ```javascript
 // Custom sort logic
 afs.sort.sortWithComparator('title', (a, b) => {
-    return a.localeCompare(b, 'es', { sensitivity: 'base' });
+    return a.localeCompare(b);
 });
 ```
 
@@ -187,23 +193,23 @@ interface SortButton {
 
 ```javascript
 // Sort applied
-afs.on('sort', (data) => {
+afs.on('sortApplied', (data) => {
     console.log('Sort key:', data.key);
     console.log('Direction:', data.direction);
 });
 
 // Multiple sort applied
-afs.on('multiSort', (data) => {
+afs.on('multiSortApplied', (data) => {
     console.log('Sort criteria:', data.criteria);
 });
 
 // Custom sort applied
-afs.on('customSort', (data) => {
+afs.on('customSortApplied', (data) => {
     console.log('Custom sort by:', data.key);
 });
 
 // Items shuffled
-afs.on('shuffle', () => {
+afs.on('itemsShuffled', () => {
     console.log('Items shuffled');
 });
 
@@ -249,121 +255,29 @@ afs.sort.sortWithComparator('version', (a, b) => {
 });
 ```
 
-### Dynamic Sort Buttons
-
-```javascript
-// Add sort button dynamically
-const button = document.createElement('button');
-button.className = 'btn-sort';
-button.dataset.sortKey = 'rating';
-button.dataset.sortDirection = 'desc';
-afs.sort.addSortButton(button);
-
-// Remove sort button
-afs.sort.removeSortButton(button);
-```
-
-## TypeScript
-
-```typescript
-interface SortOptions {
-    sortButtonSelector: string;
-    activeSortClass: string;
-    defaultSort?: SortState;
-    sortTypes?: Record<string, string | Function>;
-}
-
-interface SortState {
-    key: string;
-    direction: 'asc' | 'desc';
-}
-
-interface SortCriterion {
-    key: string;
-    direction: 'asc' | 'desc';
-}
-
-interface SortEvent {
-    key: string;
-    direction: 'asc' | 'desc';
-    previousSort?: SortState;
-}
-```
-
 ## Best Practices
 
-1. **Performance Optimization**
+1. **Sort Configuration**
+   - Set appropriate default sort
+   - Define custom sort types when needed
+   - Use consistent sort directions
 
-   ```javascript
-   // Cache computed values for sorting
-   const cache = new Map();
-   
-   afs.sort.sortWithComparator('complex', (a, b) => {
-       if (!cache.has(a)) {
-           cache.set(a, computeComplexValue(a));
-       }
-       if (!cache.has(b)) {
-           cache.set(b, computeComplexValue(b));
-       }
-       return cache.get(a) - cache.get(b);
-   });
-   ```
+2. **User Experience**
+   - Provide clear sort indicators
+   - Show current sort state
+   - Allow easy sort direction toggle
 
-2. **Memory Management**
-
-   ```javascript
-   // Clear caches when removing items
-   afs.on('itemRemoved', () => {
-       cache.clear();
-   });
-   ```
-
-3. **Error Handling**
-
-   ```javascript
-   try {
-       afs.sort.sortMultiple(criteria);
-   } catch (error) {
-       console.error('Sort error:', error);
-       afs.sort.reset(); // Fallback to default sort
-   }
-   ```
+3. **Performance**
+   - Use efficient sort algorithms
+   - Cache sort results when possible
+   - Limit number of sort criteria
 
 4. **Accessibility**
+   - Use semantic HTML for sort buttons
+   - Include proper ARIA attributes
+   - Ensure keyboard navigation works correctly
 
-   ```javascript
-   // Add ARIA attributes to sort buttons
-   const button = document.querySelector('.btn-sort');
-   button.setAttribute('aria-sort', 'ascending');
-   button.setAttribute('aria-label', 'Sort by price ascending');
-   ```
-
-5. **URL Integration**
-
-   ```javascript
-   // Update URL with sort state
-   afs.on('sort', (data) => {
-       const url = new URL(window.location);
-       url.searchParams.set('sort', `${data.key},${data.direction}`);
-       window.history.pushState({}, '', url);
-   });
-   ```
-
-6. **Sort State Persistence**
-
-   ```javascript
-   // Save sort state
-   function saveSortState() {
-       const currentSort = afs.sort.getCurrentSort();
-       localStorage.setItem('afs_sort', JSON.stringify(currentSort));
-   }
-   
-   // Restore sort state
-   function restoreSortState() {
-       const saved = localStorage.getItem('afs_sort');
-       if (saved) {
-           const { key, direction } = JSON.parse(saved);
-           afs.sort.sort(key, direction);
-       }
-   }
-   ```
+5. **Error Handling**
+   - Handle invalid sort keys gracefully
+   - Provide fallback for unsupported data types
+   - Validate sort criteria before applying

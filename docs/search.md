@@ -13,7 +13,6 @@ The Search component provides real-time search capabilities with features like m
 - [API Reference](#api-reference)
 - [Events](#events)
 - [Examples](#examples)
-- [TypeScript](#typescript)
 - [Best Practices](#best-practices)
 
 ## Installation
@@ -23,8 +22,11 @@ import { Search } from 'advanced-filter-system';
 
 // As part of AFS
 const afs = createAFS({
-    searchInputSelector: '.filter-search',
-    searchKeys: ['title', 'description']
+    search: {
+        enabled: true,
+        inputSelector: '.afs-filter-search',
+        keys: ['title', 'description']
+    }
 });
 
 // Access search
@@ -37,13 +39,13 @@ const search = afs.search;
 
 ```html
 <!-- Search Input -->
-<input type="text" class="filter-search" placeholder="Search...">
+<input type="text" class="afs-filter-search" placeholder="Search...">
 
 <!-- Searchable Items -->
-<div class="filter-item" 
+<div class="afs-filter-item" 
      data-title="Product Name" 
      data-description="Product description"
-     data-categories="electronics">
+     data-categories="category:electronics">
     <h3>Product Name</h3>
     <p>Product description</p>
 </div>
@@ -54,11 +56,14 @@ const search = afs.search;
 ```javascript
 // Initialize with search configuration
 const afs = createAFS({
-    searchInputSelector: '.filter-search',
-    searchKeys: ['title', 'description'],
-    minSearchLength: 2,
-    debounceTime: 300,
-    highlightMatches: true
+    search: {
+        enabled: true,
+        inputSelector: '.afs-filter-search',
+        keys: ['title', 'description'],
+        minLength: 2,
+        debounce: 300,
+        highlightMatches: true
+    }
 });
 ```
 
@@ -68,14 +73,15 @@ const afs = createAFS({
 
 ```javascript
 {
-    searchInputSelector: string;    // Search input selector
-    searchKeys: string[];          // Data attributes to search in
-    minSearchLength: number;       // Minimum characters before search
-    debounceTime: number;         // Debounce delay in ms
-    highlightMatches: boolean;    // Highlight matching text
-    highlightClass: string;       // CSS class for highlights
-    caseSensitive: boolean;       // Case-sensitive search
-    fuzzySearch: boolean;         // Enable fuzzy search
+    enabled: boolean;           // Enable search
+    inputSelector: string;      // Search input selector
+    keys: string[];            // Data attributes to search in
+    minLength: number;         // Minimum characters before search
+    debounce: number;          // Debounce delay in ms
+    highlightMatches: boolean; // Highlight matching text
+    highlightClass: string;    // CSS class for highlights
+    caseSensitive: boolean;    // Case-sensitive search
+    fuzzySearch: boolean;      // Enable fuzzy search
     searchMode: 'contains' | 'startsWith' | 'exact'; // Search mode
 }
 ```
@@ -87,14 +93,17 @@ const afs = createAFS({
 ```javascript
 // Enable highlighting
 const afs = createAFS({
-    highlightMatches: true,
-    highlightClass: 'search-highlight'
+    search: {
+        enabled: true,
+        highlightMatches: true,
+        highlightClass: 'afs-search-highlight'
+    }
 });
 
 // CSS for highlights
-.search-highlight {
-    background-color: yellow;
-    font-weight: bold;
+.afs-search-highlight {
+    background-color: #fef08a;
+    font-weight: 500;
 }
 ```
 
@@ -103,10 +112,13 @@ const afs = createAFS({
 ```javascript
 // Enable fuzzy search
 const afs = createAFS({
-    fuzzySearch: true,
-    fuzzyOptions: {
-        threshold: 0.6,
-        distance: 100
+    search: {
+        enabled: true,
+        fuzzySearch: true,
+        fuzzyOptions: {
+            threshold: 0.6,
+            distance: 100
+        }
     }
 });
 ```
@@ -116,9 +128,12 @@ const afs = createAFS({
 ```javascript
 // Different search modes
 const afs = createAFS({
-    searchMode: 'contains', // Default
-    // or 'startsWith'
-    // or 'exact'
+    search: {
+        enabled: true,
+        searchMode: 'contains', // Default
+        // or 'startsWith'
+        // or 'exact'
+    }
 });
 ```
 
@@ -134,12 +149,12 @@ Perform search with given query.
 afs.search.search('query');
 ```
 
-#### `clearSearch(): void`
+#### `clear(): void`
 
 Clear current search.
 
 ```javascript
-afs.search.clearSearch();
+afs.search.clear();
 ```
 
 #### `setValue(value: string): void`
@@ -158,14 +173,14 @@ Get current search value.
 const query = afs.search.getValue();
 ```
 
-#### `updateConfig(config: SearchConfig): void`
+#### `configure(config: SearchConfig): void`
 
 Update search configuration.
 
 ```javascript
-afs.search.updateConfig({
-    searchKeys: ['title', 'content'],
-    minSearchLength: 3
+afs.search.configure({
+    keys: ['title', 'content'],
+    minLength: 3
 });
 ```
 
@@ -183,7 +198,7 @@ interface SearchState {
 
 ```javascript
 // Search performed
-afs.on('search', (data) => {
+afs.on('searchApplied', (data) => {
     console.log('Query:', data.query);
     console.log('Matches:', data.matches);
     console.log('Total:', data.total);
@@ -212,8 +227,11 @@ afs.on('searchCompleted', (data) => {
 ```javascript
 // Simple text search
 const afs = createAFS({
-    searchInputSelector: '.filter-search',
-    searchKeys: ['title']
+    search: {
+        enabled: true,
+        inputSelector: '.afs-filter-search',
+        keys: ['title']
+    }
 });
 ```
 
@@ -222,14 +240,17 @@ const afs = createAFS({
 ```javascript
 // Complex search setup
 const afs = createAFS({
-    searchInputSelector: '.filter-search',
-    searchKeys: ['title', 'description', 'categories'],
-    minSearchLength: 2,
-    debounceTime: 300,
-    highlightMatches: true,
-    fuzzySearch: true,
-    caseSensitive: false,
-    searchMode: 'contains'
+    search: {
+        enabled: true,
+        inputSelector: '.afs-filter-search',
+        keys: ['title', 'description', 'categories'],
+        minLength: 2,
+        debounce: 300,
+        highlightMatches: true,
+        fuzzySearch: true,
+        caseSensitive: false,
+        searchMode: 'contains'
+    }
 });
 ```
 
@@ -237,7 +258,7 @@ const afs = createAFS({
 
 ```javascript
 // Custom search logic
-afs.search.updateConfig({
+afs.search.configure({
     customSearch: (item, query) => {
         // Custom search implementation
         const searchText = item.dataset.title.toLowerCase();
@@ -245,118 +266,34 @@ afs.search.updateConfig({
         
         // Custom matching logic
         return searchText.includes(searchQuery) || 
-               item.dataset.tags.includes(searchQuery);
+               item.dataset.categories.includes(searchQuery);
     }
 });
-```
-
-### Search with Filters
-
-```javascript
-// Combine search with filters
-afs.on('search', (data) => {
-    // Apply additional filters after search
-    if (data.matches > 0) {
-        afs.filter.addFilter('inStock');
-    }
-});
-```
-
-## TypeScript
-
-```typescript
-interface SearchOptions {
-    searchInputSelector: string;
-    searchKeys: string[];
-    minSearchLength?: number;
-    debounceTime?: number;
-    highlightMatches?: boolean;
-    highlightClass?: string;
-    caseSensitive?: boolean;
-    fuzzySearch?: boolean;
-    searchMode?: 'contains' | 'startsWith' | 'exact';
-    customSearch?: (item: HTMLElement, query: string) => boolean;
-}
-
-interface SearchEvent {
-    query: string;
-    matches: number;
-    total: number;
-}
-
-interface SearchResult {
-    matches: Set<HTMLElement>;
-    query: string;
-}
 ```
 
 ## Best Practices
 
-1. **Performance Optimization**
+1. **Search Configuration**
+   - Set appropriate minimum length to avoid excessive searches
+   - Use debouncing for better performance
+   - Configure relevant search keys
 
-   ```javascript
-   // Debounce search for better performance
-   const afs = createAFS({
-       debounceTime: 300,
-       searchKeys: ['title'], // Limit search fields for better performance
-   });
-   ```
+2. **User Experience**
+   - Provide clear search input placeholder
+   - Show search results count
+   - Highlight matching text for better visibility
 
-2. **Memory Management**
-
-   ```javascript
-   // Clean up highlights when removing items
-   afs.on('itemRemoved', (item) => {
-       afs.search.removeHighlights(item);
-   });
-   ```
-
-3. **Error Handling**
-
-   ```javascript
-   try {
-       afs.search.search(query);
-   } catch (error) {
-       console.error('Search error:', error);
-       // Handle error appropriately
-   }
-   ```
+3. **Performance**
+   - Use debouncing for real-time search
+   - Limit search scope to relevant fields
+   - Consider using fuzzy search for better matching
 
 4. **Accessibility**
+   - Use semantic HTML for search input
+   - Include proper ARIA attributes
+   - Ensure keyboard navigation works correctly
 
-   ```javascript
-   // Add ARIA attributes
-   const searchInput = document.querySelector('.filter-search');
-   searchInput.setAttribute('role', 'searchbox');
-   searchInput.setAttribute('aria-label', 'Search items');
-   
-   // Add search results announcement
-   afs.on('searchCompleted', (data) => {
-       announceSearchResults(data.matches);
-   });
-   ```
-
-5. **URL Integration**
-
-   ```javascript
-   // Update URL with search query
-   afs.on('search', (data) => {
-       const url = new URL(window.location);
-       url.searchParams.set('q', data.query);
-       window.history.pushState({}, '', url);
-   });
-   ```
-
-6. **Search Results Caching**
-
-   ```javascript
-   const searchCache = new Map();
-   
-   function getCachedResults(query) {
-       return searchCache.get(query);
-   }
-   
-   afs.on('searchCompleted', (data) => {
-       searchCache.set(data.query, data.matches);
-   });
-   ```
+5. **Error Handling**
+   - Handle empty search results gracefully
+   - Provide feedback for no matches
+   - Validate search input when needed

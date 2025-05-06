@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Filter System is a core component of AFS that provides flexible and powerful filtering capabilities for DOM elements. It supports both single and multiple filter criteria, different filter modes (AND/OR), and filter groups.
+The Filter System is a core component of AFS that provides flexible and powerful filtering capabilities for DOM elements. It supports multiple filter types, different filter modes (AND/OR), filter groups, and multiple categories per item.
 
 ## Table of Contents
 
@@ -10,10 +10,10 @@ The Filter System is a core component of AFS that provides flexible and powerful
 - [Basic Usage](#basic-usage)
 - [Filter Modes](#filter-modes)
 - [Filter Groups](#filter-groups)
+- [Multiple Categories](#multiple-categories)
 - [API Reference](#api-reference)
 - [Events](#events)
 - [Examples](#examples)
-- [TypeScript](#typescript)
 - [Best Practices](#best-practices)
 
 ## Installation
@@ -23,12 +23,17 @@ import { Filter } from 'advanced-filter-system';
 
 // As part of AFS
 const afs = createAFS({
-    filterButtonSelector: '.btn-filter',
-    filterMode: 'OR'
+    filter: {
+        enabled: true,
+        buttonSelector: '.afs-btn-filter',
+        mode: 'OR',
+        activeClass: 'afs-active',
+        hiddenClass: 'afs-hidden'
+    }
 });
 
-// Standalone usage
-const filter = new Filter(afs);
+// Access filter
+const filter = afs.filter;
 ```
 
 ## Basic Usage
@@ -37,12 +42,12 @@ const filter = new Filter(afs);
 
 ```html
 <!-- Filter Buttons -->
-<button class="btn-filter" data-filter="category1">Category 1</button>
-<button class="btn-filter" data-filter="category2">Category 2</button>
+<button class="afs-btn-filter" data-filter="category:category1">Category 1</button>
+<button class="afs-btn-filter" data-filter="category:category2">Category 2</button>
 
 <!-- Filterable Items -->
-<div class="filter-item" data-categories="category1">Item 1</div>
-<div class="filter-item" data-categories="category1,category2">Item 2</div>
+<div class="afs-filter-item" data-categories="category:category1">Item 1</div>
+<div class="afs-filter-item" data-categories="category:category1 category:category2">Item 2</div>
 ```
 
 ### JavaScript Implementation
@@ -50,15 +55,18 @@ const filter = new Filter(afs);
 ```javascript
 // Initialize with options
 const afs = createAFS({
-    filterButtonSelector: '.btn-filter',
-    filterMode: 'OR',
-    activeClass: 'active',
-    hiddenClass: 'hidden'
+    filter: {
+        enabled: true,
+        buttonSelector: '.afs-btn-filter',
+        mode: 'OR',
+        activeClass: 'afs-active',
+        hiddenClass: 'afs-hidden'
+    }
 });
 
 // Manual filter control
-afs.filter.addFilter('category1');
-afs.filter.removeFilter('category2');
+afs.filter.addFilter('category:category1');
+afs.filter.removeFilter('category:category2');
 afs.filter.clearAllFilters();
 ```
 
@@ -69,9 +77,7 @@ afs.filter.clearAllFilters();
 Items match if they have any of the active filters.
 
 ```javascript
-afs.filter.setFilterMode('OR');
-// or
-afs.filter.setLogic(false);
+afs.filter.setMode('OR');
 ```
 
 ### AND Mode
@@ -79,9 +85,7 @@ afs.filter.setLogic(false);
 Items must match all active filters.
 
 ```javascript
-afs.filter.setFilterMode('AND');
-// or
-afs.filter.setLogic(true);
+afs.filter.setMode('AND');
 ```
 
 ## Filter Groups
@@ -89,22 +93,53 @@ afs.filter.setLogic(true);
 Groups allow logical grouping of filters with their own operators.
 
 ```javascript
-// Add filter group
-afs.filter.addFilterGroup('colors', {
-    filters: ['red', 'blue'],
+// Create filter group
+afs.filter.createGroup('group1', {
+    filters: ['category:category1', 'category:category2'],
     operator: 'OR'
 });
 
-afs.filter.addFilterGroup('sizes', {
-    filters: ['small', 'medium'],
-    operator: 'AND'
-});
-
-// Set how groups interact
-afs.filter.setGroupMode('AND');
+// Set group mode
+afs.filter.setGroupMode('AND'); // or 'OR'
 
 // Remove group
-afs.filter.removeFilterGroup('colors');
+afs.filter.removeGroup('group1');
+```
+
+## Multiple Categories
+
+The filter system supports multiple categories per item using space-separated values in the `data-categories` attribute.
+
+### HTML Examples
+
+```html
+<!-- Single category -->
+<div class="afs-filter-item" data-categories="category:category1">
+    Item content
+</div>
+
+<!-- Multiple categories -->
+<div class="afs-filter-item" data-categories="category:category1 category:category2 category:category3">
+    Item content
+</div>
+
+<!-- Multiple filter types -->
+<div class="afs-filter-item" data-categories="category:category1 month:january season:2024">
+    Item content
+</div>
+```
+
+### JavaScript Examples
+
+```javascript
+// Add multiple filters
+afs.filter.addFilter('category:category1');
+afs.filter.addFilter('category:category2');
+
+// Filter by multiple types
+afs.filter.addFilter('category:category1');
+afs.filter.addFilter('month:january');
+afs.filter.addFilter('season:2024');
 ```
 
 ## API Reference
@@ -116,7 +151,7 @@ afs.filter.removeFilterGroup('colors');
 Add a new filter to the active filters.
 
 ```javascript
-afs.filter.addFilter('category1');
+afs.filter.addFilter('category:category1');
 ```
 
 #### `removeFilter(filter: string): void`
@@ -124,7 +159,7 @@ afs.filter.addFilter('category1');
 Remove a filter from the active filters.
 
 ```javascript
-afs.filter.removeFilter('category1');
+afs.filter.removeFilter('category:category1');
 ```
 
 #### `clearAllFilters(): void`
@@ -135,21 +170,21 @@ Clear all active filters and reset to default state.
 afs.filter.clearAllFilters();
 ```
 
-#### `setFilterMode(mode: 'AND' | 'OR'): void`
+#### `setMode(mode: 'AND' | 'OR'): void`
 
 Set the filter logic mode.
 
 ```javascript
-afs.filter.setFilterMode('AND');
+afs.filter.setMode('AND');
 ```
 
-#### `addFilterGroup(id: string, options: FilterGroupOptions): void`
+#### `createGroup(id: string, options: FilterGroupOptions): void`
 
-Add a new filter group.
+Create a new filter group.
 
 ```javascript
-afs.filter.addFilterGroup('prices', {
-    filters: ['0-100', '101-500'],
+afs.filter.createGroup('prices', {
+    filters: ['category:low', 'category:medium', 'category:high'],
     operator: 'OR'
 });
 ```
@@ -164,24 +199,35 @@ const activeFilters = afs.filter.getActiveFilters();
 
 ### Properties
 
-- `activeFilters: Set<string>` - Currently active filters
-- `filterGroups: Map<string, FilterGroup>` - Active filter groups
-- `filterMode: 'AND' | 'OR'` - Current filter mode
-- `groupMode: 'AND' | 'OR'` - Current group mode
+```javascript
+interface FilterState {
+    activeFilters: Set<string>;
+    filterGroups: Map<string, FilterGroup>;
+    mode: 'AND' | 'OR';
+    groupMode: 'AND' | 'OR';
+}
+```
 
 ## Events
 
 ```javascript
-// Filter toggled
-afs.on('filterToggled', (data) => {
+// Filter applied
+afs.on('filterApplied', (data) => {
     console.log('Filter:', data.filter);
     console.log('Active filters:', data.activeFilters);
-});
-
-// Filters applied
-afs.on('filter', (data) => {
     console.log('Visible items:', data.visibleItems);
     console.log('Hidden items:', data.hiddenItems);
+});
+
+// Filter group created
+afs.on('filterGroupCreated', (data) => {
+    console.log('Group created:', data.groupId);
+    console.log('Filters:', data.filters);
+});
+
+// Filter group removed
+afs.on('filterGroupRemoved', (data) => {
+    console.log('Group removed:', data.groupId);
 });
 
 // Filters cleared
@@ -197,32 +243,38 @@ afs.on('filtersCleared', () => {
 ```javascript
 // Initialize
 const afs = createAFS({
-    filterButtonSelector: '.btn-filter'
+    filter: {
+        enabled: true,
+        buttonSelector: '.afs-btn-filter',
+        mode: 'OR',
+        activeClass: 'afs-active',
+        hiddenClass: 'afs-hidden'
+    }
 });
 
 // Add event listeners
-afs.on('filter', (data) => {
+afs.on('filterApplied', (data) => {
     updateUI(data.visibleItems);
 });
 
 // Add filters programmatically
-afs.filter.addFilter('category1');
-afs.filter.addFilter('category2');
+afs.filter.addFilter('category:category1');
+afs.filter.addFilter('category:category2');
 ```
 
 ### Complex Filtering with Groups
 
 ```javascript
-// Create price ranges
-afs.filter.addFilterGroup('price', {
-    filters: ['0-100', '101-500', '501-1000'],
+// Create category groups
+afs.filter.createGroup('categories', {
+    filters: ['category:electronics', 'category:books'],
     operator: 'OR'
 });
 
-// Create category filters
-afs.filter.addFilterGroup('categories', {
-    filters: ['electronics', 'books'],
-    operator: 'AND'
+// Create price groups
+afs.filter.createGroup('prices', {
+    filters: ['category:low', 'category:medium', 'category:high'],
+    operator: 'OR'
 });
 
 // Set group interaction
@@ -234,79 +286,37 @@ afs.filter.setGroupMode('AND');
 ```javascript
 // Add filter button dynamically
 const button = document.createElement('button');
-button.className = 'btn-filter';
-button.dataset.filter = 'newCategory';
+button.className = 'afs-btn-filter';
+button.dataset.filter = 'category:newCategory';
 afs.filter.addFilterButton(button);
 
 // Remove filter button
 afs.filter.removeFilterButton(button);
 ```
 
-## TypeScript
-
-```typescript
-interface FilterOptions {
-    mode: 'AND' | 'OR';
-    activeClass: string;
-    hiddenClass: string;
-}
-
-interface FilterGroupOptions {
-    filters: string[];
-    operator: 'AND' | 'OR';
-}
-
-interface FilterEvent {
-    filter: string;
-    activeFilters: string[];
-    visibleItems: number;
-    hiddenItems: number;
-}
-```
-
 ## Best Practices
 
-1. **Performance**
+1. **Category Naming**
+   - Use consistent category prefixes (e.g., `category:`, `month:`, `season:`)
+   - Keep category names simple and descriptive
+   - Use lowercase for category names
 
-   ```javascript
-   // Use filter groups for better organization
-   afs.filter.addFilterGroup('price', {
-       filters: ['0-100', '101-500'],
-       operator: 'OR'
-   });
-   ```
+2. **Multiple Categories**
+   - Use space-separated values in `data-categories`
+   - Group related categories together
+   - Consider using filter groups for complex category relationships
 
-2. **Error Handling**
+3. **Performance**
+   - Limit the number of active filters
+   - Use filter groups for complex filtering logic
+   - Consider using AND mode for more precise filtering
 
-   ```javascript
-   try {
-       afs.filter.addFilter('category1');
-   } catch (error) {
-       console.error('Filter error:', error);
-       // Handle error appropriately
-   }
-   ```
+4. **Accessibility**
+   - Use semantic HTML for filter buttons
+   - Include proper ARIA attributes
+   - Ensure keyboard navigation works correctly
 
-3. **State Management**
-
-   ```javascript
-   // Save filter state
-   const state = {
-       activeFilters: Array.from(afs.filter.getActiveFilters()),
-       groups: Array.from(afs.filter.getFilterGroups())
-   };
-   
-   // Restore filter state
-   state.activeFilters.forEach(filter => {
-       afs.filter.addFilter(filter);
-   });
-   ```
-
-4. **URL Integration**
-
-   ```javascript
-   // Update URL when filters change
-   afs.on('filter', () => {
-       afs.urlManager.updateURL();
-   });
-   ```
+5. **State Management**
+   - Use URL state for shareable filters
+   - Implement filter presets for common combinations
+   - Provide clear feedback for active filters

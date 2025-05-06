@@ -13,7 +13,6 @@ The Input Range component provides numerical range filtering capabilities with s
 - [API Reference](#api-reference)
 - [Events](#events)
 - [Examples](#examples)
-- [TypeScript](#typescript)
 - [Best Practices](#best-practices)
 
 ## Installation
@@ -22,7 +21,11 @@ The Input Range component provides numerical range filtering capabilities with s
 import { InputRange } from 'advanced-filter-system';
 
 // As part of AFS
-const afs = createAFS();
+const afs = createAFS({
+    inputRange: {
+        enabled: true
+    }
+});
 
 // Access input range
 const inputRange = afs.inputRange;
@@ -37,8 +40,8 @@ const inputRange = afs.inputRange;
 <div id="price-filter"></div>
 
 <!-- Filterable Items -->
-<div class="filter-item" data-price="99.99">Product 1</div>
-<div class="filter-item" data-price="149.99">Product 2</div>
+<div class="afs-filter-item" data-price="99.99">Product 1</div>
+<div class="afs-filter-item" data-price="149.99">Product 2</div>
 ```
 
 ### JavaScript Implementation
@@ -61,12 +64,13 @@ afs.inputRange.addInputRange({
 
 ```javascript
 {
-    key: string;           // Data attribute key
-    container: Element;    // Container element
-    min?: number;         // Minimum value
-    max?: number;         // Maximum value
-    step?: number;        // Step increment (default: 1)
-    label?: string;       // Label for the range (optional)
+    enabled: boolean;           // Enable input range
+    key: string;               // Data attribute key
+    container: Element;        // Container element
+    min?: number;             // Minimum value
+    max?: number;             // Maximum value
+    step?: number;            // Step increment (default: 1)
+    label?: string;           // Label for the range (optional)
 }
 ```
 
@@ -85,13 +89,46 @@ The input range consists of:
 <div class="afs-input-range-container">
     <div class="afs-input-wrapper">
         <label>Min</label>
-        <input type="number" class="afs-input min">
+        <input type="number" class="afs-input afs-input-min">
     </div>
     <div class="afs-input-wrapper">
         <label>Max</label>
-        <input type="number" class="afs-input max">
+        <input type="number" class="afs-input afs-input-max">
     </div>
 </div>
+```
+
+### CSS Styling
+
+```css
+.afs-input-range-container {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.afs-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.afs-input {
+    padding: 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    width: 100px;
+    transition: border-color 0.2s;
+}
+
+.afs-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.afs-input:invalid {
+    border-color: #ef4444;
+}
 ```
 
 ## API Reference
@@ -157,7 +194,7 @@ interface RangeState {
 
 ```javascript
 // Range changed
-afs.on('inputRangeFilter', (data) => {
+afs.on('inputRangeApplied', (data) => {
     console.log('Key:', data.key);
     console.log('Min:', data.min);
     console.log('Max:', data.max);
@@ -211,136 +248,40 @@ afs.inputRange.addInputRange({
     label: 'Price Range'
 });
 
-// Rating range
+// Weight range
 afs.inputRange.addInputRange({
-    key: 'rating',
-    container: document.querySelector('#rating-filter'),
+    key: 'weight',
+    container: document.querySelector('#weight-filter'),
     min: 0,
-    max: 5,
-    step: 0.5,
-    label: 'Rating Filter'
+    max: 100,
+    step: 1,
+    label: 'Weight Filter'
 });
-```
-
-### Dynamic Range Calculation
-
-```javascript
-// Calculate range based on items
-function calculatePriceRange() {
-    const prices = Array.from(items).map(item => 
-        parseFloat(item.dataset.price)
-    ).filter(price => !isNaN(price));
-
-    return {
-        min: Math.min(...prices),
-        max: Math.max(...prices)
-    };
-}
-
-// Apply dynamic range
-const priceRange = calculatePriceRange();
-afs.inputRange.setRange('price', priceRange.min, priceRange.max);
-```
-
-## TypeScript
-
-```typescript
-interface InputRangeOptions {
-    key: string;
-    container: HTMLElement;
-    min?: number;
-    max?: number;
-    step?: number;
-    label?: string;
-}
-
-interface RangeValues {
-    min: number;
-    max: number;
-}
-
-interface InputRangeEvent {
-    key: string;
-    min: number;
-    max: number;
-}
 ```
 
 ## Best Practices
 
-1. **Value Validation**
+1. **Input Configuration**
+   - Set appropriate min/max values
+   - Use meaningful step sizes
+   - Provide clear labels
 
-   ```javascript
-   function validateRange(min, max) {
-       if (min > max) {
-           throw new Error('Minimum value must be less than maximum value');
-       }
-       
-       if (min < absMin || max > absMax) {
-           throw new Error('Values must be within allowed range');
-       }
-   }
-   ```
+2. **User Experience**
+   - Validate input values
+   - Show clear error states
+   - Support keyboard navigation
 
-2. **Number Formatting**
+3. **Performance**
+   - Debounce input updates
+   - Validate on blur
+   - Cache range calculations
 
-   ```javascript
-   // Format number display
-   const formatter = new Intl.NumberFormat(locale, {
-       style: 'decimal',
-       minimumFractionDigits: 0,
-       maximumFractionDigits: 2
-   });
-   
-   afs.inputRange.addInputRange({
-       key: 'price',
-       container: element,
-       formatter: formatter.format
-   });
-   ```
+4. **Accessibility**
+   - Use semantic HTML
+   - Include ARIA attributes
+   - Support keyboard controls
 
-3. **Error Handling**
-
-   ```javascript
-   try {
-       afs.inputRange.setRange('price', min, max);
-   } catch (error) {
-       console.error('Range error:', error);
-       // Handle error appropriately
-   }
-   ```
-
-4. **Input Debouncing**
-
-   ```javascript
-   // Debounce input updates
-   const debouncedUpdate = debounce(value => {
-       afs.inputRange.setRange('price', value.min, value.max);
-   }, 300);
-   ```
-
-5. **Accessibility**
-
-   ```javascript
-   // Add ARIA attributes
-   const minInput = document.querySelector('.min-input');
-   minInput.setAttribute('aria-label', 'Minimum value');
-   minInput.setAttribute('aria-required', 'true');
-   ```
-
-## Integration with Filter System
-
-```javascript
-// Integration with main filter system
-afs.on('inputRangeFilter', (data) => {
-    afs.filter.applyInputRangeFilter(data.key, data.min, data.max);
-});
-
-// Clear filters
-afs.filter.on('filtersCleared', () => {
-    // Reset all input ranges to their initial values
-    afs.inputRange.activeRanges.forEach((range, key) => {
-        afs.inputRange.setRange(key, range.state.min, range.state.max);
-    });
-});
-```
+5. **Error Handling**
+   - Validate input values
+   - Handle edge cases
+   - Provide clear feedback
