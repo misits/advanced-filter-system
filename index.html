@@ -87,6 +87,82 @@
 
         <!-- Features -->
         <div id="features"></div>
+        <section class="container mx-auto px-6 mb-16">
+            <h2 class="text-3xl font-bold mb-8">Features</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Filter System -->
+                <div class="p-6 border border-gray-200 rounded-lg">
+                    <h3 class="text-xl font-bold mb-4">Advanced Filtering</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li>• Multiple filter types (buttons, dropdowns)</li>
+                        <li>• OR/AND filter logic</li>
+                        <li>• Group-based filtering</li>
+                        <li>• Real-time filter updates</li>
+                        <li>• URL state management</li>
+                    </ul>
+                </div>
+
+                <!-- Search System -->
+                <div class="p-6 border border-gray-200 rounded-lg">
+                    <h3 class="text-xl font-bold mb-4">Smart Search</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li>• Multi-field search</li>
+                        <li>• Debounced input</li>
+                        <li>• Result highlighting</li>
+                        <li>• Custom search keys</li>
+                        <li>• Minimum character threshold</li>
+                    </ul>
+                </div>
+
+                <!-- Range Filters -->
+                <div class="p-6 border border-gray-200 rounded-lg">
+                    <h3 class="text-xl font-bold mb-4">Range Filters</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li>• Price range with histogram</li>
+                        <li>• Date range filtering</li>
+                        <li>• Custom range inputs</li>
+                        <li>• Step increments</li>
+                        <li>• Real-time updates</li>
+                    </ul>
+                </div>
+
+                <!-- Sorting -->
+                <div class="p-6 border border-gray-200 rounded-lg">
+                    <h3 class="text-xl font-bold mb-4">Flexible Sorting</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li>• Multi-criteria sorting</li>
+                        <li>• Custom sort functions</li>
+                        <li>• Dynamic sort controls</li>
+                        <li>• Sort state persistence</li>
+                        <li>• Shuffle functionality</li>
+                    </ul>
+                </div>
+
+                <!-- Pagination -->
+                <div class="p-6 border border-gray-200 rounded-lg">
+                    <h3 class="text-xl font-bold mb-4">Pagination</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li>• Dynamic page size</li>
+                        <li>• Scroll to top option</li>
+                        <li>• Custom page controls</li>
+                        <li>• URL state integration</li>
+                        <li>• Responsive design</li>
+                    </ul>
+                </div>
+
+                <!-- Animation -->
+                <div class="p-6 border border-gray-200 rounded-lg">
+                    <h3 class="text-xl font-bold mb-4">Smooth Animations</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li>• Multiple animation types</li>
+                        <li>• Customizable duration</li>
+                        <li>• Easing functions</li>
+                        <li>• Enter/leave animations</li>
+                        <li>• Performance optimized</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
 
         <span id="demo"></span>
 
@@ -330,8 +406,7 @@
                     <h3 class="text-xl font-bold mb-4">Via CDNs</h3>
                     <pre
                         class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-html">&lt;!-- Include the library --&gt;
-&lt;script src="https://unpkg.com/advanced-filter-system@1.3.3/dist/afs.modern.js"&gt;&lt;/script&gt;
-</code></pre>
+&lt;script src="https://unpkg.com/advanced-filter-system@latest/dist/afs.modern.js"&gt;&lt;/script&gt;</code></pre>
                 </div>
             </div>
         </section>
@@ -368,7 +443,7 @@
         
     &lt;!-- Filterable Items --&gt;
     &lt;div class="afs-filter-items"&gt;
-        &lt;div class="afsfilter-item" 
+        &lt;div class="afs-filter-item" 
                 data-categories="category:tech price:high" 
                 data-title="Premium Laptop"
                 data-price="1299"
@@ -413,10 +488,12 @@ const afs = new AFS({
     // CSS Classes
     activeClass: 'active',
     hiddenClass: 'hidden',
+    transitionClass: 'afs-transition',
     
     // Filter & Search Configuration
     filterMode: 'OR',      // or 'AND'
-    searchKeys: ['title'], // attributes to search
+    groupMode: 'AND',     // or 'OR'
+    searchKeys: ['title', 'categories', 'tags'],
     debounceTime: 300,    // search input delay
     
     // Debug Options
@@ -441,7 +518,29 @@ const afs = new AFS({
         trackClass: 'afs-range-track',
         thumbClass: 'afs-range-thumb',
         valueClass: 'afs-range-value',
-        selectedClass: 'afs-range-selected'
+        selectedClass: 'afs-range-selected',
+        ui: {
+            showHistogram: false,
+            bins: 10,
+            track: {
+                radius: '0',
+                background: '#e5e7eb'
+            },
+            selected: {
+                background: '#000'
+            },
+            thumb: {
+                radius: '50%',
+                size: '16px',
+                background: '#000'
+            },
+            histogram: {
+                background: '#e5e7eb',
+                bar: {
+                    background: '#000'
+                }
+            }
+        }
     },
     
     // Pagination Configuration
@@ -459,9 +558,27 @@ const afs = new AFS({
 
     // Animation Configuration
     animation: {
-        duration: 300,
         type: 'fade',
+        duration: 300,
         easing: 'ease-out',
+        inClass: 'afs-animation-enter',
+        outClass: 'afs-animation-leave'
+    },
+
+    // Lifecycle Options
+    responsive: true,
+    preserveState: false,
+    stateExpiry: 86400000, // 24 hours
+    observeDOM: false,
+
+    // Style Configuration
+    styles: {
+        colors: {
+            primary: '#000',
+            background: '#e5e7eb',
+            text: '#000',
+            textHover: '#fff'
+        }
     }
 });</code></pre>
                         </div>
