@@ -179,6 +179,30 @@ Or include via CDN:
             pagination: {
                 enabled: true,
                 itemsPerPage: 10
+            },
+            styles: {
+                button: {
+                    padding: "12px 24px",
+                    border: "2px solid #ccc",
+                    borderRadius: "8px",
+                    fontSize: "16px",
+                    fontFamily: "Arial, sans-serif",
+                    fontWeight: "bold",
+                    letterSpacing: "0.5px",
+                    textTransform: "uppercase",
+                    minHeight: "48px",
+                    lineHeight: "1.8",
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                    hover: {
+                        boxShadow: "0 4px 8px rgba(0,0,0,0.2)"
+                    },
+                    active: {
+                        boxShadow: "0 1px 2px rgba(0,0,0,0.1)"
+                    }
+                },
+                dropdown: {
+                // Same properties as button
+                }
             }
         });
 

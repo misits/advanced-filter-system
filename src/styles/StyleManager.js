@@ -34,6 +34,47 @@ export class StyleManager {
     const textColor = this.options.get("styles.colors.text") || "#000";
     const textHoverColor = this.options.get("styles.colors.textHover") || "#fff";
 
+    // Get button and dropdown styles from options
+    const buttonStyles = this.options.get("styles.button") || {};
+    const dropdownStyles = this.options.get("styles.dropdown") || {};
+
+    // Common button and dropdown properties
+    const buttonPadding = buttonStyles.padding || "4px 8px";
+    const dropdownPadding = dropdownStyles.padding || "4px 32px 4px 8px";
+    const buttonBorder = buttonStyles.border || `1px solid ${backgroundColor}`;
+    const dropdownBorder = dropdownStyles.border || `1px solid ${backgroundColor}`;
+    const buttonBorderRadius = buttonStyles.borderRadius || "4px";
+    const dropdownBorderRadius = dropdownStyles.borderRadius || "4px";
+    const buttonFontSize = buttonStyles.fontSize || "14px";
+    const dropdownFontSize = dropdownStyles.fontSize || "14px";
+    const buttonFontFamily = buttonStyles.fontFamily || "inherit";
+    const dropdownFontFamily = dropdownStyles.fontFamily || "inherit";
+    const buttonFontWeight = buttonStyles.fontWeight || "normal";
+    const dropdownFontWeight = dropdownStyles.fontWeight || "normal";
+    const buttonLineHeight = buttonStyles.lineHeight || "1.5";
+    const dropdownLineHeight = dropdownStyles.lineHeight || "1.5";
+    const buttonLetterSpacing = buttonStyles.letterSpacing || "normal";
+    const dropdownLetterSpacing = dropdownStyles.letterSpacing || "normal";
+    const buttonTextTransform = buttonStyles.textTransform || "none";
+    const dropdownTextTransform = dropdownStyles.textTransform || "none";
+    const buttonBoxShadow = buttonStyles.boxShadow || "none";
+    const dropdownBoxShadow = dropdownStyles.boxShadow || "none";
+    const buttonBackgroundColor = buttonStyles.background || "transparent";
+    const dropdownBackgroundColor = dropdownStyles.background || "transparent";
+    const buttonTextColor = buttonStyles.color || textColor;
+    const dropdownTextColor = dropdownStyles.color || textColor;
+
+    // Common checkbox styles
+    const checkboxStyles = this.options.get("styles.checkbox") || {};
+    const checkboxBorder = checkboxStyles.border || `1px solid ${backgroundColor}`;
+    const checkboxBorderRadius = checkboxStyles.borderRadius || "4px";
+    const checkboxBackgroundColor = checkboxStyles.background || "transparent";
+    const checkboxTextColor = checkboxStyles.color || textColor;
+    const checkboxPadding = checkboxStyles.padding || "8px 16px";
+    const checkboxHeight = checkboxStyles.height || "20px";
+    const checkboxWidth = checkboxStyles.width || "20px";
+    const checkboxActiveBorder = checkboxStyles.activeBorder || "none";
+
     // Create rgba version of primary color for focus shadow
     const rgbValues = primaryColor.match(
       /^#([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i
@@ -72,43 +113,101 @@ export class StyleManager {
       filter: blur(5px);
     }
 
-    /* Filter controls container */
-    .afs-filter-controls {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-      margin: 10px 0;
-    }
-
     /* Common styles for both buttons and dropdowns */
-    ${filterButtonSelector},
-    ${filterDropdownSelector} {
+    ${filterButtonSelector} {
       appearance: none;
       -webkit-appearance: none;
-      padding: 8px 16px;
-      border: 1px solid ${backgroundColor};
-      border-radius: 4px;
-      font-size: 14px;
-      background-color: white;
-      color: ${textColor};
+      padding: ${buttonPadding};
+      border: ${buttonBorder};
+      border-radius: ${buttonBorderRadius};
+      font-size: ${buttonFontSize};
+      font-family: ${buttonFontFamily};
+      font-weight: ${buttonFontWeight};
+      letter-spacing: ${buttonLetterSpacing};
+      text-transform: ${buttonTextTransform};
+      background-color: ${buttonBackgroundColor};
+      color: ${buttonTextColor};
       cursor: pointer;
       transition: all ${animationDuration} ${animationEasing};
-      min-height: 40px;
-      line-height: 1.5;
+      line-height: ${buttonLineHeight};
       display: inline-flex;
       align-items: center;
       justify-content: center;
       white-space: nowrap;
       margin: 0;
+      box-shadow: ${buttonBoxShadow};
+    }
+
+    ${filterDropdownSelector} {
+      appearance: none;
+      -webkit-appearance: none;
+      padding: ${dropdownPadding};
+      border: ${dropdownBorder};
+      border-radius: ${dropdownBorderRadius};
+      font-size: ${dropdownFontSize};
+      font-family: ${dropdownFontFamily};
+      font-weight: ${dropdownFontWeight};
+      letter-spacing: ${dropdownLetterSpacing};
+      text-transform: ${dropdownTextTransform};
+      background-color: ${dropdownBackgroundColor};
+      color: ${dropdownTextColor};
+      cursor: pointer;
+      transition: all ${animationDuration} ${animationEasing};
+      line-height: ${dropdownLineHeight};
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      margin: 0;
+      box-shadow: ${dropdownBoxShadow};
+    }
+
+    /* Checkbox styles */
+    ${filterButtonSelector}[type="checkbox"] {
+      position: relative;
+      appearance: none;
+      -webkit-appearance: none;
+      padding: ${checkboxPadding};
+      background-color: ${checkboxBackgroundColor};
+      color: ${checkboxTextColor};
+      border: ${checkboxBorder};
+      border-radius: ${checkboxBorderRadius};
+      height: ${checkboxHeight};
+      width: ${checkboxWidth};
+      cursor: pointer;
+      transition: all ${animationDuration} ${animationEasing};
+    }
+
+    ${filterButtonSelector}[type="checkbox"]:hover:before {
+      position: absolute;
+      top: 0;
+      left: 0;
+      content: "";
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: ${checkboxBorderRadius};
+      border: ${checkboxActiveBorder};
+    }
+      
+    ${filterButtonSelector}.${activeClass}[type="checkbox"]:before {
+      position: absolute;
+      top: 0;
+      left: 0;
+      content: "";
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: ${checkboxBorderRadius};
+      border: ${checkboxActiveBorder};
     }
 
     /* Hover state */
-    ${filterButtonSelector}:hover,
-    ${filterDropdownSelector}:hover {
+    ${filterButtonSelector}:hover,{
       border-color: ${primaryColor};
       background-color: ${primaryColor};
       color: ${textHoverColor};
+      box-shadow: ${buttonStyles.hover?.boxShadow || dropdownStyles.hover?.boxShadow || "none"};
     }
 
     /* Focus state */
@@ -124,6 +223,7 @@ export class StyleManager {
       background-color: ${primaryColor};
       border-color: ${primaryColor};
       color: ${textHoverColor};
+      box-shadow: ${buttonStyles.active?.boxShadow || "none"};
     }
 
     /* Disabled state */
@@ -136,7 +236,7 @@ export class StyleManager {
 
     /* Dropdown specific styles */
     ${filterDropdownSelector} {
-      padding-right: 32px;
+      padding: ${dropdownPadding};
       position: relative;
       background-image: url("${arrowSvg}");
       background-repeat: no-repeat;
@@ -144,17 +244,8 @@ export class StyleManager {
       text-align: left;
     }
 
-    ${filterDropdownSelector}:hover {
-      background-image: url("${arrowSvgWhite}");
-    }
-
     /* Mobile optimization */
     @media (max-width: 768px) {
-      .afs-filter-controls {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
       ${filterButtonSelector},
       ${filterDropdownSelector} {
         width: 100%;

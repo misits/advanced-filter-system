@@ -196,13 +196,20 @@ export class Filter {
             this.activeFilters.add(selectedValue);
         }
 
+        // If no value is selected, set to first option
+        if (!selectedValue && dropdown.options.length > 0) {
+            dropdown.selectedIndex = 0;
+            const firstValue = dropdown.options[0].value;
+            this.activeFilters.add(firstValue);
+        }
+
         this.applyFilters();
         this.afs.urlManager.updateURL();
 
         // Emit event
         this.afs.emit("filterChanged", {
             type: filterType,
-            value: selectedValue,
+            value: selectedValue || dropdown.options[0]?.value,
             activeFilters: Array.from(this.activeFilters)
         });
     });
@@ -485,26 +492,15 @@ export class Filter {
     }
 
     // Get item categories
-    const itemCategories = item.dataset.categories?.split(" ") || [];
+    const itemCategories = new Set(item.dataset.categories?.split(" ") || []);
 
-    // Group active filters by type
-    const filtersByType = {};
-    this.activeFilters.forEach(filter => {
-        const [type, value] = filter.split(':');
-        if (!filtersByType[type]) {
-            filtersByType[type] = new Set();
-        }
-        filtersByType[type].add(value);
-    });
+    // Get current filter mode
+    const filterMode = this.afs.options.get("filterMode") || "OR";
 
-    // Item must match at least one value from each filter type
-    return Object.entries(filtersByType).every(([type, values]) => {
-        // Check if there's any match for this filter type
-        return Array.from(values).some(value => {
-            const filterToMatch = `${type}:${value}`;
-            return itemCategories.includes(filterToMatch);
-        });
-    });
+    // Use appropriate matching method based on filter mode
+    return filterMode === "AND" 
+        ? this.itemMatchesAllFilters(itemCategories)
+        : this.itemMatchesAnyFilter(itemCategories);
 }
 
   /**
@@ -980,7 +976,7 @@ export class Filter {
     }
 
     // Clear checkboxes
-    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    const checkboxes = document.querySelectorAll(`${this.afs.options.get("filterButtonSelector")}[type="checkbox"]`);
     checkboxes.forEach((checkbox) => {
       if (checkbox.classList.contains(this.afs.options.get("activeClass"))) {
         checkbox.checked = false;

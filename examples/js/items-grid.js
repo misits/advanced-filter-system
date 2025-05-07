@@ -109,7 +109,7 @@ const createItemGrid = (items, containerId = 'item-grid') => {
     // Create item card HTML
     const createItemCard = ({ category, categoryLabel, title, price, date, rating, sales, color }) => `
         <div class="card filter-item afs-transition p-6 bg-white rounded-lg border border-${color}-200 overflow-hidden hover:shadow-md"
-             data-categories="category:${category}" 
+             data-categories="category:all category:${category}" 
              data-category="${category}" 
              data-price="${price}"
              data-title="${title}" 
