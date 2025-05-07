@@ -275,6 +275,19 @@
                         </select>
                     </div>
 
+                    <input type="radio" name="category" id="category-all" class="btn-filter" value="category:fashion" checked data-filter="category:fashion">
+                    <label for="category-all">Fashion</label>
+
+                    <input type="radio" name="category" id="category-tech" class="btn-filter" value="category:tech" data-filter="category:tech">
+                    <label for="category-tech">Technology</label>
+
+                    <input type="checkbox" name="checkbox" id="category-fashion" class="btn-filter" value="category:fashion" data-filter="category:fashion">
+                    <label for="category-fashion">Fashion</label>
+
+                    <input type="checkbox" name="checkbox" id="category-food" class="btn-filter" value="category:food" data-filter="category:food">
+                    <label for="category-food">Food</label>
+                    
+
                     <div class="filter-counter text-gray-500 text-sm"></div>
                             
                 </div>
@@ -533,7 +546,13 @@ const afs = new AFS({
                     background: '#fff',
                     color: '#000',
                     border: '1px solid #e5e7eb',
-                    borderRadius: '50%',
+                    activeBorder: '1px solid #fff',
+                },
+                radio: {
+                    padding: '2px',
+                    background: '#fff',
+                    color: '#000',
+                    border: '1px solid #e5e7eb',
                     activeBorder: '1px solid #fff',
                 },
                 button: {

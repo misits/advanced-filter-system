@@ -37,6 +37,8 @@ export class StyleManager {
     // Get button and dropdown styles from options
     const buttonStyles = this.options.get("styles.button") || {};
     const dropdownStyles = this.options.get("styles.dropdown") || {};
+    const checkboxStyles = this.options.get("styles.checkbox") || {};
+    const radioStyles = this.options.get("styles.radio") || {};
 
     // Common button and dropdown properties
     const buttonPadding = buttonStyles.padding || "4px 8px";
@@ -65,15 +67,24 @@ export class StyleManager {
     const dropdownTextColor = dropdownStyles.color || textColor;
 
     // Common checkbox styles
-    const checkboxStyles = this.options.get("styles.checkbox") || {};
     const checkboxBorder = checkboxStyles.border || `1px solid ${backgroundColor}`;
     const checkboxBorderRadius = checkboxStyles.borderRadius || "4px";
     const checkboxBackgroundColor = checkboxStyles.background || "transparent";
     const checkboxTextColor = checkboxStyles.color || textColor;
-    const checkboxPadding = checkboxStyles.padding || "8px 16px";
+    const checkboxPadding = checkboxStyles.padding || "8px";
     const checkboxHeight = checkboxStyles.height || "20px";
     const checkboxWidth = checkboxStyles.width || "20px";
     const checkboxActiveBorder = checkboxStyles.activeBorder || "none";
+
+    // Common radio styles
+    const radioBorder = radioStyles.border || `1px solid ${backgroundColor}`;
+    const radioBorderRadius = radioStyles.borderRadius || "50%";
+    const radioBackgroundColor = radioStyles.background || "transparent";
+    const radioTextColor = radioStyles.color || textColor;
+    const radioPadding = radioStyles.padding || "8px";
+    const radioHeight = radioStyles.height || "20px";
+    const radioWidth = radioStyles.width || "20px";
+    const radioActiveBorder = radioStyles.activeBorder || "none";
 
     // Create rgba version of primary color for focus shadow
     const rgbValues = primaryColor.match(
@@ -200,6 +211,46 @@ export class StyleManager {
       height: 100%;
       border-radius: ${checkboxBorderRadius};
       border: ${checkboxActiveBorder};
+    }
+
+    /* Radio button styles */
+    ${filterButtonSelector}[type="radio"] {
+      position: relative;
+      appearance: none;
+      -webkit-appearance: none;
+      padding: ${radioPadding};
+      background-color: ${radioBackgroundColor};
+      color: ${radioTextColor};
+      border: ${radioBorder};
+      border-radius: ${radioBorderRadius};
+      height: ${radioHeight};
+      width: ${radioWidth};
+      cursor: pointer;
+      transition: all ${animationDuration} ${animationEasing};
+    }
+
+    ${filterButtonSelector}[type="radio"]:hover:before {
+      position: absolute;
+      top: 0;
+      left: 0;
+      content: "";
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: ${radioBorderRadius};
+      border: ${radioActiveBorder};
+    }
+      
+    ${filterButtonSelector}.${activeClass}[type="radio"]:before {
+      position: absolute;
+      top: 0;
+      left: 0;
+      content: "";
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: ${radioBorderRadius};
+      border: ${radioActiveBorder};
     }
 
     /* Hover state */

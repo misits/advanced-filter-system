@@ -366,19 +366,41 @@ export class Filter {
       allButton.classList.remove(this.afs.options.get("activeClass"));
     }
 
-    // Toggle filter
-    if (button.classList.contains(this.afs.options.get("activeClass"))) {
-      button.classList.remove(this.afs.options.get("activeClass"));
-      this.activeFilters.delete(filterValue);
+    // Check if this is a radio button
+    const isRadio = button.type === 'radio' || button.getAttribute('type') === 'radio';
 
-      // Reset to "all" if no filters active
-      if (this.activeFilters.size === 0) {
-        this.resetFilters();
-        return;
+    if (isRadio) {
+      // For radio buttons, always activate the selected one and deactivate others in the same group
+      const radioName = button.name || button.getAttribute('name');
+      if (radioName) {
+        // Deactivate other radio buttons in the same group
+        document.querySelectorAll(`input[name="${radioName}"]`).forEach(radio => {
+          radio.classList.remove(this.afs.options.get("activeClass"));
+          const radioValue = this.filterButtons.get(radio);
+          if (radioValue) {
+            this.activeFilters.delete(radioValue);
+          }
+        });
       }
-    } else {
+      
+      // Activate the selected radio button
       button.classList.add(this.afs.options.get("activeClass"));
       this.activeFilters.add(filterValue);
+    } else {
+      // For checkboxes, toggle the state
+      if (button.classList.contains(this.afs.options.get("activeClass"))) {
+        button.classList.remove(this.afs.options.get("activeClass"));
+        this.activeFilters.delete(filterValue);
+
+        // Reset to "all" if no filters active
+        if (this.activeFilters.size === 0) {
+          this.resetFilters();
+          return;
+        }
+      } else {
+        button.classList.add(this.afs.options.get("activeClass"));
+        this.activeFilters.add(filterValue);
+      }
     }
 
     this.applyFilters();
