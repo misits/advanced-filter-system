@@ -10,11 +10,15 @@ export class URLManager {
     this.afs = afs;
     this.defaultParams = new URLSearchParams();
     this.setupPopStateHandler();
-    
-    // Load URL state after a small delay to ensure all features are ready
-    setTimeout(() => {
-      this.loadFromURL();
-    }, 0);
+  }
+
+  /**
+   * Initialize URL state
+   * @public
+   */
+  initialize() {
+    // Load URL state after all features are initialized
+    this.loadFromURL();
   }
 
   /**

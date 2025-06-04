@@ -19,7 +19,7 @@ import { DateFilter } from "./features/DateFilter";
 import { debounce } from "./utils";
 
 // Version
-export const VERSION = '1.3.6';
+export const VERSION = '1.3.7';
 
 export class AFS extends EventEmitter {
   /**
@@ -90,7 +90,7 @@ export class AFS extends EventEmitter {
   initializeFeatures() {
     this.logger.debug("Initializing features");
 
-    // Then initialize other features
+    // Initialize all features first
     this.filter = new Filter(this);
     this.search = new Search(this);
     this.sort = new Sort(this);
@@ -103,8 +103,8 @@ export class AFS extends EventEmitter {
     // Apply styles
     this.styleManager.applyStyles();
 
-    // Load initial state from URL
-    this.urlManager.loadFromURL();
+    // Initialize URL state after all features are ready
+    this.urlManager.initialize();
   }
 
   /**

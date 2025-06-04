@@ -1,6 +1,6 @@
 {
     "name": "advanced-filter-system",
-    "version": "1.3.6",
+    "version": "1.3.7",
     "description": "Advanced filtering system for DOM elements with multiple features",
     "main": "dist/afs.legacy.js",
     "module": "dist/afs.modern.js",

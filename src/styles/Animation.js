@@ -191,7 +191,7 @@ export class Animation {
     item.classList.add("afs-transition");
 
     // Set initial state
-    item.style.display = "";
+    item.style.display = this.afs.filter.getItemDisplayType(item);
     item.style.visibility = "visible";
     
     // Special handling for mobile - immediately remove any blur
@@ -207,7 +207,7 @@ export class Animation {
       Object.assign(item.style, {
         opacity: "0",
         transform: "scale(0.95)",
-        display: "",
+        display: this.afs.filter.getItemDisplayType(item),
       });
 
       // Force reflow
@@ -232,8 +232,9 @@ export class Animation {
         // Only clean up if item is still meant to be visible
         Object.assign(item.style, {
           transform: "",
-          opacity: "",
-          filter: "blur(0)"
+          opacity: "1",
+          filter: "none",
+          display: this.afs.filter.getItemDisplayType(item)
         });
       }
     }, duration + 50); // Add a small buffer for animation completion
@@ -251,22 +252,30 @@ export class Animation {
     // Ensure item has transition class
     item.classList.add("afs-transition");
 
-    // Start animation
+    // Set initial state
+    item.style.display = this.afs.filter.getItemDisplayType(item);
+    item.style.visibility = "visible";
+
+    // Force reflow
+    void item.offsetHeight;
+
+    // Add animation properties
     requestAnimationFrame(() => {
       Object.assign(item.style, animation);
-
-      const handleTransitionEnd = () => {
-        if (!this.afs.state.getState().items.visible.has(item)) {
-          item.style.display = "none";
-          item.style.visibility = "hidden";
-        }
-        item.removeEventListener("transitionend", handleTransitionEnd);
-      };
-
-      item.addEventListener("transitionend", handleTransitionEnd, {
-        once: true,
-      });
     });
+
+    // Ensure final state after animation
+    const duration = this.afs.options.get("animation.duration") || 300;
+    setTimeout(() => {
+      if (!this.afs.state.getState().items.visible.has(item)) {
+        item.style.display = "none";
+        item.style.visibility = "hidden";
+        item.style.opacity = "0";
+        item.style.transform = "";
+        item.style.filter = "none";
+        item.style.transition = "";
+      }
+    }, duration + 50);
   }
 
   /**

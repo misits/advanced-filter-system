@@ -447,6 +447,7 @@ export class Filter {
             if (visibleItems.has(item)) {
                 // Show item
                 item.classList.remove(this.afs.options.get('hiddenClass'));
+                item.style.display = this.getItemDisplayType(item);
                 
                 // Special handling for mobile devices when showing all items
                 if (window.innerWidth <= 768 && showingAllItems) {
@@ -464,6 +465,7 @@ export class Filter {
             } else {
                 // Hide item
                 item.classList.add(this.afs.options.get('hiddenClass'));
+                item.style.display = 'none'; // Ensure item is hidden immediately
                 requestAnimationFrame(() => {
                     this.animation.applyHideAnimation(item, this.afs.options.get("animation.type"));
                     setTimeout(resolve, parseFloat(this.afs.options.get("animation.duration")) || 300);
@@ -475,15 +477,21 @@ export class Filter {
 
     // Handle completion
     Promise.all(animationPromises).then(() => {
-        // Ensure visible items remain visible
-        visibleItems.forEach(item => {
-            this.showItem(item);
-            item.style.opacity = '1';
-            
-            // Special handling for mobile devices
-            if (window.innerWidth <= 768) {
-                item.style.filter = 'none';
-                item.style.transform = '';
+        // Ensure visible items remain visible and hidden items stay hidden
+        this.afs.items.forEach(item => {
+            if (visibleItems.has(item)) {
+                this.showItem(item);
+                item.style.display = this.getItemDisplayType(item);
+                item.style.opacity = '1';
+                
+                // Special handling for mobile devices
+                if (window.innerWidth <= 768) {
+                    item.style.filter = 'none';
+                    item.style.transform = '';
+                }
+            } else {
+                item.style.display = 'none';
+                item.classList.add(this.afs.options.get('hiddenClass'));
             }
         });
 
