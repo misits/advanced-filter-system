@@ -98,7 +98,9 @@ pnpm add advanced-filter-system
 Or include via CDN:
 
 ```html
-<script src="https://unpkg.com/advanced-filter-system@latest/dist/afs.modern.js"></script>
+<script type="module">
+    import { AFS } from 'https://unpkg.com/advanced-filter-system@latest/dist/afs.modern.js';
+</script>
 ```
 
 ## Quick Start
@@ -160,8 +162,9 @@ Or include via CDN:
     <div class="pagination-container"></div>
 
     <!-- Scripts -->
-    <script src="https://unpkg.com/advanced-filter-system@latest/dist/afs.modern.js"></script>
-    <script>
+    <script type="module">
+        import { AFS } from 'https://unpkg.com/advanced-filter-system@latest/dist/afs.modern.js';
+
         const afs = AFS.createAFS({
             containerSelector: '#items-container',
             itemSelector: '.afs-filter-item',
