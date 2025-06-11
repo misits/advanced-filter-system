@@ -275,6 +275,19 @@
                         </select>
                     </div>
 
+                    <input type="radio" name="category" id="category-all" class="btn-filter" value="category:fashion" checked data-filter="category:fashion">
+                    <label for="category-all">Fashion</label>
+
+                    <input type="radio" name="category" id="category-tech" class="btn-filter" value="category:tech" data-filter="category:tech">
+                    <label for="category-tech">Technology</label>
+
+                    <input type="checkbox" name="checkbox" id="category-fashion" class="btn-filter" value="category:fashion" data-filter="category:fashion">
+                    <label for="category-fashion">Fashion</label>
+
+                    <input type="checkbox" name="checkbox" id="category-food" class="btn-filter" value="category:food" data-filter="category:food">
+                    <label for="category-food">Food</label>
+                    
+
                     <div class="filter-counter text-gray-500 text-sm"></div>
                             
                 </div>
@@ -305,7 +318,9 @@
                 <div>
                     <h3 class="text-xl font-bold mb-4">Via CDNs</h3>
                     <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-html">&lt;!-- Include the library --&gt;
-&lt;script src="https://unpkg.com/advanced-filter-system@latest/dist/afs.modern.js"&gt;&lt;/script&gt;</code></pre>
+&lt;script type="module"&gt;
+    import { AFS } from 'https://unpkg.com/advanced-filter-system@latest/dist/afs.modern.js';
+&lt;/script&gt;</code></pre>
                 </div>
             </div>
         </section>
@@ -497,7 +512,7 @@ const afs = new AFS({
         </div>
     </footer>
     <script type="module">
-        import { AFS } from './dist/afs.modern.js';
+        import { AFS } from '../dist/afs.modern.js';
         import { createFeatureSection } from './js/features.js';
         import { createItemGrid } from './js/items-grid.js';
 
@@ -533,7 +548,13 @@ const afs = new AFS({
                     background: '#fff',
                     color: '#000',
                     border: '1px solid #e5e7eb',
-                    borderRadius: '50%',
+                    activeBorder: '1px solid #fff',
+                },
+                radio: {
+                    padding: '2px',
+                    background: '#fff',
+                    color: '#000',
+                    border: '1px solid #e5e7eb',
                     activeBorder: '1px solid #fff',
                 },
                 button: {
