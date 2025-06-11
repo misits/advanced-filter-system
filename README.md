@@ -165,7 +165,7 @@ Or include via CDN:
     <script type="module">
         import { AFS } from 'https://unpkg.com/advanced-filter-system@latest/dist/afs.modern.js';
 
-        const afs = AFS.createAFS({
+        const afs = new AFS({
             containerSelector: '#items-container',
             itemSelector: '.afs-filter-item',
             searchInputSelector: '.afs-filter-search',
@@ -233,9 +233,9 @@ Or include via CDN:
 Using ES modules:
 
 ```javascript
-import { createAFS } from 'advanced-filter-system';
+import { AFS } from 'advanced-filter-system';
 
-const afs = createAFS({
+const afs = new AFS({
     containerSelector: '#items-container',
     itemSelector: '.afs-filter-item',
     debug: true,
@@ -410,7 +410,7 @@ See [URL Manager Documentation](docs/url-manager.md)
 ### Built-in Themes
 
 ```javascript
-const afs = createAFS({
+const afs = new AFS({
     styles: {
         colors: {
             primary: '#3b82f6',
@@ -424,7 +424,7 @@ const afs = createAFS({
 ### Custom Themes
 
 ```javascript
-const afs = createAFS({
+const afs = new AFS({
     styles: {
         colors: {
             primary: '#custom-color',
@@ -438,7 +438,7 @@ const afs = createAFS({
 ### Animations
 
 ```javascript
-const afs = createAFS({
+const afs = new AFS({
     animation: {
         type: 'fade', // or 'slide', 'scale', etc.
         duration: 300,
@@ -467,7 +467,7 @@ const options: AFSOptions = {
     itemSelector: '.filter-item'
 };
 
-const afs = createAFS(options);
+const afs = new AFS(options);
 ```
 
 ## Contributing
