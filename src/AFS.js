@@ -19,7 +19,7 @@ import { DateFilter } from "./features/DateFilter";
 import { debounce } from "./utils";
 
 // Version
-export const VERSION = "1.3.10";
+export const VERSION = "1.3.11";
 
 export class AFS extends EventEmitter {
   /**
@@ -435,7 +435,8 @@ export class AFS extends EventEmitter {
    */
   handleResize = debounce(() => {
     this.emit("resize");
-    this.refresh();
+    // Do not call this.refresh() here to prevent filter resets on mobile/orientation change
+    // If you need to update layout, do it here without resetting filter state
   }, 250);
 
   /**

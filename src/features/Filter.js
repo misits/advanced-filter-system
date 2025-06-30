@@ -17,49 +17,12 @@ export class Filter {
     this.filterGroups = new Map();
     this.sortOrders = new Map();
     this.itemDisplayTypes = new Map(); // Store original display types
-    this.isMobile = this.detectMobileDevice();
     this.isScrolling = false;
     this.scrollTimeout = null;
 
     this.setupFilters();
-    this.setupScrollHandler();
-    this.setupResizeHandler();
   }
-  detectMobileDevice() {
-    return (
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
-      ) ||
-      (window.innerWidth <= 768 && "ontouchstart" in window)
-    );
-  }
-  setupScrollHandler() {
-    if (this.isMobile) {
-      window.addEventListener(
-        "scroll",
-        () => {
-          this.isScrolling = true;
-          clearTimeout(this.scrollTimeout);
-          this.scrollTimeout = setTimeout(() => {
-            this.isScrolling = false;
-          }, 150);
-        },
-        { passive: true }
-      );
-    }
-  }
-  setupResizeHandler() {
-    let resizeTimeout;
-    window.addEventListener("resize", () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        const newIsMobile = this.detectMobileDevice();
-        if (newIsMobile !== this.isMobile) {
-          this.isMobile = newIsMobile;
-        }
-      }, 250);
-    });
-  }
+
   /**
    * Setup filters
    * @private
@@ -316,37 +279,22 @@ export class Filter {
     // Create a promise to track animations
     const animationPromises = [];
 
-    // Special handling for mobile devices
-    const isMobile = window.innerWidth <= 768;
-
     // Show all items with animation
     this.afs.items.forEach((item) => {
       const promise = new Promise((resolve) => {
         item.classList.remove(this.afs.options.get("hiddenClass"));
 
-        // For mobile devices, immediately set styles without animation
-        if (isMobile) {
-          this.showItem(item);
-          item.style.opacity = "1";
-          item.style.transform = "";
-          item.style.filter = "none";
-          setTimeout(resolve, 10);
-        } else {
-          // For desktop, use animations
-          this.showItem(item); // Ensure item is visible with original display type
-
-          requestAnimationFrame(() => {
-            this.animation.applyShowAnimation(
-              item,
-              this.afs.options.get("animation.type")
-            );
-            // Resolve after animation duration
-            setTimeout(
-              resolve,
-              this.afs.options.get("animation.duration") || 300
-            );
-          });
-        }
+        requestAnimationFrame(() => {
+          this.animation.applyShowAnimation(
+            item,
+            this.afs.options.get("animation.type")
+          );
+          // Resolve after animation duration
+          setTimeout(
+            resolve,
+            this.afs.options.get("animation.duration") || 300
+          );
+        });
       });
       animationPromises.push(promise);
     });
@@ -357,16 +305,6 @@ export class Filter {
 
     // Wait for all animations to complete
     Promise.all(animationPromises).then(() => {
-      // Final cleanup for mobile devices
-      if (isMobile) {
-        this.afs.items.forEach((item) => {
-          this.showItem(item);
-          item.style.opacity = "1";
-          item.style.transform = "";
-          item.style.filter = "none";
-        });
-      }
-
       // Update counter
       this.afs.updateCounter();
 
@@ -477,11 +415,6 @@ export class Filter {
    * @public
    */
   applyFilters() {
-    if (this.isMobile && this.isScrolling) {
-      this.afs.logger.debug("Skipping applyFilters during scroll on mobile.");
-      return;
-    }
-
     const activeFilters = Array.from(this.activeFilters);
     this.afs.logger.debug("Active filters:", activeFilters);
 
@@ -513,25 +446,16 @@ export class Filter {
           item.classList.remove(this.afs.options.get("hiddenClass"));
           item.style.display = this.getItemDisplayType(item);
 
-          // Special handling for mobile devices when showing all items
-          if (this.isMobile && showingAllItems) {
-            this.showItem(item);
-            item.style.opacity = "1";
-            item.style.transform = "";
-            item.style.filter = "none";
-            setTimeout(resolve, 10); // Quick resolve for mobile all-items case
-          } else {
-            requestAnimationFrame(() => {
-              this.animation.applyShowAnimation(
-                item,
-                this.afs.options.get("animation.type")
-              );
-              setTimeout(
-                resolve,
-                parseFloat(this.afs.options.get("animation.duration")) || 300
-              );
-            });
-          }
+          requestAnimationFrame(() => {
+            this.animation.applyShowAnimation(
+              item,
+              this.afs.options.get("animation.type")
+            );
+            setTimeout(
+              resolve,
+              parseFloat(this.afs.options.get("animation.duration")) || 300
+            );
+          });
         } else {
           // Hide item
           item.classList.add(this.afs.options.get("hiddenClass"));
@@ -559,12 +483,6 @@ export class Filter {
           this.showItem(item);
           item.style.display = this.getItemDisplayType(item);
           item.style.opacity = "1";
-
-          // Special handling for mobile devices
-          if (this.isMobile) {
-            item.style.filter = "none";
-            item.style.transform = "";
-          }
         } else {
           item.style.display = "none";
           item.classList.add(this.afs.options.get("hiddenClass"));
@@ -868,31 +786,6 @@ export class Filter {
     this.filterButtons.set(button, filter);
     this.bindFilterEvent(button);
     this.afs.logger.debug(`Added filter button for: ${filter}`);
-  }
-
-  /**
-   * Remove filter button
-   * @public
-   * @param {HTMLElement} button - Button to remove
-   */
-  removeFilter(filter) {
-    this.afs.logger.debug(`Removing filter: ${filter}`);
-
-    this.activeFilters.delete(filter);
-
-    // Update button states
-    this.filterButtons.forEach((value, button) => {
-      if (value === filter) {
-        button.classList.remove(this.afs.options.get("activeClass"));
-      }
-    });
-
-    // Reset to all if no filters active
-    if (this.activeFilters.size === 0) {
-      this.resetFilters();
-    } else {
-      this.applyFilters();
-    }
   }
 
   /**
