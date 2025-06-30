@@ -21,7 +21,7 @@ export class Pagination {
    */
   setupPagination() {
     this.afs.logger.debug("Setting up pagination");
-    if (!this.afs.options.get('pagination.enabled')) {
+    if (!this.afs.options.get("pagination.enabled")) {
       // Make sure we initialize the state even if pagination is disabled
       this.afs.state.setState("pagination", {
         currentPage: 1,
@@ -35,7 +35,7 @@ export class Pagination {
     this.container.className = this.options.containerClass;
 
     const itemsContainer = document.querySelector(
-      this.afs.options.get("pagination.container"),
+      this.afs.options.get("pagination.container")
     );
     if (!itemsContainer) {
       this.afs.logger.error("Items container not found.");
@@ -61,8 +61,8 @@ export class Pagination {
    */
   bindEvents() {
     // Only bind events if pagination is enabled
-    if (!this.afs.options.get('pagination.enabled') || !this.container) return;
-    
+    if (!this.afs.options.get("pagination.enabled") || !this.container) return;
+
     this.afs.on("filter", () => this.update());
     this.afs.on("search", () => this.update());
     this.afs.on("sort", () => this.update());
@@ -84,16 +84,16 @@ export class Pagination {
    */
   update() {
     // If pagination is not enabled, make all items visible and return
-    if (!this.afs.options.get('pagination.enabled')) {
+    if (!this.afs.options.get("pagination.enabled")) {
       this.showAllItems();
       return;
     }
-    
+
     const visibleItems = Array.from(this.afs.state.getState().items.visible);
     const itemsPerPage = this.afs.state.getState().pagination.itemsPerPage;
     const totalPages = Math.max(
       1,
-      Math.ceil(visibleItems.length / itemsPerPage),
+      Math.ceil(visibleItems.length / itemsPerPage)
     );
 
     // Update state
@@ -114,12 +114,12 @@ export class Pagination {
 
     // Update visibility before rendering pagination controls
     this.updateVisibility(visibleItems);
-    
+
     // Only render pagination if container exists
     if (this.container) {
       this.renderPagination();
     }
-    
+
     this.afs.urlManager.updateURL();
 
     this.afs.emit("pagination", {
@@ -136,11 +136,11 @@ export class Pagination {
    */
   updateVisibility(visibleItems) {
     // If pagination is not enabled, show all items
-    if (!this.afs.options.get('pagination.enabled')) {
+    if (!this.afs.options.get("pagination.enabled")) {
       this.showAllItems();
       return;
     }
-    
+
     const { currentPage, itemsPerPage } = this.afs.state.getState().pagination;
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
@@ -173,7 +173,7 @@ export class Pagination {
         requestAnimationFrame(() => {
           this.animation.applyShowAnimation(
             item,
-            this.options.animationType || "fade",
+            this.options.animationType || "fade"
           );
         });
       });
@@ -186,10 +186,10 @@ export class Pagination {
    */
   renderPagination() {
     // Safety check: don't render if container doesn't exist or pagination is disabled
-    if (!this.container || !this.afs.options.get('pagination.enabled')) {
+    if (!this.container || !this.afs.options.get("pagination.enabled")) {
       return;
     }
-    
+
     const { currentPage, totalPages } = this.afs.state.getState().pagination;
 
     this.container.innerHTML = "";
@@ -223,7 +223,7 @@ export class Pagination {
     }
 
     fragment.appendChild(
-      this.createPageButton("1", 1, { active: currentPage === 1 }),
+      this.createPageButton("1", 1, { active: currentPage === 1 })
     );
 
     const range = this.calculatePageRange(currentPage, totalPages);
@@ -233,7 +233,7 @@ export class Pagination {
     for (let i = range.start; i <= range.end; i++) {
       if (i === 1 || i === totalPages) continue;
       fragment.appendChild(
-        this.createPageButton(i.toString(), i, { active: currentPage === i }),
+        this.createPageButton(i.toString(), i, { active: currentPage === i })
       );
     }
 
@@ -243,7 +243,7 @@ export class Pagination {
       fragment.appendChild(
         this.createPageButton(totalPages.toString(), totalPages, {
           active: currentPage === totalPages,
-        }),
+        })
       );
 
     if (this.options.showPrevNext) {
@@ -264,7 +264,7 @@ export class Pagination {
   createPageButton(
     text,
     page,
-    { active = false, disabled = false, class: className = "" } = {},
+    { active = false, disabled = false, class: className = "" } = {}
   ) {
     const button = document.createElement("button");
     button.textContent = text;
@@ -319,7 +319,8 @@ export class Pagination {
     this.update();
 
     // Scroll to top if enabled
-    if (this.options.scrollToTop) {
+    if (this.options.scrollToTop && window.innerWidth > 768) {
+      //fixed this part where condition to disable scrollTop on mobile is that the innerWidth > 768
       setTimeout(() => this.scrollToTop(), 100);
     }
 
@@ -333,7 +334,7 @@ export class Pagination {
 
   scrollToTop() {
     const container = document.querySelector(
-      this.afs.options.get("pagination.container"),
+      this.afs.options.get("pagination.container")
     );
     if (!container) {
       this.afs.logger.warn("Scroll container not found.");
@@ -352,10 +353,10 @@ export class Pagination {
    */
   setPaginationMode(enabled) {
     this.afs.logger.debug(`Setting pagination mode to: ${enabled}`);
-    
+
     // Update options
-    this.afs.options.set('pagination.enabled', enabled);
-    
+    this.afs.options.set("pagination.enabled", enabled);
+
     if (enabled) {
       // Enable pagination
       this.setupPagination();
@@ -366,7 +367,7 @@ export class Pagination {
     }
 
     // Emit event
-    this.afs.emit('paginationModeChanged', { enabled });
+    this.afs.emit("paginationModeChanged", { enabled });
   }
 
   /**
@@ -376,47 +377,50 @@ export class Pagination {
   showAllItems() {
     try {
       const visibleItems = Array.from(this.afs.state.getState().items.visible);
-      
+
       // Check if we're on a mobile device
       const isMobile = window.innerWidth <= 768;
-      
+
       requestAnimationFrame(() => {
-        visibleItems.forEach(item => {
-          item.style.display = '';
-          item.classList.remove(this.afs.options.get('hiddenClass'));
-          
+        visibleItems.forEach((item) => {
+          item.style.display = "";
+          item.classList.remove(this.afs.options.get("hiddenClass"));
+
           // For mobile, skip animation to improve performance and prevent blur issues
           if (isMobile) {
-            item.style.opacity = '1';
-            item.style.transform = '';
-            item.style.filter = 'none';
+            item.style.opacity = "1";
+            item.style.transform = "";
+            item.style.filter = "none";
           } else {
             requestAnimationFrame(() => {
-              this.animation.applyShowAnimation(item, this.options?.animationType || 'fade');
+              this.animation.applyShowAnimation(
+                item,
+                this.options?.animationType || "fade"
+              );
             });
           }
         });
-        
+
         // Extra cleanup for mobile devices to ensure no blur filters remain
         if (isMobile) {
           setTimeout(() => {
-            visibleItems.forEach(item => {
-              item.style.opacity = '1';
-              item.style.transform = '';
-              item.style.filter = 'none';
+            visibleItems.forEach((item) => {
+              item.style.opacity = "1";
+              item.style.transform = "";
+              item.style.filter = "none";
             });
           }, 50);
         }
       });
     } catch (error) {
-      this.afs.logger.error('Error in showAllItems:', error);
+      this.afs.logger.error("Error in showAllItems:", error);
       // Fallback: make sure items are visible even if there's an error
-      this.afs.items.forEach(item => {
+      this.afs.items.forEach((item) => {
         if (this.afs.state.getState().items.visible.has(item)) {
-          item.style.display = '';
-          item.classList.remove(this.afs.options.get('hiddenClass'));
-          item.style.opacity = '1';
-          item.style.filter = 'none';
+          item.style.display = "";
+          item.classList.remove(this.afs.options.get("hiddenClass"));
+          item.style.opacity = "1";
+          item.style.filter = "none";
         }
       });
     }

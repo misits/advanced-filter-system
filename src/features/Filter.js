@@ -2,7 +2,7 @@
  * @fileoverview Filter functionality for AFS
  */
 
-import { Animation } from '../styles/Animation.js';
+import { Animation } from "../styles/Animation.js";
 
 export class Filter {
   /**
@@ -17,9 +17,49 @@ export class Filter {
     this.filterGroups = new Map();
     this.sortOrders = new Map();
     this.itemDisplayTypes = new Map(); // Store original display types
-    this.setupFilters();
-  }
+    this.isMobile = this.detectMobileDevice();
+    this.isScrolling = false;
+    this.scrollTimeout = null;
 
+    this.setupFilters();
+    this.setupScrollHandler();
+    this.setupResizeHandler();
+  }
+  detectMobileDevice() {
+    return (
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      ) ||
+      (window.innerWidth <= 768 && "ontouchstart" in window)
+    );
+  }
+  setupScrollHandler() {
+    if (this.isMobile) {
+      window.addEventListener(
+        "scroll",
+        () => {
+          this.isScrolling = true;
+          clearTimeout(this.scrollTimeout);
+          this.scrollTimeout = setTimeout(() => {
+            this.isScrolling = false;
+          }, 150);
+        },
+        { passive: true }
+      );
+    }
+  }
+  setupResizeHandler() {
+    let resizeTimeout;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        const newIsMobile = this.detectMobileDevice();
+        if (newIsMobile !== this.isMobile) {
+          this.isMobile = newIsMobile;
+        }
+      }, 250);
+    });
+  }
   /**
    * Setup filters
    * @private
@@ -35,7 +75,7 @@ export class Filter {
       if (!filterValue) {
         this.afs.logger.warn(
           "Filter button missing data-filter attribute:",
-          button,
+          button
         );
         return;
       }
@@ -45,7 +85,9 @@ export class Filter {
     });
 
     // Initialize filter dropdowns
-    const filterDropdownSelector = this.afs.options.get("filterDropdownSelector");
+    const filterDropdownSelector = this.afs.options.get(
+      "filterDropdownSelector"
+    );
     if (filterDropdownSelector) {
       document.querySelectorAll(filterDropdownSelector).forEach((dropdown) => {
         this.bindDropdownEvent(dropdown);
@@ -53,9 +95,12 @@ export class Filter {
     }
 
     // Store original display types for all items
-    this.afs.items.forEach(item => {
+    this.afs.items.forEach((item) => {
       const computedStyle = window.getComputedStyle(item);
-      this.itemDisplayTypes.set(item, computedStyle.display === 'none' ? 'block' : computedStyle.display);
+      this.itemDisplayTypes.set(
+        item,
+        computedStyle.display === "none" ? "block" : computedStyle.display
+      );
     });
 
     this.afs.logger.debug("Filters initialized");
@@ -81,7 +126,7 @@ export class Filter {
     }
 
     this.afs.logger.debug(
-      `Filter logic set to: ${this.afs.options.get("filterMode")}`,
+      `Filter logic set to: ${this.afs.options.get("filterMode")}`
     );
     this.applyFilters();
   }
@@ -99,7 +144,7 @@ export class Filter {
 
     // Reset filter buttons
     this.filterButtons.forEach((_, button) => {
-        button.classList.remove(this.afs.options.get("activeClass"));
+      button.classList.remove(this.afs.options.get("activeClass"));
     });
 
     // Reset filter groups
@@ -108,45 +153,49 @@ export class Filter {
     // Find and activate "all" button if exists
     const allButton = this.findAllButton();
     if (allButton) {
-        allButton.classList.add(this.afs.options.get("activeClass"));
+      allButton.classList.add(this.afs.options.get("activeClass"));
     }
 
     // Reset all select elements to their default values
-    const filterDropdownSelector = this.afs.options.get("filterDropdownSelector") || '.afs-filter-dropdown';
-    document.querySelectorAll(filterDropdownSelector).forEach(select => {
-        // Get the filter type from the select's data or ID
-        const filterType = select.getAttribute('data-filter-type') || 
-                         select.id.replace('Filter', '').toLowerCase();
+    const filterDropdownSelector =
+      this.afs.options.get("filterDropdownSelector") || ".afs-filter-dropdown";
+    document.querySelectorAll(filterDropdownSelector).forEach((select) => {
+      // Get the filter type from the select's data or ID
+      const filterType =
+        select.getAttribute("data-filter-type") ||
+        select.id.replace("Filter", "").toLowerCase();
 
-        // Find the "all" option for this filter type
-        const allOption = Array.from(select.options).find(option => {
-            const value = option.value;
-            return value === '*' || 
-                   value === `${filterType}:all` || 
-                   value.endsWith(':all');
+      // Find the "all" option for this filter type
+      const allOption = Array.from(select.options).find((option) => {
+        const value = option.value;
+        return (
+          value === "*" ||
+          value === `${filterType}:all` ||
+          value.endsWith(":all")
+        );
+      });
+
+      if (allOption) {
+        // Set value and dispatch change event
+        select.value = allOption.value;
+
+        // Create and dispatch change event
+        const event = new Event("change", {
+          bubbles: true,
+          cancelable: true,
         });
+        select.dispatchEvent(event);
+      } else {
+        // If no "all" option found, set to first option
+        select.selectedIndex = 0;
 
-        if (allOption) {
-            // Set value and dispatch change event
-            select.value = allOption.value;
-            
-            // Create and dispatch change event
-            const event = new Event('change', {
-                bubbles: true,
-                cancelable: true,
-            });
-            select.dispatchEvent(event);
-        } else {
-            // If no "all" option found, set to first option
-            select.selectedIndex = 0;
-            
-            // Create and dispatch change event
-            const event = new Event('change', {
-                bubbles: true,
-                cancelable: true,
-            });
-            select.dispatchEvent(event);
-        }
+        // Create and dispatch change event
+        const event = new Event("change", {
+          bubbles: true,
+          cancelable: true,
+        });
+        select.dispatchEvent(event);
+      }
     });
 
     // Clear sorting
@@ -169,51 +218,51 @@ export class Filter {
     this.afs.logger.debug("Binding filter event to dropdown:", dropdown);
 
     dropdown.addEventListener("change", () => {
-        const selectedValue = dropdown.value;
-        const [filterType] = selectedValue.split(':');
+      const selectedValue = dropdown.value;
+      const [filterType] = selectedValue.split(":");
 
-        // Only clear "*" if we're adding a specific filter
-        if (selectedValue !== '*' && !selectedValue.endsWith(':all')) {
-            this.activeFilters.delete('*');
+      // Only clear "*" if we're adding a specific filter
+      if (selectedValue !== "*" && !selectedValue.endsWith(":all")) {
+        this.activeFilters.delete("*");
+      }
+
+      // Remove existing filters of the same type
+      this.activeFilters.forEach((existingFilter) => {
+        if (existingFilter.startsWith(`${filterType}:`)) {
+          this.activeFilters.delete(existingFilter);
         }
+      });
 
-        // Remove existing filters of the same type
-        this.activeFilters.forEach(existingFilter => {
-            if (existingFilter.startsWith(`${filterType}:`)) {
-                this.activeFilters.delete(existingFilter);
-            }
-        });
-
-        // Handle filter addition
-        if (selectedValue === '*' || selectedValue.endsWith(':all')) {
-            // If selecting 'all' for a type, just remove that type's filters
-            // If no filters remain, add '*'
-            if (this.activeFilters.size === 0) {
-                this.activeFilters.add('*');
-            }
-        } else {
-            // Add the new filter
-            this.activeFilters.add(selectedValue);
+      // Handle filter addition
+      if (selectedValue === "*" || selectedValue.endsWith(":all")) {
+        // If selecting 'all' for a type, just remove that type's filters
+        // If no filters remain, add '*'
+        if (this.activeFilters.size === 0) {
+          this.activeFilters.add("*");
         }
+      } else {
+        // Add the new filter
+        this.activeFilters.add(selectedValue);
+      }
 
-        // If no value is selected, set to first option
-        if (!selectedValue && dropdown.options.length > 0) {
-            dropdown.selectedIndex = 0;
-            const firstValue = dropdown.options[0].value;
-            this.activeFilters.add(firstValue);
-        }
+      // If no value is selected, set to first option
+      if (!selectedValue && dropdown.options.length > 0) {
+        dropdown.selectedIndex = 0;
+        const firstValue = dropdown.options[0].value;
+        this.activeFilters.add(firstValue);
+      }
 
-        this.applyFilters();
-        this.afs.urlManager.updateURL();
+      this.applyFilters();
+      this.afs.urlManager.updateURL();
 
-        // Emit event
-        this.afs.emit("filterChanged", {
-            type: filterType,
-            value: selectedValue || dropdown.options[0]?.value,
-            activeFilters: Array.from(this.activeFilters)
-        });
+      // Emit event
+      this.afs.emit("filterChanged", {
+        type: filterType,
+        value: selectedValue || dropdown.options[0]?.value,
+        activeFilters: Array.from(this.activeFilters),
+      });
     });
-}
+  }
 
   /**
    * Bind filter event to button
@@ -245,79 +294,85 @@ export class Filter {
    */
   resetFilters() {
     this.afs.logger.debug("Resetting filters");
-  
+
     // Clear existing filters
     this.activeFilters.clear();
-    
+
     // Reset button states
     this.filterButtons.forEach((_, button) => {
       button.classList.remove(this.afs.options.get("activeClass"));
     });
-  
+
     // Add "*" filter and activate "all" button
     this.activeFilters.add("*");
     const allButton = this.findAllButton();
     if (allButton) {
       allButton.classList.add(this.afs.options.get("activeClass"));
     }
-  
+
     // Clear filter groups
     this.filterGroups.clear();
-  
+
     // Create a promise to track animations
     const animationPromises = [];
-  
+
     // Special handling for mobile devices
     const isMobile = window.innerWidth <= 768;
-  
+
     // Show all items with animation
-    this.afs.items.forEach(item => {
-      const promise = new Promise(resolve => {
-        item.classList.remove(this.afs.options.get('hiddenClass'));
-        
+    this.afs.items.forEach((item) => {
+      const promise = new Promise((resolve) => {
+        item.classList.remove(this.afs.options.get("hiddenClass"));
+
         // For mobile devices, immediately set styles without animation
         if (isMobile) {
           this.showItem(item);
-          item.style.opacity = '1';
-          item.style.transform = '';
-          item.style.filter = 'none';
+          item.style.opacity = "1";
+          item.style.transform = "";
+          item.style.filter = "none";
           setTimeout(resolve, 10);
         } else {
           // For desktop, use animations
           this.showItem(item); // Ensure item is visible with original display type
-          
+
           requestAnimationFrame(() => {
-            this.animation.applyShowAnimation(item, this.afs.options.get("animation.type"));
+            this.animation.applyShowAnimation(
+              item,
+              this.afs.options.get("animation.type")
+            );
             // Resolve after animation duration
-            setTimeout(resolve, this.afs.options.get("animation.duration") || 300);
+            setTimeout(
+              resolve,
+              this.afs.options.get("animation.duration") || 300
+            );
           });
         }
       });
       animationPromises.push(promise);
     });
-  
+
     // Update state after all items are visible
     const visibleItems = new Set(this.afs.items);
     this.afs.state.setState("items.visible", visibleItems);
-  
+
     // Wait for all animations to complete
     Promise.all(animationPromises).then(() => {
       // Final cleanup for mobile devices
       if (isMobile) {
-        this.afs.items.forEach(item => {
+        this.afs.items.forEach((item) => {
           this.showItem(item);
-          item.style.opacity = '1';
-          item.style.transform = '';
-          item.style.filter = 'none';
+          item.style.opacity = "1";
+          item.style.transform = "";
+          item.style.filter = "none";
         });
       }
-      
+
       // Update counter
       this.afs.updateCounter();
-      
+
       // Update URL
       this.afs.urlManager.updateURL();
-  
+
       // Emit event
       this.afs.emit("filtersReset");
     });
@@ -367,22 +422,25 @@ export class Filter {
     }
 
     // Check if this is a radio button
-    const isRadio = button.type === 'radio' || button.getAttribute('type') === 'radio';
+    const isRadio =
+      button.type === "radio" || button.getAttribute("type") === "radio";
 
     if (isRadio) {
       // For radio buttons, always activate the selected one and deactivate others in the same group
-      const radioName = button.name || button.getAttribute('name');
+      const radioName = button.name || button.getAttribute("name");
       if (radioName) {
         // Deactivate other radio buttons in the same group
-        document.querySelectorAll(`input[name="${radioName}"]`).forEach(radio => {
-          radio.classList.remove(this.afs.options.get("activeClass"));
-          const radioValue = this.filterButtons.get(radio);
-          if (radioValue) {
-            this.activeFilters.delete(radioValue);
-          }
-        });
+        document
+          .querySelectorAll(`input[name="${radioName}"]`)
+          .forEach((radio) => {
+            radio.classList.remove(this.afs.options.get("activeClass"));
+            const radioValue = this.filterButtons.get(radio);
+            if (radioValue) {
+              this.activeFilters.delete(radioValue);
+            }
+          });
       }
-      
+
       // Activate the selected radio button
       button.classList.add(this.afs.options.get("activeClass"));
       this.activeFilters.add(filterValue);
@@ -414,11 +472,16 @@ export class Filter {
     this.afs.logger.debug("Filter toggled:", filterValue);
   }
 
- /**
- * Apply current filters
- * @public
- */
- applyFilters() {
+  /**
+   * Apply current filters
+   * @public
+   */
+  applyFilters() {
+    if (this.isMobile && this.isScrolling) {
+      this.afs.logger.debug("Skipping applyFilters during scroll on mobile.");
+      return;
+    }
+
     const activeFilters = Array.from(this.activeFilters);
     this.afs.logger.debug("Active filters:", activeFilters);
 
@@ -426,88 +489,101 @@ export class Filter {
     const visibleItems = new Set();
 
     // First determine visibility
-    this.afs.items.forEach(item => {
-        if (this.activeFilters.has("*") || this.itemMatchesFilters(item)) {
-            visibleItems.add(item);
-        }
+    this.afs.items.forEach((item) => {
+      if (this.activeFilters.has("*") || this.itemMatchesFilters(item)) {
+        visibleItems.add(item);
+      }
     });
 
     // Update state before animations
     this.afs.state.setState("items.visible", visibleItems);
 
     // Special handling for all items visible case (no filters or "*" filter)
-    const showingAllItems = this.activeFilters.has("*") || this.activeFilters.size === 0;
-    
+    const showingAllItems =
+      this.activeFilters.has("*") || this.activeFilters.size === 0;
+
     // Track animation promises
     const animationPromises = [];
 
     // Apply animations
-    this.afs.items.forEach(item => {
-        const promise = new Promise(resolve => {
-            if (visibleItems.has(item)) {
-                // Show item
-                item.classList.remove(this.afs.options.get('hiddenClass'));
-                item.style.display = this.getItemDisplayType(item);
-                
-                // Special handling for mobile devices when showing all items
-                if (window.innerWidth <= 768 && showingAllItems) {
-                    this.showItem(item);
-                    item.style.opacity = '1';
-                    item.style.transform = '';
-                    item.style.filter = 'none';
-                    setTimeout(resolve, 10); // Quick resolve for mobile all-items case
-                } else {
-                    requestAnimationFrame(() => {
-                        this.animation.applyShowAnimation(item, this.afs.options.get("animation.type"));
-                        setTimeout(resolve, parseFloat(this.afs.options.get("animation.duration")) || 300);
-                    });
-                }
-            } else {
-                // Hide item
-                item.classList.add(this.afs.options.get('hiddenClass'));
-                item.style.display = 'none'; // Ensure item is hidden immediately
-                requestAnimationFrame(() => {
-                    this.animation.applyHideAnimation(item, this.afs.options.get("animation.type"));
-                    setTimeout(resolve, parseFloat(this.afs.options.get("animation.duration")) || 300);
-                });
-            }
-        });
-        animationPromises.push(promise);
+    this.afs.items.forEach((item) => {
+      const promise = new Promise((resolve) => {
+        if (visibleItems.has(item)) {
+          // Show item
+          item.classList.remove(this.afs.options.get("hiddenClass"));
+          item.style.display = this.getItemDisplayType(item);
+
+          // Special handling for mobile devices when showing all items
+          if (this.isMobile && showingAllItems) {
+            this.showItem(item);
+            item.style.opacity = "1";
+            item.style.transform = "";
+            item.style.filter = "none";
+            setTimeout(resolve, 10); // Quick resolve for mobile all-items case
+          } else {
+            requestAnimationFrame(() => {
+              this.animation.applyShowAnimation(
+                item,
+                this.afs.options.get("animation.type")
+              );
+              setTimeout(
+                resolve,
+                parseFloat(this.afs.options.get("animation.duration")) || 300
+              );
+            });
+          }
+        } else {
+          // Hide item
+          item.classList.add(this.afs.options.get("hiddenClass"));
+          item.style.display = "none"; // Ensure item is hidden immediately
+          requestAnimationFrame(() => {
+            this.animation.applyHideAnimation(
+              item,
+              this.afs.options.get("animation.type")
+            );
+            setTimeout(
+              resolve,
+              parseFloat(this.afs.options.get("animation.duration")) || 300
+            );
+          });
+        }
+      });
+      animationPromises.push(promise);
     });
 
     // Handle completion
     Promise.all(animationPromises).then(() => {
-        // Ensure visible items remain visible and hidden items stay hidden
-        this.afs.items.forEach(item => {
-            if (visibleItems.has(item)) {
-                this.showItem(item);
-                item.style.display = this.getItemDisplayType(item);
-                item.style.opacity = '1';
-                
-                // Special handling for mobile devices
-                if (window.innerWidth <= 768) {
-                    item.style.filter = 'none';
-                    item.style.transform = '';
-                }
-            } else {
-                item.style.display = 'none';
-                item.classList.add(this.afs.options.get('hiddenClass'));
-            }
-        });
+      // Ensure visible items remain visible and hidden items stay hidden
+      this.afs.items.forEach((item) => {
+        if (visibleItems.has(item)) {
+          this.showItem(item);
+          item.style.display = this.getItemDisplayType(item);
+          item.style.opacity = "1";
 
-        // Update UI
-        this.afs.updateCounter();
-        this.afs.urlManager.updateURL();
+          // Special handling for mobile devices
+          if (this.isMobile) {
+            item.style.filter = "none";
+            item.style.transform = "";
+          }
+        } else {
+          item.style.display = "none";
+          item.classList.add(this.afs.options.get("hiddenClass"));
+        }
+      });
 
-        this.afs.emit("filtersApplied", {
-            activeFilters,
-            visibleItems: visibleItems.size,
-        });
+      // Update UI
+      this.afs.updateCounter();
+      this.afs.urlManager.updateURL();
+
+      this.afs.emit("filtersApplied", {
+        activeFilters,
+        visibleItems: visibleItems.size,
+      });
     });
 
     // Emit visibility change events
     this.emitFilterEvents(previouslyVisible, visibleItems);
-}
+  }
 
   /**
    * Check if item matches current filters
@@ -518,7 +594,7 @@ export class Filter {
   itemMatchesFilters(item) {
     // Show all items if only "*" is active
     if (this.activeFilters.has("*")) {
-        return true;
+      return true;
     }
 
     // Get item categories
@@ -528,10 +604,10 @@ export class Filter {
     const filterMode = this.afs.options.get("filterMode") || "OR";
 
     // Use appropriate matching method based on filter mode
-    return filterMode === "AND" 
-        ? this.itemMatchesAllFilters(itemCategories)
-        : this.itemMatchesAnyFilter(itemCategories);
-}
+    return filterMode === "AND"
+      ? this.itemMatchesAllFilters(itemCategories)
+      : this.itemMatchesAnyFilter(itemCategories);
+  }
 
   /**
    * Check if item matches any active filter (OR mode)
@@ -572,7 +648,7 @@ export class Filter {
       return group.operator === "OR"
         ? Array.from(group.filters).some((filter) => itemCategories.has(filter))
         : Array.from(group.filters).every((filter) =>
-            itemCategories.has(filter),
+            itemCategories.has(filter)
           );
     });
 
@@ -590,10 +666,10 @@ export class Filter {
   emitFilterEvents(previouslyVisible, nowVisible) {
     // Determine added and removed items
     const added = new Set(
-      [...nowVisible].filter((item) => !previouslyVisible.has(item)),
+      [...nowVisible].filter((item) => !previouslyVisible.has(item))
     );
     const removed = new Set(
-      [...previouslyVisible].filter((item) => !nowVisible.has(item)),
+      [...previouslyVisible].filter((item) => !nowVisible.has(item))
     );
 
     // Emit filter event
@@ -682,28 +758,28 @@ export class Filter {
    */
   addFilter(filter) {
     this.afs.logger.debug(`Adding filter: ${filter}`);
-  
+
     if (filter === "*") {
       this.resetFilters();
       return;
     }
-  
+
     // Extract filter type (e.g., 'date', 'canton')
-    const [filterType] = filter.split(':');
-  
+    const [filterType] = filter.split(":");
+
     // Remove any existing filter of the same type
-    this.activeFilters.forEach(existingFilter => {
+    this.activeFilters.forEach((existingFilter) => {
       if (existingFilter.startsWith(`${filterType}:`)) {
         this.activeFilters.delete(existingFilter);
       }
     });
-  
+
     // Remove the all filter if it exists
     this.activeFilters.delete("*");
-    
+
     // Add the new filter
     this.activeFilters.add(filter);
-  
+
     // Update button states
     this.filterButtons.forEach((value, button) => {
       if (value === filter) {
@@ -712,7 +788,7 @@ export class Filter {
         button.classList.remove(this.afs.options.get("activeClass"));
       }
     });
-  
+
     this.applyFilters();
   }
 
@@ -1006,7 +1082,9 @@ export class Filter {
     }
 
     // Clear checkboxes
-    const checkboxes = document.querySelectorAll(`${this.afs.options.get("filterButtonSelector")}[type="checkbox"]`);
+    const checkboxes = document.querySelectorAll(
+      `${this.afs.options.get("filterButtonSelector")}[type="checkbox"]`
+    );
     checkboxes.forEach((checkbox) => {
       if (checkbox.classList.contains(this.afs.options.get("activeClass"))) {
         checkbox.checked = false;
@@ -1025,7 +1103,7 @@ export class Filter {
 
     // Apply changes and ensure counter is updated
     this.applyFilters();
-    
+
     // Update URL if URLManager exists
     if (this.afs.urlManager) {
       this.afs.urlManager.updateURL();
@@ -1074,7 +1152,7 @@ export class Filter {
    * @returns {string} Original display type or 'block' if not stored
    */
   getItemDisplayType(item) {
-    return this.itemDisplayTypes.get(item) || 'block';
+    return this.itemDisplayTypes.get(item) || "block";
   }
 
   /**

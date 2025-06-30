@@ -19,7 +19,7 @@ import { DateFilter } from "./features/DateFilter";
 import { debounce } from "./utils";
 
 // Version
-export const VERSION = '1.3.9';
+export const VERSION = "1.3.9";
 
 export class AFS extends EventEmitter {
   /**
@@ -37,16 +37,21 @@ export class AFS extends EventEmitter {
   initializeCore(options) {
     try {
       this.options = new Options(options);
-      
+
       // Setup logger with options
       const debug = this.options.get("debug");
       const logLevel = this.options.get("logLevel");
       this.logger = new Logger(debug, logLevel);
-      this.logger.debug("Logger initialized with debug:", debug, "level:", logLevel);
-  
+      this.logger.debug(
+        "Logger initialized with debug:",
+        debug,
+        "level:",
+        logLevel
+      );
+
       this.state = new State();
       this.styleManager = new StyleManager(this.options);
-  
+
       this.initializeDOM();
       this.initializeFeatures();
       this.setupLifecycle();
@@ -64,16 +69,16 @@ export class AFS extends EventEmitter {
     this.logger.debug("Initializing DOM elements");
 
     this.container = document.querySelector(
-      this.options.get("containerSelector"),
+      this.options.get("containerSelector")
     );
     if (!this.container) {
       throw new Error(
-        `Container not found: ${this.options.get("containerSelector")}`,
+        `Container not found: ${this.options.get("containerSelector")}`
       );
     }
 
     this.items = this.container.querySelectorAll(
-      this.options.get("itemSelector"),
+      this.options.get("itemSelector")
     );
     if (this.items.length === 0) {
       this.logger.warn("No items found in container");
@@ -119,7 +124,7 @@ export class AFS extends EventEmitter {
     if (this.options.get("preserveState")) {
       document.addEventListener(
         "visibilitychange",
-        this.handleVisibilityChange.bind(this),
+        this.handleVisibilityChange.bind(this)
       );
     }
 
@@ -233,7 +238,7 @@ export class AFS extends EventEmitter {
 
     this.container.appendChild(fragment);
     this.items = this.container.querySelectorAll(
-      this.options.get("itemSelector"),
+      this.options.get("itemSelector")
     );
     this.filter.applyFilters();
   }
@@ -254,7 +259,7 @@ export class AFS extends EventEmitter {
     });
 
     this.items = this.container.querySelectorAll(
-      this.options.get("itemSelector"),
+      this.options.get("itemSelector")
     );
     this.updateCounter();
   }
@@ -275,7 +280,7 @@ export class AFS extends EventEmitter {
       timestamp: Date.now(),
     };
 
-    localStorage.setItem("afs_state", JSON.stringify(state));
+    sessionStorage.setItem("afs_state", JSON.stringify(state));
     this.logger.debug("State saved");
   }
 
@@ -287,7 +292,7 @@ export class AFS extends EventEmitter {
     if (!this.options.get("preserveState")) return;
 
     try {
-      const saved = localStorage.getItem("afs_state");
+      const saved = sessionStorage.getItem("afs_state");
       if (!saved) return;
 
       const state = JSON.parse(saved);
@@ -328,7 +333,7 @@ export class AFS extends EventEmitter {
   updateCounter() {
     // Get counter element
     const counterElement = document.querySelector(
-      this.options.get("counterSelector"),
+      this.options.get("counterSelector")
     );
     if (!counterElement) return;
 
@@ -408,13 +413,13 @@ export class AFS extends EventEmitter {
     this.logger.debug("Refreshing AFS");
 
     this.items = this.container.querySelectorAll(
-      this.options.get("itemSelector"),
+      this.options.get("itemSelector")
     );
     this.state.setState("items.total", this.items.length);
 
     this.filter.applyFilters();
     this.search.search(this.search.getValue());
-    
+
     // Only update pagination if it's enabled
     if (this.options.get("pagination.enabled")) {
       this.pagination.update();
@@ -509,7 +514,7 @@ export class AFS extends EventEmitter {
     window.removeEventListener("resize", this.handleResize);
     document.removeEventListener(
       "visibilitychange",
-      this.handleVisibilityChange,
+      this.handleVisibilityChange
     );
 
     // Destroy features
@@ -522,14 +527,14 @@ export class AFS extends EventEmitter {
     // Cleanup
     this.styleManager.removeStyles();
     this.state.reset();
-    localStorage.removeItem("afs_state");
+    sessionStorage.removeItem("afs_state");
 
     // Reset items
     this.items.forEach((item) => {
       item.style = "";
       item.classList.remove(
         this.options.get("hiddenClass"),
-        this.options.get("activeClass"),
+        this.options.get("activeClass")
       );
     });
 
