@@ -1161,7 +1161,27 @@ export class Filter {
    * @param {HTMLElement} item - DOM element to show
    */
   showItem(item) {
-    const displayType = this.getItemDisplayType(item);
-    item.style.display = displayType;
+    // Remove hidden class
+    item.classList.remove(this.afs.options.get("hiddenClass"));
+    
+    // Get the original display type and restore it
+    const originalDisplay = this.getItemDisplayType(item);
+    
+    // Only set display if it was previously hidden
+    if (item.style.display === 'none') {
+      // If we have a stored original display type, use it
+      // Otherwise, remove the inline style to let CSS take over
+      if (originalDisplay && originalDisplay !== 'none') {
+        item.style.display = originalDisplay;
+      } else {
+        item.style.display = '';
+      }
+    }
+    
+    // Reset other hiding properties
+    item.style.opacity = "1";
+    item.style.visibility = "visible";
+    item.style.filter = "none";
+    item.style.transform = "";
   }
 }
