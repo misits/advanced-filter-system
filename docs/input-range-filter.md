@@ -18,10 +18,10 @@ The Input Range component provides numerical range filtering capabilities with s
 ## Installation
 
 ```javascript
-import { InputRange } from 'advanced-filter-system';
+import { AFS } from 'advanced-filter-system';
 
 // As part of AFS
-const afs = createAFS({
+const afs = new AFS({
     inputRange: {
         enabled: true
     }

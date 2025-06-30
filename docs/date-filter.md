@@ -18,10 +18,10 @@ The Date Filter component provides date range filtering capabilities with suppor
 ## Installation
 
 ```javascript
-import { DateFilter } from 'advanced-filter-system';
+import { AFS } from 'advanced-filter-system';
 
 // As part of AFS
-const afs = createAFS({
+const afs = new AFS({
     dateFilter: {
         enabled: true,
         format: 'YYYY-MM-DD'

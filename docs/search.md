@@ -18,10 +18,10 @@ The Search component provides real-time search capabilities with features like m
 ## Installation
 
 ```javascript
-import { Search } from 'advanced-filter-system';
+import { AFS } from 'advanced-filter-system';
 
 // As part of AFS
-const afs = createAFS({
+const afs = new AFS({
     search: {
         enabled: true,
         inputSelector: '.afs-filter-search',
@@ -55,7 +55,7 @@ const search = afs.search;
 
 ```javascript
 // Initialize with search configuration
-const afs = createAFS({
+const afs = new AFS({
     search: {
         enabled: true,
         inputSelector: '.afs-filter-search',
@@ -92,7 +92,7 @@ const afs = createAFS({
 
 ```javascript
 // Enable highlighting
-const afs = createAFS({
+const afs = new AFS({
     search: {
         enabled: true,
         highlightMatches: true,
@@ -111,7 +111,7 @@ const afs = createAFS({
 
 ```javascript
 // Enable fuzzy search
-const afs = createAFS({
+const afs = new AFS({
     search: {
         enabled: true,
         fuzzySearch: true,
@@ -127,7 +127,7 @@ const afs = createAFS({
 
 ```javascript
 // Different search modes
-const afs = createAFS({
+const afs = new AFS({
     search: {
         enabled: true,
         searchMode: 'contains', // Default
@@ -226,7 +226,7 @@ afs.on('searchCompleted', (data) => {
 
 ```javascript
 // Simple text search
-const afs = createAFS({
+const afs = new AFS({
     search: {
         enabled: true,
         inputSelector: '.afs-filter-search',
@@ -239,7 +239,7 @@ const afs = createAFS({
 
 ```javascript
 // Complex search setup
-const afs = createAFS({
+const afs = new AFS({
     search: {
         enabled: true,
         inputSelector: '.afs-filter-search',

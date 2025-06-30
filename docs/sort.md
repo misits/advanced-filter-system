@@ -18,10 +18,10 @@ The Sort System provides flexible sorting capabilities with support for multiple
 ## Installation
 
 ```javascript
-import { Sort } from 'advanced-filter-system';
+import { AFS } from 'advanced-filter-system';
 
 // As part of AFS
-const afs = createAFS({
+const afs = new AFS({
     sort: {
         enabled: true,
         buttonSelector: '.afs-btn-sort'
@@ -56,7 +56,7 @@ const sort = afs.sort;
 
 ```javascript
 // Initialize with sort configuration
-const afs = createAFS({
+const afs = new AFS({
     sort: {
         enabled: true,
         buttonSelector: '.afs-btn-sort',

@@ -18,10 +18,10 @@ The URL Manager handles state persistence through URL parameters, enabling share
 ## Installation
 
 ```javascript
-import { URLManager } from 'advanced-filter-system';
+import { AFS } from 'advanced-filter-system';
 
 // As part of AFS
-const afs = createAFS({
+const afs = new AFS({
     urlState: {
         enabled: true
     }
@@ -36,7 +36,7 @@ const urlManager = afs.urlManager;
 ### Initial Setup
 
 ```javascript
-const afs = createAFS({
+const afs = new AFS({
     urlState: {
         enabled: true,
         key: 'filter', // Optional URL prefix

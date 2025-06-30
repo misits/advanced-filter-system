@@ -19,10 +19,10 @@ The Filter System is a core component of AFS that provides flexible and powerful
 ## Installation
 
 ```javascript
-import { Filter } from 'advanced-filter-system';
+import { AFS } from 'advanced-filter-system';
 
 // As part of AFS
-const afs = createAFS({
+const afs = new AFS({
     filter: {
         enabled: true,
         buttonSelector: '.afs-btn-filter',
@@ -54,7 +54,7 @@ const filter = afs.filter;
 
 ```javascript
 // Initialize with options
-const afs = createAFS({
+const afs = new AFS({
     filter: {
         enabled: true,
         buttonSelector: '.afs-btn-filter',
@@ -242,7 +242,7 @@ afs.on('filtersCleared', () => {
 
 ```javascript
 // Initialize
-const afs = createAFS({
+const afs = new AFS({
     filter: {
         enabled: true,
         buttonSelector: '.afs-btn-filter',

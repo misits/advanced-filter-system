@@ -18,10 +18,10 @@ The Range Filter component provides interactive range sliders for numerical and 
 ## Installation
 
 ```javascript
-import { RangeFilter } from 'advanced-filter-system';
+import { AFS } from 'advanced-filter-system';
 
 // As part of AFS
-const afs = createAFS({
+const afs = new AFS({
     rangeFilter: {
         enabled: true
     }

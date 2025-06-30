@@ -18,10 +18,10 @@ The Pagination component provides flexible pagination capabilities with customiz
 ## Installation
 
 ```javascript
-import { Pagination } from 'advanced-filter-system';
+import { AFS } from 'advanced-filter-system';
 
 // As part of AFS
-const afs = createAFS({
+const afs = new AFS({
     pagination: {
         enabled: true,
         itemsPerPage: 10
@@ -52,7 +52,7 @@ const pagination = afs.pagination;
 
 ```javascript
 // Initialize with pagination configuration
-const afs = createAFS({
+const afs = new AFS({
     containerSelector: '#items-container',
     itemSelector: '.afs-filter-item',
     pagination: {
@@ -228,7 +228,7 @@ afs.on('paginationUpdated', (data) => {
 
 ```javascript
 // Simple pagination setup
-const afs = createAFS({
+const afs = new AFS({
     pagination: {
         enabled: true,
         itemsPerPage: 10
@@ -240,7 +240,7 @@ const afs = createAFS({
 
 ```javascript
 // Custom pagination template
-const afs = createAFS({
+const afs = new AFS({
     pagination: {
         enabled: true,
         template: {
