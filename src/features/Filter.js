@@ -720,6 +720,9 @@ export class Filter {
 
     this.activeFilters.delete(filter);
 
+    // Emit a custom event for filter removal
+    this.afs.emit("filterRemoved", { filter, activeFilters: Array.from(this.activeFilters) });
+
     // Update button states
     this.filterButtons.forEach((value, button) => {
       if (value === filter) {
