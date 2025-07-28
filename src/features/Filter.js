@@ -17,6 +17,7 @@ export class Filter {
     this.filterGroups = new Map();
     this.sortOrders = new Map();
     this.itemDisplayTypes = new Map(); // Store original display types
+    this.exclusiveFilterTypes = new Set(); // Track filter types that should use exclusive toggle
     this.isScrolling = false;
     this.scrollTimeout = null;
 
@@ -383,14 +384,19 @@ export class Filter {
       button.classList.add(this.afs.options.get("activeClass"));
       this.activeFilters.add(filterValue);
     } else {
-      // For checkboxes/buttons, handle OR mode exclusive toggle for same category
+      // For checkboxes/buttons, handle exclusive toggle for same category
       const filterMode = this.afs.options.get("filterMode") || "OR";
       
       // Extract filter type/category from the filter value (e.g., "category:demo" -> "category")
       const [filterType] = filterValue.split(":");
       
-      // In OR mode, deactivate other filters of the same type
-      if (filterMode === "OR" && filterType && filterValue.includes(":")) {
+      // Check if this filter type should use exclusive toggle
+      const isExclusiveType = this.exclusiveFilterTypes.has(filterType);
+      
+      // Apply exclusive toggle if:
+      // 1. Filter mode is OR globally, OR
+      // 2. This specific filter type is set as exclusive
+      if ((filterMode === "OR" || isExclusiveType) && filterType && filterValue.includes(":")) {
         // Find and deactivate other buttons with the same filter type
         this.filterButtons.forEach((value, btn) => {
           if (value !== filterValue && value.startsWith(`${filterType}:`)) {
@@ -771,6 +777,100 @@ export class Filter {
     } else {
       this.afs.logger.warn(`Invalid filter mode: ${mode}`);
     }
+  }
+
+  /**
+   * Set a filter type to always use exclusive toggle (OR logic)
+   * @public
+   * @param {string|string[]} types - Filter type(s) to set as exclusive (e.g., 'category' or ['category', 'brand'])
+   * @param {boolean} exclusive - Whether to set as exclusive (true) or remove exclusive behavior (false)
+   */
+  setFilterTypeExclusive(types, exclusive = true) {
+    const typeArray = Array.isArray(types) ? types : [types];
+    
+    typeArray.forEach(type => {
+      if (exclusive) {
+        this.exclusiveFilterTypes.add(type);
+        this.afs.logger.debug(`Set filter type '${type}' as exclusive`);
+      } else {
+        this.exclusiveFilterTypes.delete(type);
+        this.afs.logger.debug(`Removed exclusive behavior from filter type '${type}'`);
+      }
+    });
+    
+    // Re-apply filters to ensure consistency
+    this.applyFilters();
+  }
+
+  /**
+   * Toggle a filter with exclusive behavior for its type (OR logic)
+   * This will deactivate other filters of the same type regardless of global filter mode
+   * @public
+   * @param {string} filterValue - Filter value to toggle (e.g., 'category:tech')
+   */
+  toggleFilterExclusive(filterValue) {
+    this.afs.logger.debug(`Toggling filter exclusively: ${filterValue}`);
+    
+    // Extract filter type from the filter value
+    const [filterType] = filterValue.split(":");
+    
+    if (!filterType || !filterValue.includes(":")) {
+      this.afs.logger.warn("Filter value must be in format 'type:value'");
+      return;
+    }
+    
+    // Remove "all" filter
+    this.activeFilters.delete("*");
+    const allButton = this.findAllButton();
+    if (allButton) {
+      allButton.classList.remove(this.afs.options.get("activeClass"));
+    }
+    
+    // Find the button for this filter
+    let targetButton = null;
+    this.filterButtons.forEach((value, button) => {
+      if (value === filterValue) {
+        targetButton = button;
+      }
+    });
+    
+    if (!targetButton) {
+      this.afs.logger.warn(`No button found for filter: ${filterValue}`);
+      return;
+    }
+    
+    // Check if this filter is currently active
+    const isCurrentlyActive = this.activeFilters.has(filterValue);
+    
+    // Deactivate all filters of the same type
+    this.filterButtons.forEach((value, btn) => {
+      if (value.startsWith(`${filterType}:`)) {
+        btn.classList.remove(this.afs.options.get("activeClass"));
+        this.activeFilters.delete(value);
+      }
+    });
+    
+    // If the filter wasn't active, activate it
+    if (!isCurrentlyActive) {
+      targetButton.classList.add(this.afs.options.get("activeClass"));
+      this.activeFilters.add(filterValue);
+    } else {
+      // If no filters remain active, reset to "all"
+      if (this.activeFilters.size === 0) {
+        this.resetFilters();
+        return;
+      }
+    }
+    
+    this.applyFilters();
+    this.afs.urlManager.updateURL();
+    
+    // Emit event
+    this.afs.emit("filterToggledExclusive", {
+      filter: filterValue,
+      type: filterType,
+      activeFilters: Array.from(this.activeFilters),
+    });
   }
 
   /**
