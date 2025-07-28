@@ -383,7 +383,24 @@ export class Filter {
       button.classList.add(this.afs.options.get("activeClass"));
       this.activeFilters.add(filterValue);
     } else {
-      // For checkboxes, toggle the state
+      // For checkboxes/buttons, handle OR mode exclusive toggle for same category
+      const filterMode = this.afs.options.get("filterMode") || "OR";
+      
+      // Extract filter type/category from the filter value (e.g., "category:demo" -> "category")
+      const [filterType] = filterValue.split(":");
+      
+      // In OR mode, deactivate other filters of the same type
+      if (filterMode === "OR" && filterType && filterValue.includes(":")) {
+        // Find and deactivate other buttons with the same filter type
+        this.filterButtons.forEach((value, btn) => {
+          if (value !== filterValue && value.startsWith(`${filterType}:`)) {
+            btn.classList.remove(this.afs.options.get("activeClass"));
+            this.activeFilters.delete(value);
+          }
+        });
+      }
+      
+      // Toggle the current button state
       if (button.classList.contains(this.afs.options.get("activeClass"))) {
         button.classList.remove(this.afs.options.get("activeClass"));
         this.activeFilters.delete(filterValue);
