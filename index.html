@@ -571,7 +571,7 @@ const afs = new AFS({
         const paginateDot = paginateButton.querySelector('.paginate-dot');
         const paginateText = paginateButton.querySelector('.paginate-text');
 
-        // Initialize with Pagination (isPaginate = true)
+        // Initialize with Show All mode (isPaginate = false)
         let isPaginate = false;
         updatePaginateState(isPaginate);
 
@@ -586,12 +586,12 @@ const afs = new AFS({
         function updatePaginateState(isPaginateMode) {
             if (isPaginateMode) {
                 paginateDot.style.transform = 'translateX(16px)';
-                paginateText.textContent = 'PAGINATION';
-                paginateButton.setAttribute('aria-label', 'Switch to PAGINATION mode');
+                paginateText.textContent = 'SHOW ALL';  // Action: click to show all
+                paginateButton.setAttribute('aria-label', 'Switch to SHOW ALL mode');
             } else {
                 paginateDot.style.transform = 'translateX(0)';
-                paginateText.textContent = 'INFINITE SCROLL';
-                paginateButton.setAttribute('aria-label', 'Switch to INFINITE SCROLL mode');
+                paginateText.textContent = 'PAGINATE';  // Action: click to paginate
+                paginateButton.setAttribute('aria-label', 'Switch to PAGINATION mode');
             }
         }
 
