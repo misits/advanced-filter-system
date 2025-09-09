@@ -2069,7 +2069,7 @@ const searchAfs = new AFS({
                 if (!searchAfs) return;
                 
                 // Log events for debugging
-                searchAfs.on('searchApplied', (data) => {
+                searchAfs.on('search', (data) => {
                     console.log('Search applied:', data);
                     updateSearchStats();
                 });
