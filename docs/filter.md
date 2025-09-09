@@ -342,30 +342,30 @@ interface FilterState {
 
 ```javascript
 // Filter applied
-afs.on('filter:applied', (data) => {
+afs.on('filtersApplied', (data) => {
     console.log('Active filters:', data.activeFilters);
     console.log('Visible items:', data.visible);
     console.log('Total items:', data.total);
 });
 
 // Filter type logic changed
-afs.on('filter:typeLogicChanged', (data) => {
+afs.on('filterChanged', (data) => {
     console.log('Type:', data.type);
     console.log('Logic:', data.logic);
 });
 
 // Filters cleared
-afs.on('filter:cleared', () => {
+afs.on('filtersCleared', () => {
     console.log('All filters cleared');
 });
 
 // Filter added
-afs.on('filter:added', (data) => {
+afs.on('filterToggled', (data) => {
     console.log('Filter added:', data.filter);
 });
 
 // Filter removed  
-afs.on('filter:removed', (data) => {
+afs.on('filterRemoved', (data) => {
     console.log('Filter removed:', data.filter);
 });
 ```
@@ -390,7 +390,7 @@ const afs = new AFS({
 });
 
 // Listen for filter changes
-afs.on('filter:applied', (data) => {
+afs.on('filtersApplied', (data) => {
     updateCounter(data.visible, data.total);
 });
 ```

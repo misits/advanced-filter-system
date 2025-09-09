@@ -282,7 +282,7 @@ afs.on('rangeFilter', (data) => {
 });
 
 // Listen for any filter changes (including range filters)
-afs.on('filter:applied', (data) => {
+afs.on('filtersApplied', (data) => {
     console.log('Total visible items:', data.visible);
     console.log('Active filters:', Array.from(data.activeFilters));
 });

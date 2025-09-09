@@ -268,8 +268,9 @@ afs.on('urlStateLoaded', (data) => {
 });
 
 // URL has been updated (after filter changes)
-afs.on('state:changed', (state) => {
-    console.log('State changed, URL will be updated');
+afs.on('filtersApplied', (data) => {
+    console.log('Filters applied, URL will be updated');
+    console.log('Visible items:', data.visibleItems);
 });
 ```
 
@@ -359,7 +360,7 @@ afs.on('urlStateLoaded', (data) => {
 
 // Track filter changes for analytics
 let urlUpdateCount = 0;
-afs.on('state:changed', () => {
+afs.on('filtersApplied', () => {
     urlUpdateCount++;
     console.log(`URL updated ${urlUpdateCount} times`);
     

@@ -138,7 +138,7 @@ export class Search {
 
         // Update URL and emit event
         this.afs.urlManager.updateURL();
-        this.afs.emit('search', {
+        this.afs.emit("search", {
           query: normalizedQuery,
           matches,
           total: this.afs.items.length
@@ -292,7 +292,7 @@ export class Search {
 
       // Update URL and emit event
       this.afs.urlManager.updateURL();
-      this.afs.emit('searchCleared');
+      this.afs.emit("searchCleared");
 
       // Update counter
       this.afs.updateCounter();

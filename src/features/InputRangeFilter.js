@@ -255,7 +255,7 @@ createInputElements(label) {
 
     this.afs.updateCounter();
     this.afs.urlManager.updateURL();
-    this.afs.emit('inputRangeFilter', {
+    this.afs.emit("inputRangeFilter", {
       key,
       min: state.currentMin,
       max: state.currentMax

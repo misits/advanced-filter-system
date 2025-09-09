@@ -313,26 +313,26 @@ afs.on('sort', (data) => {
 });
 
 // Multi-criteria sort applied
-afs.on('multiSort', (data) => {
+afs.on('sortMultiple', (data) => {
     console.log('Sort criteria:', data.criteria);
     console.log('Items sorted:', data.itemCount);
     console.log('Detected types:', data.sortTypes);
 });
 
 // Custom comparator sort applied
-afs.on('customSort', (data) => {
+afs.on('sortCustom', (data) => {
     console.log('Custom sort by:', data.key);
     console.log('Comparator:', data.comparatorName);
     console.log('Items sorted:', data.itemCount);
 });
 
 // Items shuffled
-afs.on('shuffle', (data) => {
+afs.on('sortShuffled', (data) => {
     console.log('Items shuffled:', data.itemCount);
 });
 
 // Sort reset
-afs.on('sortReset', (data) => {
+afs.on('sortCleared', (data) => {
     console.log('Sort reset - buttons affected:', data.buttonCount);
 });
 ```

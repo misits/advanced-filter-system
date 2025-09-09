@@ -283,10 +283,9 @@ afs.on('paginationModeChanged', (data) => {
 });
 
 // Listen for state changes
-afs.on('state:changed', (state) => {
-    if (state.pagination) {
-        console.log('Pagination state updated:', state.pagination);
-    }
+afs.on('pageChanged', (data) => {
+    console.log('Page changed:', data.currentPage);
+    console.log('Total pages:', data.totalPages);
 });
 ```
 

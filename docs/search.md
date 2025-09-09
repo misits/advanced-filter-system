@@ -244,10 +244,9 @@ afs.on('searchCleared', () => {
 });
 
 // Listen for state changes
-afs.on('state:changed', (state) => {
-    if (state.search) {
-        console.log('Search state updated:', state.search.query);
-    }
+afs.on('search', (data) => {
+    console.log('Search performed:', data.query);
+    console.log('Results found:', data.matches);
 });
 ```
 

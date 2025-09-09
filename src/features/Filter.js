@@ -1355,7 +1355,7 @@ export class Filter {
       // Clear any existing sort orders as we've shuffled
       this.sortOrders.clear();
 
-      this.afs.emit("shuffled", {
+      this.afs.emit("sortShuffled", {
         itemCount: items.length,
       });
 

@@ -359,7 +359,7 @@ export class Sort {
       }
 
       this.afs.urlManager.updateURL();
-      this.afs.emit("multiSort", { 
+      this.afs.emit("sortMultiple", { 
         criteria, 
         itemCount: items.length,
         sortTypes 
@@ -421,7 +421,7 @@ export class Sort {
       
       // Don't update state with custom sort since it's not easily serializable
       
-      this.afs.emit("customSort", { 
+      this.afs.emit("sortCustom", { 
         key, 
         comparatorName: comparator.name || "anonymous", 
         itemCount: items.length 
@@ -477,7 +477,7 @@ export class Sort {
       });
 
       this.afs.urlManager.updateURL();
-      this.afs.emit("shuffle", { itemCount: items.length });
+      this.afs.emit("sortShuffled", { itemCount: items.length });
       
       this.afs.logger.info(`Shuffled ${items.length} items`);
       return true;
@@ -515,7 +515,7 @@ export class Sort {
       });
 
       this.afs.urlManager.updateURL();
-      this.afs.emit("sortReset", { buttonCount });
+      this.afs.emit("sortCleared", { buttonCount });
       
       this.afs.logger.info(`Sort reset: ${buttonCount} sort buttons reset to default state`);
       return true;

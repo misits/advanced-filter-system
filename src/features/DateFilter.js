@@ -271,7 +271,7 @@ export class DateFilter {
   
     this.afs.updateCounter();
     this.afs.urlManager.updateURL();
-    this.afs.emit('dateFilter', {
+    this.afs.emit("dateFilter", {
       key,
       startDate: state.currentStartDate,
       endDate: state.currentEndDate

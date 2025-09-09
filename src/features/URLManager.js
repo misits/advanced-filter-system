@@ -256,7 +256,7 @@ updateURL() {
       this.processSortFromURL(params);
       this.processPaginationFromURL(params);
   
-      this.afs.emit('urlStateLoaded', { params: Object.fromEntries(params) });
+      this.afs.emit("urlStateLoaded", { params: Object.fromEntries(params) });
       this.afs.logger.info('State loaded from URL');
     } catch (error) {
       this.afs.logger.error('Error loading state from URL:', error);
