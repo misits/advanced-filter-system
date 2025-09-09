@@ -235,21 +235,86 @@ export class Filter {
    */
   bindFilterEvent(button) {
     this.afs.logger.debug("Binding filter event to button:", button);
+    console.log("=== BINDING EVENT TO BUTTON ===", button, "with filter:", this.filterButtons.get(button));
 
     button.addEventListener("click", () => {
+      console.log("=== BUTTON CLICKED ===", button);
       const filterValue = this.filterButtons.get(button);
+      console.log("=== FILTER VALUE ===", filterValue);
 
-      if (!filterValue) return;
+      if (!filterValue) {
+        console.log("=== NO FILTER VALUE, RETURNING ===");
+        return;
+      }
 
       if (filterValue === "*") {
+        console.log("=== CALLING RESET FILTERS ===");
         this.resetFilters();
+      } else if (filterValue.endsWith(":*")) {
+        console.log("=== CALLING CLEAR FILTER CATEGORY ===", filterValue);
+        // Handle category-specific clear (e.g., "brand:*" clears all brand filters)
+        this.clearFilterCategory(filterValue);
       } else {
+        console.log("=== CALLING TOGGLE FILTER ===", filterValue, button);
         this.toggleFilter(filterValue, button);
       }
 
       // Update the URL after filter change
       this.afs.urlManager.updateURL();
     });
+  }
+
+  /**
+   * Clear all filters for a specific category
+   * @public
+   * @param {string} categoryFilter - Category filter in format "category:*"
+   */
+  clearFilterCategory(categoryFilter) {
+    this.afs.logger.debug("Clearing filter category:", categoryFilter);
+    
+    // Extract the category name (e.g., "brand:*" -> "brand")
+    const category = categoryFilter.replace(":*", "");
+    
+    // Find and remove all active filters of this category
+    const filtersToRemove = [];
+    this.activeFilters.forEach(filter => {
+      if (filter !== "*" && filter.startsWith(`${category}:`)) {
+        filtersToRemove.push(filter);
+      }
+    });
+    
+    // Remove the filters
+    filtersToRemove.forEach(filter => {
+      this.activeFilters.delete(filter);
+      
+      // Update button states
+      this.filterButtons.forEach((value, btn) => {
+        if (value === filter) {
+          btn.classList.remove(this.afs.options.get("activeClass"));
+        }
+      });
+    });
+    
+    // Also deactivate the category clear button itself
+    this.filterButtons.forEach((value, btn) => {
+      if (value === categoryFilter) {
+        btn.classList.remove(this.afs.options.get("activeClass"));
+      }
+    });
+    
+    // If no filters remain active, reset to show all
+    if (this.activeFilters.size === 0) {
+      this.resetFilters();
+    } else {
+      this.applyFilters();
+      
+      // Emit event
+      this.afs.emit("filterCategoryCleared", {
+        category: category,
+        removedFilters: filtersToRemove,
+        activeFilters: Array.from(this.activeFilters)
+      });
+    }
   }
 
   /**
@@ -353,6 +418,14 @@ export class Filter {
    * @param {HTMLElement} button - Filter button
    */
   toggleFilter(filterValue, button) {
+    console.log(`=== TOGGLE FILTER CALLED ===`);
+    console.log(`filterValue: "${filterValue}"`);
+    console.log(`button:`, button);
+    console.log(`Initial activeFilters:`, Array.from(this.activeFilters));
+    
+    this.afs.logger.debug(`=== toggleFilter called with filterValue="${filterValue}", button:`, button);
+    this.afs.logger.debug(`Initial activeFilters:`, Array.from(this.activeFilters));
+    
     // Remove "all" filter
     this.activeFilters.delete("*");
     const allButton = this.findAllButton();
@@ -384,42 +457,129 @@ export class Filter {
       button.classList.add(this.afs.options.get("activeClass"));
       this.activeFilters.add(filterValue);
     } else {
-      // For checkboxes/buttons, handle exclusive toggle for same category
+      // For checkboxes/buttons, handle exclusive toggle based on logic configuration
+      const filterCategoryMode = (this.afs.options.get("filterCategoryMode") || "mixed").toUpperCase();
       const filterMode = this.afs.options.get("filterMode") || "OR";
+      const filterTypeLogic = this.afs.options.get("filterTypeLogic") || {};
       
       // Extract filter type/category from the filter value (e.g., "category:demo" -> "category")
       const [filterType] = filterValue.split(":");
+      
+      // Determine the logic for this specific filter type
+      let typeLogic;
+      let allowMultiple = false; // Default to exclusive for OR mode
+      
+      if (filterCategoryMode === "MIXED" && filterType) {
+        // In mixed mode, check if there's a specific logic for this type
+        const typeConfig = filterTypeLogic[filterType];
+        
+        if (typeof typeConfig === 'object' && typeConfig !== null) {
+          // Extended configuration format: {mode: 'OR', multi: true}
+          const mode = typeConfig.mode || 'OR';
+          typeLogic = (typeof mode === 'string' ? mode : 'OR').toUpperCase();
+          allowMultiple = typeConfig.multi === true;
+        } else if (typeof typeConfig === 'string') {
+          // Simple string format: 'OR'
+          typeLogic = typeConfig.toUpperCase();
+          // For OR mode, default to exclusive (single selection)
+          allowMultiple = false;
+        } else {
+          // Default fallback
+          this.afs.logger.warn(`Unexpected typeConfig type for '${filterType}':`, typeof typeConfig, typeConfig);
+          typeLogic = 'OR';
+          allowMultiple = false;
+        }
+      } else {
+        // In non-mixed mode, use the global filter mode
+        typeLogic = filterMode.toUpperCase();
+        allowMultiple = false; // Default to exclusive for OR
+      }
       
       // Check if this filter type should use exclusive toggle
       const isExclusiveType = this.exclusiveFilterTypes.has(filterType);
       
       // Apply exclusive toggle if:
-      // 1. Filter mode is OR globally, OR
-      // 2. This specific filter type is set as exclusive
-      if ((filterMode === "OR" || isExclusiveType) && filterType && filterValue.includes(":")) {
+      // 1. The type is explicitly set as exclusive (for radio buttons), OR
+      // 2. The button/input type suggests exclusive behavior (radio, select with single selection), OR
+      // 3. The type logic is OR and allowMultiple is false (default behavior)
+      const isRadioInput = button.type === 'radio' || button.tagName === 'SELECT';
+      const isCheckboxInput = button.type === 'checkbox';
+      const isRegularButton = button.tagName === 'BUTTON';
+      
+      // Determine if we should use exclusive toggle
+      let shouldUseExclusiveToggle;
+      if (allowMultiple) {
+        // If explicitly set to allow multiple, never use exclusive toggle
+        shouldUseExclusiveToggle = false;
+      } else if (isRadioInput) {
+        // Radio inputs are always exclusive
+        shouldUseExclusiveToggle = true;
+      } else if (typeLogic === 'OR') {
+        // For OR logic without multi:true, use exclusive toggle for buttons (not checkboxes)
+        shouldUseExclusiveToggle = isRegularButton || !isCheckboxInput;
+      } else {
+        // AND logic defaults to allowing multiple
+        shouldUseExclusiveToggle = false;
+      }
+      
+      // Debug logging
+      console.log(`=== EXCLUSIVE TOGGLE LOGIC ===`);
+      console.log(`filterValue=${filterValue}, filterType=${filterType}, typeLogic=${typeLogic}, allowMultiple=${allowMultiple}`);
+      console.log(`button.type=${button.type}, button.tagName=${button.tagName}`);
+      console.log(`isExclusiveType=${isExclusiveType}, isRadioInput=${isRadioInput}, isCheckboxInput=${isCheckboxInput}, isRegularButton=${isRegularButton}`);
+      console.log(`shouldUseExclusiveToggle=${shouldUseExclusiveToggle}`);
+      console.log(`Final condition: ${(isExclusiveType || isRadioInput || shouldUseExclusiveToggle) && filterType && filterValue.includes(":")}`);
+      
+      this.afs.logger.debug(`Toggle filter debug: filterValue=${filterValue}, filterType=${filterType}, typeLogic=${typeLogic}, allowMultiple=${allowMultiple}, button.type=${button.type}, button.tagName=${button.tagName}, isExclusiveType=${isExclusiveType}, isRadioInput=${isRadioInput}, isCheckboxInput=${isCheckboxInput}, isRegularButton=${isRegularButton}, shouldUseExclusiveToggle=${shouldUseExclusiveToggle}`);
+      
+      if ((isExclusiveType || isRadioInput || shouldUseExclusiveToggle) && filterType && filterValue.includes(":")) {
+        console.log(`=== EXECUTING EXCLUSIVE TOGGLE ===`);
+        console.log(`Looking for other buttons with filterType: ${filterType}`);
+        console.log(`Total buttons in filterButtons Map: ${this.filterButtons.size}`);
+        console.log(`Current filterButtons Map contents:`);
+        this.filterButtons.forEach((val, btn) => {
+          console.log(`  - Button:`, btn, `Filter: ${val}, Has active class: ${btn.classList.contains(this.afs.options.get("activeClass"))}`);
+        });
+        
+        let deactivatedCount = 0;
         // Find and deactivate other buttons with the same filter type
         this.filterButtons.forEach((value, btn) => {
           if (value !== filterValue && value.startsWith(`${filterType}:`)) {
+            console.log(`=== DEACTIVATING BUTTON ===`, btn, `with filter: ${value}`);
+            console.log(`  Before: has active class = ${btn.classList.contains(this.afs.options.get("activeClass"))}`);
             btn.classList.remove(this.afs.options.get("activeClass"));
             this.activeFilters.delete(value);
+            console.log(`  After: has active class = ${btn.classList.contains(this.afs.options.get("activeClass"))}`);
+            deactivatedCount++;
           }
         });
+        console.log(`=== DEACTIVATED ${deactivatedCount} BUTTONS ===`);
+        console.log(`Active filters after deactivation:`, Array.from(this.activeFilters));
+      } else {
+        console.log(`=== SKIPPING EXCLUSIVE TOGGLE ===`);
       }
       
       // Toggle the current button state
+      this.afs.logger.debug(`Before toggle: button has activeClass = ${button.classList.contains(this.afs.options.get("activeClass"))}, activeFilters size = ${this.activeFilters.size}`);
+      
       if (button.classList.contains(this.afs.options.get("activeClass"))) {
+        this.afs.logger.debug(`Deactivating button for ${filterValue}`);
         button.classList.remove(this.afs.options.get("activeClass"));
         this.activeFilters.delete(filterValue);
 
         // Reset to "all" if no filters active
         if (this.activeFilters.size === 0) {
+          this.afs.logger.debug("No filters active, resetting to show all");
           this.resetFilters();
           return;
         }
       } else {
+        this.afs.logger.debug(`Activating button for ${filterValue}`);
         button.classList.add(this.afs.options.get("activeClass"));
         this.activeFilters.add(filterValue);
       }
+      
+      this.afs.logger.debug(`After toggle: activeFilters =`, Array.from(this.activeFilters));
     }
 
     this.applyFilters();
@@ -522,8 +682,42 @@ export class Filter {
       });
     });
 
+    // Sync checkbox states with active filters
+    this.syncCheckboxStates();
+
     // Emit visibility change events
     this.emitFilterEvents(previouslyVisible, visibleItems);
+  }
+
+  /**
+   * Synchronize checkbox visual states with active filters
+   * @private
+   */
+  syncCheckboxStates() {
+    // Find all checkboxes
+    const checkboxes = document.querySelectorAll(
+      `${this.afs.options.get("filterButtonSelector")}[type="checkbox"]`
+    );
+
+    checkboxes.forEach((checkbox) => {
+      const filterValue = checkbox.getAttribute('data-filter');
+      if (filterValue) {
+        // Check if this filter is active
+        const isActive = this.activeFilters.has(filterValue);
+        
+        // Update checkbox state
+        checkbox.checked = isActive;
+        
+        // Update visual classes
+        if (isActive) {
+          checkbox.classList.add(this.afs.options.get("activeClass"));
+        } else {
+          checkbox.classList.remove(this.afs.options.get("activeClass"));
+        }
+      }
+    });
+
+    this.afs.logger.debug(`Synced ${checkboxes.length} checkbox states`);
   }
 
   /**
@@ -541,7 +735,15 @@ export class Filter {
     // Get item categories
     const itemCategories = new Set(item.dataset.categories?.split(" ") || []);
 
-    // Get current filter mode
+    // Get filter category mode (new feature)
+    const filterCategoryMode = (this.afs.options.get("filterCategoryMode") || "mixed").toUpperCase();
+    
+    // If using mixed mode (OR within categories, AND between categories)
+    if (filterCategoryMode === "MIXED") {
+      return this.itemMatchesMixedFilters(itemCategories);
+    }
+
+    // Get current filter mode for backward compatibility
     const filterMode = this.afs.options.get("filterMode") || "OR";
 
     // Use appropriate matching method based on filter mode
@@ -574,6 +776,93 @@ export class Filter {
       if (filter === "*") return true;
       return itemCategories.has(filter);
     });
+  }
+
+  /**
+   * Check if item matches filters with mixed logic (OR within categories, AND between categories)
+   * @private
+   * @param {Set} itemCategories - Item's categories
+   * @returns {boolean} Whether item matches filters with mixed logic
+   */
+  itemMatchesMixedFilters(itemCategories) {
+    // Group active filters by their category/type
+    const filtersByType = {};
+    
+    this.activeFilters.forEach(filter => {
+      if (filter === "*") return;
+      
+      // Extract filter type from format "type:value"
+      const colonIndex = filter.indexOf(':');
+      if (colonIndex === -1) {
+        // No colon found, treat as single type
+        if (!filtersByType['_default']) {
+          filtersByType['_default'] = [];
+        }
+        filtersByType['_default'].push(filter);
+      } else {
+        const filterType = filter.substring(0, colonIndex);
+        if (!filtersByType[filterType]) {
+          filtersByType[filterType] = [];
+        }
+        filtersByType[filterType].push(filter);
+      }
+    });
+    
+    // If no filters active, show all
+    if (Object.keys(filtersByType).length === 0) {
+      return true;
+    }
+    
+    // Get custom filter type logic configuration
+    const filterTypeLogic = this.afs.options.get("filterTypeLogic") || {};
+    
+    // Check each filter type
+    for (const [type, filters] of Object.entries(filtersByType)) {
+      // Determine logic for this filter type
+      // Priority: 1. Custom filterTypeLogic, 2. Default based on filterCategoryMode
+      const typeConfig = filterTypeLogic[type] || 'OR';
+      
+      // Debug logging to identify the problematic value
+      this.afs.logger.debug(`Processing type '${type}' with config:`, typeConfig, typeof typeConfig);
+      
+      // Debug logging for troubleshooting
+      if (typeof typeConfig === 'object' && typeConfig !== null && !typeConfig.mode) {
+        this.afs.logger.warn(`Filter type '${type}' has object config but missing 'mode' property:`, typeConfig);
+      }
+      
+      let typeLogic;
+      if (typeof typeConfig === 'object' && typeConfig !== null) {
+        // Extended object format: {mode: 'OR', multi: true}
+        const mode = typeConfig.mode || 'OR';
+        typeLogic = (typeof mode === 'string' ? mode : 'OR').toUpperCase();
+      } else if (typeof typeConfig === 'string') {
+        // Simple string format: 'OR' or 'AND'
+        typeLogic = typeConfig.toUpperCase();
+      } else {
+        // Fallback for any other type
+        this.afs.logger.warn(`Unexpected typeConfig type for '${type}':`, typeof typeConfig, typeConfig);
+        typeLogic = 'OR';
+      }
+      
+      let matchesType;
+      if (typeLogic === 'AND') {
+        // For AND logic: item must have ALL selected filters of this type
+        // This means if you select "Pagani" AND "Ferrari", the item must have BOTH brands
+        matchesType = filters.every(filter => itemCategories.has(filter));
+      } else {
+        // For OR logic: item must have AT LEAST ONE of the selected filters
+        // This means if you select "Pagani" OR "Ferrari", the item needs just one
+        matchesType = filters.some(filter => itemCategories.has(filter));
+      }
+      
+      // If item doesn't match the filters in this type according to its logic, it fails
+      if (!matchesType) {
+        return false;
+      }
+    }
+    
+    // Item matches filters from each active type according to their configured logic
+    return true;
   }
 
   /**
@@ -777,6 +1066,100 @@ export class Filter {
     } else {
       this.afs.logger.warn(`Invalid filter mode: ${mode}`);
     }
+  }
+
+  /**
+   * Set logic for specific filter types
+   * @public
+   * @param {Object|string} typeOrConfig - Either an object mapping types to logic, or a single type name
+   * @param {string|Object} [logic] - Logic mode ('AND' or 'OR') or config object {mode: 'OR', multi: true}
+   * @example
+   * // Set multiple types at once (simple format)
+   * afs.filter.setFilterTypeLogic({ brand: 'OR', category: 'AND', powersource: 'OR' });
+   * 
+   * // Set multiple types with extended format
+   * afs.filter.setFilterTypeLogic({ 
+   *   brand: {mode: 'OR', multi: true},
+   *   category: 'AND',
+   *   features: {mode: 'OR', multi: false}
+   * });
+   * 
+   * // Set single type (simple)
+   * afs.filter.setFilterTypeLogic('brand', 'AND');
+   * 
+   * // Set single type (extended)
+   * afs.filter.setFilterTypeLogic('brand', {mode: 'OR', multi: true});
+   */
+  setFilterTypeLogic(typeOrConfig, logic) {
+    if (typeof typeOrConfig === 'object' && typeOrConfig !== null && !Array.isArray(typeOrConfig)) {
+      // Setting multiple types
+      const currentLogic = this.afs.options.get("filterTypeLogic") || {};
+      const newLogic = { ...currentLogic };
+      
+      for (const [type, typeConfig] of Object.entries(typeOrConfig)) {
+        if (typeof typeConfig === 'string') {
+          // Simple string format
+          const validLogic = typeConfig.toUpperCase();
+          if (["AND", "OR"].includes(validLogic)) {
+            newLogic[type] = validLogic;
+            this.afs.logger.debug(`Set filter type '${type}' logic to: ${validLogic}`);
+          } else {
+            this.afs.logger.warn(`Invalid logic for type '${type}': ${typeConfig}`);
+          }
+        } else if (typeof typeConfig === 'object' && typeConfig !== null) {
+          // Extended object format: {mode: 'OR', multi: true}
+          const mode = (typeConfig.mode || 'OR').toUpperCase();
+          if (["AND", "OR"].includes(mode)) {
+            newLogic[type] = {
+              mode: mode,
+              multi: typeConfig.multi === true
+            };
+            this.afs.logger.debug(`Set filter type '${type}' to: mode=${mode}, multi=${typeConfig.multi}`);
+          } else {
+            this.afs.logger.warn(`Invalid mode for type '${type}': ${typeConfig.mode}`);
+          }
+        } else {
+          this.afs.logger.warn(`Invalid config for type '${type}':`, typeConfig);
+        }
+      }
+      
+      this.afs.options.set("filterTypeLogic", newLogic);
+    } else if (typeof typeOrConfig === 'string' && logic !== undefined) {
+      // Setting single type
+      const type = typeOrConfig;
+      
+      if (typeof logic === 'string') {
+        // Simple string format
+        const validLogic = logic.toUpperCase();
+        if (["AND", "OR"].includes(validLogic)) {
+          const currentLogic = this.afs.options.get("filterTypeLogic") || {};
+          currentLogic[type] = validLogic;
+          this.afs.options.set("filterTypeLogic", currentLogic);
+          this.afs.logger.debug(`Set filter type '${type}' logic to: ${validLogic}`);
+        } else {
+          this.afs.logger.warn(`Invalid filter logic: ${logic}`);
+        }
+      } else if (typeof logic === 'object' && logic !== null) {
+        // Extended object format
+        const mode = (logic.mode || 'OR').toUpperCase();
+        if (["AND", "OR"].includes(mode)) {
+          const currentLogic = this.afs.options.get("filterTypeLogic") || {};
+          currentLogic[type] = {
+            mode: mode,
+            multi: logic.multi === true
+          };
+          this.afs.options.set("filterTypeLogic", currentLogic);
+          this.afs.logger.debug(`Set filter type '${type}' to: mode=${mode}, multi=${logic.multi}`);
+        } else {
+          this.afs.logger.warn(`Invalid filter mode: ${logic.mode}`);
+        }
+      } else {
+        this.afs.logger.warn(`Invalid logic for type '${type}': ${logic}`);
+      }
+    }
+    
+    // Re-apply filters with new logic
+    this.applyFilters();
   }
 
   /**

@@ -54,6 +54,8 @@ export class Options {
     // Filtering
     filterMode: "OR",
     groupMode: "AND",
+    filterCategoryMode: "mixed", // New: 'mixed' (OR within categories, AND between), 'AND', or 'OR'
+    filterTypeLogic: {}, // New: Configure logic per filter type (e.g., { brand: 'OR', category: 'AND' })
     searchKeys: ["title"],
     debounceTime: 300,
 
@@ -248,6 +250,11 @@ export class Options {
     // Filter mode
     if (!["OR", "AND"].includes(this.options.filterMode.toUpperCase())) {
       throw new Error('filterMode must be either "OR" or "AND"');
+    }
+
+    // Filter category mode
+    if (!["MIXED", "OR", "AND"].includes(this.options.filterCategoryMode?.toUpperCase() || "MIXED")) {
+      throw new Error('filterCategoryMode must be "mixed", "OR", or "AND"');
     }
 
     // Group mode
