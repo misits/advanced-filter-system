@@ -1,0 +1,2140 @@
+<!DOCTYPE html>
+<html class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Advanced Filter System - Interactive Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" href="./favicon/favicon-48x48.png" sizes="48x48" />
+    <link rel="icon" type="image/svg+xml" href="./favicon/favicon.svg" />
+    <link rel="shortcut icon" href="./favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./favicon/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Advanced Filter System Demo" />
+    <link rel="manifest" href="./favicon/site.webmanifest" />
+</head>
+
+<body class="font-mono bg-white text-gray-900">
+    <!-- Header with navigation -->
+    <header class="sticky top-0 bg-white border-b border-gray-200 z-[1000]">
+        <div class="container mx-auto px-6 py-4">
+            <nav class="flex justify-between items-center">
+                <div class="text-xl font-bold">AFS</div>
+
+                <!-- Mobile Menu Button (Hamburger) -->
+                <button class="md:hidden flex items-center px-3 py-2 border rounded hover:bg-gray-100"
+                    id="mobile-menu-button" aria-label="Toggle menu">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+
+                <!-- Desktop Navigation -->
+                <div class="flex-none max-sm:hidden md:flex items-center gap-6">
+                    <a href="./index.html" class="hover:text-gray-600">Home</a>
+                    <a href="./index.html#features" class="hover:text-gray-600">Features</a>
+                    <a href="./index.html#installation" class="hover:text-gray-600">Installation</a>
+                    <a href="./index.html#usage" class="hover:text-gray-600">Usage</a>
+                    <span class="text-blue-600 font-medium">Demo</span>
+                    <a href="https://github.com/misits/advanced-filter-system"
+                        class="text-white flex items-center px-2 py-1.5 bg-black rounded-lg hover:bg-gray-800 transition-colors">
+                        <svg class="mr-2 flex items-center" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                            viewBox="0 0 24 24">
+                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="1.5"
+                                d="M6.517 17.113c.395.578 1.592 1.81 3.225 2.12M9.864 22C8.836 21.83 2 19.606 2 12.093C2 5.063 8.002 2 12 2c4 0 10 3.063 10 10.093c0 7.513-6.836 9.738-7.864 9.907c0 0-.21-3.417-.087-4.003c.122-.586-.294-1.528-.294-1.528c.971-.364 2.45-.884 2.945-2.282c.385-1.084.627-2.658-.45-4.138c0 0 .282-2.39-.25-2.484c-.533-.092-2.1.947-2.1.947c-.457-.13-1.476-.377-1.898-.333c-.423-.044-1.445.203-1.902.333c0 0-1.568-1.04-2.1-.947s-.25 2.484-.25 2.484c-1.077 1.48-.835 3.054-.45 4.138c.496 1.398 1.974 1.918 2.945 2.282c0 0-.416.942-.294 1.528S9.864 22 9.864 22"
+                                color="currentColor" />
+                        </svg>GitHub</a>
+                </div>
+
+                <!-- Mobile Navigation -->
+                <div class="hidden absolute top-full left-0 right-0 bg-white border-b border-gray-200 md:hidden"
+                    id="mobile-menu">
+                    <div class="container mx-auto px-6 py-4 flex flex-col gap-4">
+                        <a href="./index.html" class="hover:text-gray-600 py-2">Home</a>
+                        <a href="./index.html#features" class="hover:text-gray-600 py-2">Features</a>
+                        <a href="./index.html#installation" class="hover:text-gray-600 py-2">Installation</a>
+                        <a href="./index.html#usage" class="hover:text-gray-600 py-2">Usage</a>
+                        <span class="text-blue-600 font-medium py-2">Demo</span>
+                        <a href="https://github.com/misits/advanced-filter-system"
+                            class="hover:text-gray-600 py-2">GitHub</a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-8">
+        <!-- Title -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-4">Interactive Demo</h1>
+            <p class="text-lg text-gray-600">Explore all filtering methods with live examples</p>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="mb-8">
+            <nav class="flex space-x-1 bg-gray-100 p-1 rounded-lg" aria-label="Demo tabs">
+                <button id="tab-buttons" class="tab-button flex-1 py-2 px-4 text-sm font-medium text-center text-gray-900 bg-white rounded-md shadow-sm">
+                    Buttons
+                </button>
+                <button id="tab-select" class="tab-button flex-1 py-2 px-4 text-sm font-medium text-center text-gray-500 hover:text-gray-700">
+                    Select Dropdowns
+                </button>
+                <button id="tab-radio" class="tab-button flex-1 py-2 px-4 text-sm font-medium text-center text-gray-500 hover:text-gray-700">
+                    Radio Buttons
+                </button>
+                <button id="tab-checkbox" class="tab-button flex-1 py-2 px-4 text-sm font-medium text-center text-gray-500 hover:text-gray-700">
+                    Checkboxes
+                </button>
+                <button id="tab-range" class="tab-button flex-1 py-2 px-4 text-sm font-medium text-center text-gray-500 hover:text-gray-700">
+                    Range Filters
+                </button>
+                <button id="tab-search" class="tab-button flex-1 py-2 px-4 text-sm font-medium text-center text-gray-500 hover:text-gray-700">
+                    Search
+                </button>
+            </nav>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="tab-content">
+            
+            <!-- Buttons Tab -->
+            <div id="content-buttons" class="tab-content">
+                <!-- Filter Mode Controls -->
+                <div class="mb-6 p-4 bg-white border border-gray-200 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4">Filter Configuration</h3>
+                    <div class="flex flex-wrap gap-4 mb-4">
+                        <!-- Filter Mode -->
+                        <div class="flex items-center space-x-2">
+                            <label class="text-sm font-medium text-gray-600">Mode:</label>
+                            <select id="filter-mode" class="px-3 py-1 text-sm border border-gray-300 rounded">
+                                <option value="mixed">Mixed (Recommended)</option>
+                                <option value="OR">OR</option>
+                                <option value="AND">AND</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Results Counter -->
+                        <div class="ml-auto">
+                            <span class="filter-counter text-sm font-medium px-3 py-1 bg-gray-100 text-gray-800 rounded">All items</span>
+                        </div>
+                    </div>
+
+                    <!-- Custom Logic Configuration -->
+                    <div class="p-3 bg-gray-50 border border-gray-200 rounded">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-3">Custom Logic Configuration</h4>
+                        <p class="text-xs text-gray-600 mb-2">
+                            <strong>OR (Toggle)</strong>: Single selection only (exclusive) | 
+                            <strong>OR (Multi-select)</strong>: Multiple selections with OR logic | 
+                            <strong>AND (Multi-select)</strong>: Multiple selections with AND logic
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="flex items-center space-x-2">
+                                <label class="text-sm font-medium text-gray-900">Categories:</label>
+                                <select id="category-logic" class="px-2 py-1 text-xs border border-gray-300 rounded bg-white">
+                                    <option value="OR">OR (Toggle)</option>
+                                    <option value="OR-multi" selected>OR (Multi-select)</option>
+                                    <option value="AND">AND (Multi-select)</option>
+                                </select>
+                                <span id="category-indicator" class="px-2 py-1 text-xs bg-gray-100 text-gray-900 rounded font-mono">OR(M)</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <label class="text-sm font-medium text-gray-600">Brands:</label>
+                                <select id="brand-logic" class="px-2 py-1 text-xs border border-gray-300 rounded bg-white">
+                                    <option value="OR">OR (Toggle)</option>
+                                    <option value="OR-multi" selected>OR (Multi-select)</option>
+                                    <option value="AND">AND (Multi-select)</option>
+                                </select>
+                                <span id="brand-indicator" class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded font-mono">OR(M)</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <label class="text-sm font-medium text-gray-600">Features:</label>
+                                <select id="features-logic" class="px-2 py-1 text-xs border border-gray-300 rounded bg-white">
+                                    <option value="OR">OR (Toggle)</option>
+                                    <option value="OR-multi" selected>OR (Multi-select)</option>
+                                    <option value="AND">AND (Multi-select)</option>
+                                </select>
+                                <span id="features-indicator" class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded font-mono">OR(M)</span>
+                            </div>
+                        </div>
+                        <button id="apply-logic" class="mt-3 px-3 py-1 bg-gray-800 text-white text-sm rounded hover:bg-gray-900 transition-colors">
+                            Apply Configuration
+                        </button>
+                    </div>
+                </div>
+
+
+                <!-- Filter Controls -->
+                <div class="mb-6 p-4 bg-white border border-gray-200 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4">Filter Controls</h3>
+                    
+                    <!-- Main Controls -->
+                    <div class="flex flex-wrap gap-3 mb-6">
+                        <button class="btn-filter px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300 rounded-md font-medium" data-filter="*">
+                            Show All
+                        </button>
+                        <button class="btn-filter px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-md text-sm" data-filter="category:*">
+                            Clear Categories
+                        </button>
+                        <button class="btn-filter px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-md text-sm" data-filter="brand:*">
+                            Clear Brands
+                        </button>
+                        <button class="btn-filter px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-md text-sm" data-filter="features:*">
+                            Clear Features
+                        </button>
+                    </div>
+
+                    <!-- Filter Groups -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Categories -->
+                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                            <h4 class="font-medium text-gray-800 mb-3">Categories</h4>
+                            <div class="space-y-2">
+                                <button class="btn-filter w-full text-left px-3 py-2 text-sm bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 rounded transition-colors" data-filter="category:tech">
+                                     Technology
+                                </button>
+                                <button class="btn-filter w-full text-left px-3 py-2 text-sm bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 rounded transition-colors" data-filter="category:fashion">
+                                     Fashion
+                                </button>
+                                <button class="btn-filter w-full text-left px-3 py-2 text-sm bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 rounded transition-colors" data-filter="category:food">
+                                     Food
+                                </button>
+                                <button class="btn-filter w-full text-left px-3 py-2 text-sm bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 rounded transition-colors" data-filter="category:book">
+                                     Books
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Brands -->
+                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                            <h4 class="font-medium text-gray-800 mb-3">Brands</h4>
+                            <div class="space-y-2">
+                                <button class="btn-filter w-full text-left px-3 py-2 text-sm bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 rounded transition-colors" data-filter="brand:apple">
+                                     Apple
+                                </button>
+                                <button class="btn-filter w-full text-left px-3 py-2 text-sm bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 rounded transition-colors" data-filter="brand:nike">
+                                     Nike
+                                </button>
+                                <button class="btn-filter w-full text-left px-3 py-2 text-sm bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 rounded transition-colors" data-filter="brand:levis">
+                                     Levi's
+                                </button>
+                                <button class="btn-filter w-full text-left px-3 py-2 text-sm bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 rounded transition-colors" data-filter="brand:penguin">
+                                     Penguin
+                                </button>
+                                <button class="btn-filter w-full text-left px-3 py-2 text-sm bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 rounded transition-colors" data-filter="brand:samsung">
+                                     Samsung
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Features -->
+                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                            <h4 class="font-medium text-gray-800 mb-3">Features</h4>
+                            <div class="space-y-2">
+                                <button class="btn-filter w-full text-left px-3 py-2 text-sm bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 rounded transition-colors" data-filter="features:premium">
+                                     Premium
+                                </button>
+                                <button class="btn-filter w-full text-left px-3 py-2 text-sm bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 rounded transition-colors" data-filter="features:artisan">
+                                    Artisan
+                                </button>
+                                <button class="btn-filter w-full text-left px-3 py-2 text-sm bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 rounded transition-colors" data-filter="features:sporty">
+                                    Sporty
+                                </button>
+                                <button class="btn-filter w-full text-left px-3 py-2 text-sm bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 rounded transition-colors" data-filter="features:classic">
+                                     Classic
+                                </button>
+                                <button class="btn-filter w-full text-left px-3 py-2 text-sm bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 rounded transition-colors" data-filter="features:organic">
+                                     Organic
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuration Preview -->
+                <div class="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                    <details class="group">
+                        <summary class="text-lg font-semibold cursor-pointer flex items-center gap-2 hover:text-blue-600 transition-colors">
+                            <span class="transform transition-transform group-open:rotate-90">▶</span>
+                            📝 Configuration Example
+                        </summary>
+                        <div class="mt-3">
+                            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto text-sm"><code class="language-javascript">// Initialize Button AFS
+const afs = new AFS({
+    containerSelector: '#content-buttons',
+    itemSelector: '.filter-item',
+    filterButtonSelector: '.btn-filter',
+    searchInputSelector: '.filter-search',
+    counterSelector: '.filter-counter',
+    searchKeys: ['title', 'categories'],
+    filterCategoryMode: 'mixed',
+    filterTypeLogic: {
+        category: { mode: 'OR', multi: true },  // Multi-select OR
+        brand: { mode: 'OR', multi: true },     // Multi-select OR
+        features: { mode: 'OR', multi: true }   // Multi-select OR
+    },
+    debug: true,
+    counter: {
+        template: 'Showing {visible} of {total} items',
+        filteredTemplate: '({filtered} filtered)',
+        noResultsTemplate: 'No items found',
+    },
+    animation: {
+        type: 'fade',
+        duration: 300
+    }
+});</code></pre>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- Product Grid -->
+                <div id="item-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <!-- Products will be inserted here by JavaScript -->
+                </div>
+
+                <!-- Pagination -->
+                <div class="afs-pagination-container mt-8"></div>
+            </div>
+
+            <!-- Select Dropdowns Tab -->
+            <div id="content-select" class="tab-content hidden">
+                <!-- Filter Mode Controls -->
+                <div class="mb-6 p-4 bg-white border border-gray-200 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4">Filter Configuration</h3>
+                    <div class="flex flex-wrap gap-4 mb-4">
+                        <!-- Filter Mode -->
+                        <div class="flex items-center space-x-2">
+                            <label class="text-sm font-medium text-gray-600">Mode:</label>
+                            <select id="select-filter-mode" class="px-3 py-1 text-sm border border-gray-300 rounded">
+                                <option value="mixed">Mixed (Recommended)</option>
+                                <option value="OR">OR</option>
+                                <option value="AND">AND</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Results Counter -->
+                        <div class="ml-auto">
+                            <span class="select-filter-counter text-sm font-medium px-3 py-1 bg-gray-100 text-gray-800 rounded">All items</span>
+                        </div>
+                    </div>
+
+                    <!-- Custom Logic Configuration -->
+                    <div class="p-3 bg-gray-50 border border-gray-200 rounded">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-3">Custom Logic Configuration</h4>
+                        <div class="text-xs text-gray-600 mb-2">
+                            <p class="mb-1">
+                                <strong>Note:</strong> Regular select dropdowns are single-selection by nature. OR (Multi-select) behaves the same as OR (Toggle) for dropdowns.
+                            </p>
+                            <p class="text-red-600 font-medium">
+                                Native HTML <code>&lt;select multiple&gt;</code> creates a list box (not a dropdown) with poor UX. 
+                                For true multi-select, use checkboxes or buttons instead.
+                            </p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="flex items-center space-x-2">
+                                <label class="text-sm font-medium text-gray-900">Categories:</label>
+                                <select id="select-category-logic" class="px-2 py-1 text-xs border border-gray-300 rounded bg-white">
+                                    <option value="OR">OR (Toggle)</option>
+                                    <option value="OR-multi" selected>OR (Multi-select)</option>
+                                    <option value="AND">AND (Multi-select)</option>
+                                </select>
+                                <span id="select-category-indicator" class="px-2 py-1 text-xs bg-gray-100 text-gray-900 rounded font-mono">OR(M)</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <label class="text-sm font-medium text-gray-600">Brands:</label>
+                                <select id="select-brand-logic" class="px-2 py-1 text-xs border border-gray-300 rounded bg-white">
+                                    <option value="OR">OR (Toggle)</option>
+                                    <option value="OR-multi" selected>OR (Multi-select)</option>
+                                    <option value="AND">AND (Multi-select)</option>
+                                </select>
+                                <span id="select-brand-indicator" class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded font-mono">OR(M)</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <label class="text-sm font-medium text-gray-600">Features:</label>
+                                <select id="select-features-logic" class="px-2 py-1 text-xs border border-gray-300 rounded bg-white">
+                                    <option value="OR">OR (Toggle)</option>
+                                    <option value="OR-multi" selected>OR (Multi-select)</option>
+                                    <option value="AND">AND (Multi-select)</option>
+                                </select>
+                                <span id="select-features-indicator" class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded font-mono">OR(M)</span>
+                            </div>
+                        </div>
+                        <button id="select-apply-logic" class="mt-3 px-3 py-1 bg-gray-800 text-white text-sm rounded hover:bg-gray-900 transition-colors">
+                            Apply Configuration
+                        </button>
+                    </div>
+                </div>
+
+
+                <!-- Filter Controls -->
+                <div class="mb-6 p-4 bg-white border border-gray-200 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4">Filter Controls</h3>
+                    
+                    <!-- Main Controls -->
+                    <div class="flex flex-wrap gap-3 mb-6">
+                        <button class="select-btn-filter px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300 rounded-md font-medium" data-filter="*">
+                             Show All
+                        </button>
+                    </div>
+
+                    <!-- Select Dropdowns -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Categories -->
+                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                            <h4 class="font-medium text-gray-800 mb-3">Categories</h4>
+                            <select class="select-btn-filter w-full px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" data-filter-type="category">
+                                <option value="">All Categories</option>
+                                <option value="category:tech" data-filter="category:tech"> Technology</option>
+                                <option value="category:fashion" data-filter="category:fashion"> Fashion</option>
+                                <option value="category:food" data-filter="category:food"> Food</option>
+                                <option value="category:book" data-filter="category:book"> Books</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Brands -->
+                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                            <h4 class="font-medium text-gray-800 mb-3">Brands</h4>
+                            <select class="select-btn-filter w-full px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-gray-500" data-filter-type="brand">
+                                <option value="">All Brands</option>
+                                <option value="brand:apple" data-filter="brand:apple"> Apple</option>
+                                <option value="brand:nike" data-filter="brand:nike"> Nike</option>
+                                <option value="brand:levis" data-filter="brand:levis"> Levi's</option>
+                                <option value="brand:penguin" data-filter="brand:penguin"> Penguin</option>
+                                <option value="brand:samsung" data-filter="brand:samsung"> Samsung</option>
+                                <option value="brand:adidas" data-filter="brand:adidas"> Adidas</option>
+                                <option value="brand:dell" data-filter="brand:dell">Dell</option>
+                                <option value="brand:northface" data-filter="brand:northface"> North Face</option>
+                                <option value="brand:local" data-filter="brand:local"> Local</option>
+                                <option value="brand:organic" data-filter="brand:organic"> Organic</option>
+                                <option value="brand:specialty" data-filter="brand:specialty"> Specialty</option>
+                                <option value="brand:random-house" data-filter="brand:random-house"> Random House</option>
+                                <option value="brand:simon-schuster" data-filter="brand:simon-schuster"> Simon & Schuster</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Features -->
+                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                            <h4 class="font-medium text-gray-800 mb-3">Features</h4>
+                            <select class="select-btn-filter w-full px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-gray-500" data-filter-type="features">
+                                <option value="">All Features</option>
+                                <option value="features:premium" data-filter="features:premium"> Premium</option>
+                                <option value="features:artisan" data-filter="features:artisan">Artisan</option>
+                                <option value="features:sporty" data-filter="features:sporty">Sporty</option>
+                                <option value="features:classic" data-filter="features:classic"> Classic</option>
+                                <option value="features:organic" data-filter="features:organic"> Organic</option>
+                                <option value="features:flagship" data-filter="features:flagship">Flagship</option>
+                                <option value="features:professional" data-filter="features:professional">Professional</option>
+                                <option value="features:ultrabook" data-filter="features:ultrabook">Ultrabook</option>
+                                <option value="features:denim" data-filter="features:denim"> Denim</option>
+                                <option value="features:comfortable" data-filter="features:comfortable">Comfortable</option>
+                                <option value="features:casual" data-filter="features:casual"> Casual</option>
+                                <option value="features:outdoor" data-filter="features:outdoor">Outdoor</option>
+                                <option value="features:italian" data-filter="features:italian">Italian</option>
+                                <option value="features:gourmet" data-filter="features:gourmet">Gourmet</option>
+                                <option value="features:healthy" data-filter="features:healthy">Healthy</option>
+                                <option value="features:fresh" data-filter="features:fresh">Fresh</option>
+                                <option value="features:epic" data-filter="features:epic">Epic</option>
+                                <option value="features:thriller" data-filter="features:thriller"> Thriller</option>
+                                <option value="features:bestseller" data-filter="features:bestseller"> Bestseller</option>
+                                <option value="features:self-help" data-filter="features:self-help">Self-Help</option>
+                                <option value="features:productivity" data-filter="features:productivity">Productivity</option>
+                                <option value="features:cookbook" data-filter="features:cookbook">Cookbook</option>
+                                <option value="features:educational" data-filter="features:educational">Educational</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Demonstration: Native HTML Multi-Select Issues -->
+                <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4 text-yellow-800">HTML Multi-Select Demonstration</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Regular Select (Good UX) -->
+                        <div class="p-3 bg-white border border-gray-200 rounded">
+                            <h4 class="font-medium text-gray-800 mb-2">Regular Select ✅</h4>
+                            <select class="w-full px-2 py-1 border border-gray-300 rounded">
+                                <option>Technology</option>
+                                <option>Fashion</option>
+                                <option>Food</option>
+                                <option>Books</option>
+                            </select>
+                            <p class="text-xs text-gray-600 mt-1">Nice dropdown UI, single selection only</p>
+                        </div>
+                        
+                        <!-- Multi-Select (Poor UX) -->
+                        <div class="p-3 bg-white border border-gray-200 rounded">
+                            <h4 class="font-medium text-gray-800 mb-2">Native Multi-Select ❌</h4>
+                            <select multiple class="w-full px-2 py-1 border border-gray-300 rounded" size="4">
+                                <option>Technology</option>
+                                <option>Fashion</option>
+                                <option>Food</option>
+                                <option>Books</option>
+                            </select>
+                            <p class="text-xs text-red-600 mt-1">List box UI, requires Ctrl/Cmd, confusing</p>
+                        </div>
+                        
+                        <!-- Better Alternative -->
+                        <div class="p-3 bg-white border border-gray-200 rounded">
+                            <h4 class="font-medium text-gray-800 mb-2">Better Alternative ✅</h4>
+                            <div class="space-y-1">
+                                <label class="flex items-center space-x-2 text-sm">
+                                    <input type="checkbox" class="text-gray-600">
+                                    <span>Technology</span>
+                                </label>
+                                <label class="flex items-center space-x-2 text-sm">
+                                    <input type="checkbox" class="text-gray-600">
+                                    <span>Fashion</span>
+                                </label>
+                                <label class="flex items-center space-x-2 text-sm">
+                                    <input type="checkbox" class="text-gray-600">
+                                    <span>Food</span>
+                                </label>
+                                <label class="flex items-center space-x-2 text-sm">
+                                    <input type="checkbox" class="text-gray-600">
+                                    <span>Books</span>
+                                </label>
+                            </div>
+                            <p class="text-xs text-green-600 mt-1">Clear multi-select UI, no keyboard needed</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuration Preview -->
+                <div class="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                    <details class="group">
+                        <summary class="text-lg font-semibold cursor-pointer flex items-center gap-2 hover:text-blue-600 transition-colors">
+                            <span class="transform transition-transform group-open:rotate-90">▶</span>
+                            📝 Configuration Example
+                        </summary>
+                        <div class="mt-3">
+                            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto text-sm"><code class="language-javascript">// Initialize Select AFS
+const selectAfs = new AFS({
+    containerSelector: '#content-select',
+    itemSelector: '.filter-item',
+    filterButtonSelector: '.select-btn-filter:not([data-filter-type])',
+    searchInputSelector: null,  // No search for select tab
+    counterSelector: '.select-filter-counter',
+    searchKeys: ['title', 'categories'],
+    filterCategoryMode: 'mixed',
+    filterTypeLogic: {
+        category: { mode: 'OR', multi: true },  // Multi-select OR
+        brand: { mode: 'OR', multi: true },     // Multi-select OR
+        features: { mode: 'OR', multi: true }   // Multi-select OR
+    },
+    debug: true,
+    counter: {
+        template: 'Showing {visible} of {total} items',
+        filteredTemplate: '({filtered} filtered)',
+        noResultsTemplate: 'No items found',
+    },
+    animation: {
+        type: 'fade',
+        duration: 300
+    }
+});</code></pre>
+                            <p class="text-xs text-gray-600 mt-2">
+                                <strong>Note:</strong> Select dropdowns with multi-mode allow multiple active filters simultaneously. Items show when they match at least one selected option per filter type.
+                            </p>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- Product Grid -->
+                <div id="select-item-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <!-- Products will be inserted here by JavaScript -->
+                </div>
+
+                <!-- Pagination -->
+                <div class="select-afs-pagination-container mt-8"></div>
+            </div>
+
+            <!-- Radio Buttons Tab -->
+            <div id="content-radio" class="tab-content hidden">
+                <!-- Filter Mode Controls -->
+                <div class="mb-6 p-4 bg-white border border-gray-200 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4">Filter Configuration</h3>
+                    <div class="flex flex-wrap gap-4 mb-4">
+                        <!-- Filter Mode -->
+                        <div class="flex items-center space-x-2">
+                            <label class="text-sm font-medium text-gray-600">Mode:</label>
+                            <select id="radio-filter-mode" class="px-3 py-1 text-sm border border-gray-300 rounded">
+                                <option value="mixed">Mixed (Recommended)</option>
+                                <option value="OR">OR</option>
+                                <option value="AND">AND</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Results Counter -->
+                        <div class="ml-auto">
+                            <span class="radio-filter-counter text-sm font-medium px-3 py-1 bg-gray-100 text-gray-800 rounded">All items</span>
+                        </div>
+                    </div>
+
+                    <!-- Fixed Logic Info -->
+                    <div class="p-3 bg-gray-50 border border-gray-200 rounded">
+                        <div class="text-sm text-gray-800">
+                            <strong> Radio Button Logic:</strong> Fixed OR (Toggle) behavior - only one selection allowed per group. This matches natural radio button UI behavior.
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Filter Controls -->
+                <div class="mb-6 p-4 bg-white border border-gray-200 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4">Filter Controls</h3>
+                    
+                    <!-- Main Controls -->
+                    <div class="flex flex-wrap gap-3 mb-6">
+                        <button class="radio-btn-filter px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300 rounded-md font-medium" data-filter="*">
+                             Show All
+                        </button>
+                    </div>
+
+                    <!-- Radio Button Groups -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Categories -->
+                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                            <h4 class="font-medium text-gray-800 mb-3">Categories</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="radio" name="radio-category" value="" class="radio-btn-filter text-gray-900" data-filter="category:*" checked>
+                                    <span class="text-gray-700">All Categories</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="radio" name="radio-category" value="category:tech" class="radio-btn-filter text-gray-900" data-filter="category:tech">
+                                    <span class="text-gray-700"> Technology</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="radio" name="radio-category" value="category:fashion" class="radio-btn-filter text-gray-900" data-filter="category:fashion">
+                                    <span class="text-gray-700"> Fashion</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="radio" name="radio-category" value="category:food" class="radio-btn-filter text-gray-900" data-filter="category:food">
+                                    <span class="text-gray-700"> Food</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="radio" name="radio-category" value="category:book" class="radio-btn-filter text-gray-900" data-filter="category:book">
+                                    <span class="text-gray-700"> Books</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Brands -->
+                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                            <h4 class="font-medium text-gray-800 mb-3">Brands</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="radio" name="radio-brand" value="" class="radio-btn-filter text-gray-600" data-filter="brand:*" checked>
+                                    <span class="text-gray-700">All Brands</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="radio" name="radio-brand" value="brand:apple" class="radio-btn-filter text-gray-600" data-filter="brand:apple">
+                                    <span class="text-gray-700"> Apple</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="radio" name="radio-brand" value="brand:nike" class="radio-btn-filter text-gray-600" data-filter="brand:nike">
+                                    <span class="text-gray-700"> Nike</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="radio" name="radio-brand" value="brand:levis" class="radio-btn-filter text-gray-600" data-filter="brand:levis">
+                                    <span class="text-gray-700"> Levi's</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="radio" name="radio-brand" value="brand:penguin" class="radio-btn-filter text-gray-600" data-filter="brand:penguin">
+                                    <span class="text-gray-700"> Penguin</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="radio" name="radio-brand" value="brand:samsung" class="radio-btn-filter text-gray-600" data-filter="brand:samsung">
+                                    <span class="text-gray-700"> Samsung</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Features -->
+                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                            <h4 class="font-medium text-gray-800 mb-3">Features</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="radio" name="radio-features" value="" class="radio-btn-filter text-gray-600" data-filter="features:*" checked>
+                                    <span class="text-gray-700">All Features</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="radio" name="radio-features" value="features:premium" class="radio-btn-filter text-gray-600" data-filter="features:premium">
+                                    <span class="text-gray-700"> Premium</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="radio" name="radio-features" value="features:artisan" class="radio-btn-filter text-gray-600" data-filter="features:artisan">
+                                    <span class="text-gray-700">Artisan</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="radio" name="radio-features" value="features:sporty" class="radio-btn-filter text-gray-600" data-filter="features:sporty">
+                                    <span class="text-gray-700">Sporty</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="radio" name="radio-features" value="features:classic" class="radio-btn-filter text-gray-600" data-filter="features:classic">
+                                    <span class="text-gray-700"> Classic</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="radio" name="radio-features" value="features:organic" class="radio-btn-filter text-gray-600" data-filter="features:organic">
+                                    <span class="text-gray-700"> Organic</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuration Preview -->
+                <div class="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                    <details class="group">
+                        <summary class="text-lg font-semibold cursor-pointer flex items-center gap-2 hover:text-blue-600 transition-colors">
+                            <span class="transform transition-transform group-open:rotate-90">▶</span>
+                            📝 Configuration Example
+                        </summary>
+                        <div class="mt-3">
+                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto text-sm"><code class="language-javascript">// Initialize Radio AFS
+const radioAfs = new AFS({
+    containerSelector: '#content-radio',
+    itemSelector: '.filter-item',
+    filterButtonSelector: '.radio-btn-filter',
+    searchInputSelector: '.radio-filter-search',
+    counterSelector: '.radio-filter-counter',
+    searchKeys: ['title', 'categories'],
+    filterCategoryMode: 'mixed',
+    filterTypeLogic: {
+        category: 'OR',    // Single selection (exclusive)
+        brand: 'OR',       // Single selection (exclusive)
+        features: 'OR'     // Single selection (exclusive)
+    },
+    debug: true,
+    counter: {
+        template: 'Showing {visible} of {total} items',
+        filteredTemplate: '({filtered} filtered)',
+        noResultsTemplate: 'No items found',
+    },
+    animation: {
+        type: 'fade',
+        duration: 300
+    }
+});</code></pre>
+                            <p class="text-xs text-gray-600 mt-2">
+                                <strong>Note:</strong> Radio buttons naturally support single selection per group. Perfect for exclusive category filtering.
+                            </p>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- Product Grid -->
+                <div id="radio-item-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <!-- Products will be inserted here by JavaScript -->
+                </div>
+
+                <!-- Pagination -->
+                <div class="radio-afs-pagination-container mt-8"></div>
+            </div>
+
+            <!-- Checkboxes Tab -->
+            <div id="content-checkbox" class="tab-content hidden">
+                <!-- Filter Mode Controls -->
+                <div class="mb-6 p-4 bg-white border border-gray-200 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4">Filter Configuration</h3>
+                    <div class="flex flex-wrap gap-4 mb-4">
+                        <!-- Filter Mode -->
+                        <div class="flex items-center space-x-2">
+                            <label class="text-sm font-medium text-gray-600">Mode:</label>
+                            <select id="checkbox-filter-mode" class="px-3 py-1 text-sm border border-gray-300 rounded">
+                                <option value="mixed">Mixed (Recommended)</option>
+                                <option value="OR">OR</option>
+                                <option value="AND">AND</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Results Counter -->
+                        <div class="ml-auto">
+                            <span class="checkbox-filter-counter text-sm font-medium px-3 py-1 bg-gray-100 text-gray-800 rounded">All items</span>
+                        </div>
+                    </div>
+
+                    <!-- Info Box -->
+                    <div class="p-3 bg-gray-50 border border-gray-200 rounded mb-4">
+                        <div class="text-sm text-gray-800">
+                            <strong>Flexible Logic Control:</strong><br>
+                            Configure the logic for each filter type independently!<br>
+                            &bull; <strong>OR Logic (Toggle Mode)</strong>: Only one selection allowed per category - selecting switches between options<br>
+                            &bull; <strong>AND Logic (Multi-Select)</strong>: Multiple selections allowed - all selected filters must match the item<br>
+                            &bull; Between categories: Always AND logic (must match at least one from each active category)
+                        </div>
+                    </div>
+
+                    <!-- Custom Logic Configuration -->
+                    <div class="p-3 bg-gray-50 border border-gray-200 rounded">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-3">Custom Logic Configuration</h4>
+                        <p class="text-xs text-gray-600 mb-2">
+                            <strong>OR (Toggle)</strong>: Single selection only (exclusive) | 
+                            <strong>OR (Multi-select)</strong>: Multiple selections with OR logic | 
+                            <strong>AND (Multi-select)</strong>: Multiple selections with AND logic
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="flex items-center space-x-2">
+                                <label class="text-sm font-medium text-gray-900">Categories:</label>
+                                <select id="checkbox-category-logic" class="px-2 py-1 text-xs border border-gray-300 rounded bg-white">
+                                    <option value="OR-multi" selected>OR (Multi-select)</option>
+                                    <option value="AND">AND (Multi-select)</option>
+                                </select>
+                                <span id="checkbox-category-indicator" class="px-2 py-1 text-xs bg-gray-100 text-gray-900 rounded font-mono">OR(M)</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <label class="text-sm font-medium text-gray-600">Brands:</label>
+                                <select id="checkbox-brand-logic" class="px-2 py-1 text-xs border border-gray-300 rounded bg-white">
+                                    <option value="OR-multi" selected>OR (Multi-select)</option>
+                                    <option value="AND">AND (Multi-select)</option>
+                                </select>
+                                <span id="checkbox-brand-indicator" class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded font-mono">OR(M)</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <label class="text-sm font-medium text-gray-600">Features:</label>
+                                <select id="checkbox-features-logic" class="px-2 py-1 text-xs border border-gray-300 rounded bg-white">
+                                    <option value="OR-multi" selected>OR (Multi-select)</option>
+                                    <option value="AND">AND (Multi-select)</option>
+                                </select>
+                                <span id="checkbox-features-indicator" class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded font-mono">OR(M)</span>
+                            </div>
+                        </div>
+                        <button id="checkbox-apply-logic" class="mt-3 px-3 py-1 bg-gray-800 text-white text-sm rounded hover:bg-gray-900 transition-colors">
+                            Apply Configuration
+                        </button>
+                        <div class="mt-2 text-xs text-gray-600">
+                            <strong>Note:</strong> Checkboxes naturally support multiple selections. Use OR logic when items need ANY selected value, or AND logic when items need ALL selected values.
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Filter Controls -->
+                <div class="mb-6 p-4 bg-white border border-gray-200 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4">Filter Controls</h3>
+                    
+                    <!-- Main Controls -->
+                    <div class="flex flex-wrap gap-3 mb-6">
+                        <button class="checkbox-btn-filter px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300 rounded-md font-medium" data-filter="*">
+                             Show All
+                        </button>
+                        <button class="checkbox-btn-filter px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-md text-sm" data-filter="category:*">
+                            Clear Categories
+                        </button>
+                        <button class="checkbox-btn-filter px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-md text-sm" data-filter="brand:*">
+                            Clear Brands
+                        </button>
+                        <button class="checkbox-btn-filter px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-md text-sm" data-filter="features:*">
+                            Clear Features
+                        </button>
+                    </div>
+
+                    <!-- Checkbox Groups -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Categories -->
+                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                            <h4 class="font-medium text-gray-800 mb-3">Categories</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" value="category:tech" class="checkbox-btn-filter text-gray-900" data-filter="category:tech">
+                                    <span class="text-gray-700"> Technology</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" value="category:fashion" class="checkbox-btn-filter text-gray-900" data-filter="category:fashion">
+                                    <span class="text-gray-700"> Fashion</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" value="category:food" class="checkbox-btn-filter text-gray-900" data-filter="category:food">
+                                    <span class="text-gray-700"> Food</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" value="category:book" class="checkbox-btn-filter text-gray-900" data-filter="category:book">
+                                    <span class="text-gray-700"> Books</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Brands -->
+                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                            <h4 class="font-medium text-gray-800 mb-3">Brands</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" value="brand:apple" class="checkbox-btn-filter text-gray-600" data-filter="brand:apple">
+                                    <span class="text-gray-700"> Apple</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" value="brand:nike" class="checkbox-btn-filter text-gray-600" data-filter="brand:nike">
+                                    <span class="text-gray-700"> Nike</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" value="brand:levis" class="checkbox-btn-filter text-gray-600" data-filter="brand:levis">
+                                    <span class="text-gray-700"> Levi's</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" value="brand:penguin" class="checkbox-btn-filter text-gray-600" data-filter="brand:penguin">
+                                    <span class="text-gray-700"> Penguin</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" value="brand:samsung" class="checkbox-btn-filter text-gray-600" data-filter="brand:samsung">
+                                    <span class="text-gray-700"> Samsung</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" value="brand:adidas" class="checkbox-btn-filter text-gray-600" data-filter="brand:adidas">
+                                    <span class="text-gray-700"> Adidas</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Features -->
+                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                            <h4 class="font-medium text-gray-800 mb-3">Features</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" value="features:premium" class="checkbox-btn-filter text-gray-600" data-filter="features:premium">
+                                    <span class="text-gray-700"> Premium</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" value="features:artisan" class="checkbox-btn-filter text-gray-600" data-filter="features:artisan">
+                                    <span class="text-gray-700">Artisan</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" value="features:sporty" class="checkbox-btn-filter text-gray-600" data-filter="features:sporty">
+                                    <span class="text-gray-700">Sporty</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" value="features:classic" class="checkbox-btn-filter text-gray-600" data-filter="features:classic">
+                                    <span class="text-gray-700"> Classic</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" value="features:organic" class="checkbox-btn-filter text-gray-600" data-filter="features:organic">
+                                    <span class="text-gray-700"> Organic</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" value="features:comfortable" class="checkbox-btn-filter text-gray-600" data-filter="features:comfortable">
+                                    <span class="text-gray-700">Comfortable</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuration Preview -->
+                <div class="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                    <details class="group">
+                        <summary class="text-lg font-semibold cursor-pointer flex items-center gap-2 hover:text-blue-600 transition-colors">
+                            <span class="transform transition-transform group-open:rotate-90">▶</span>
+                            📝 Configuration Example
+                        </summary>
+                        <div class="mt-3">
+                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto text-sm"><code class="language-javascript">// Initialize Checkbox AFS
+const checkboxAfs = new AFS({
+    containerSelector: '#content-checkbox',
+    itemSelector: '.filter-item',
+    filterButtonSelector: '.checkbox-btn-filter',
+    searchInputSelector: '.checkbox-filter-search',
+    counterSelector: '.checkbox-filter-counter',
+    urlStateKey: 'checkboxFilters',  // Unique URL state
+    searchKeys: ['title', 'categories'],
+    filterCategoryMode: 'mixed',
+    filterTypeLogic: {
+        category: { mode: 'OR', multi: true },  // Multi-select OR
+        brand: { mode: 'OR', multi: true },     // Multi-select OR
+        features: { mode: 'OR', multi: true }   // Multi-select OR
+    },
+    debug: true,
+    counter: {
+        template: 'Showing {visible} of {total} items',
+        filteredTemplate: '({filtered} filtered)',
+        noResultsTemplate: 'No items found',
+    },
+    animation: {
+        type: 'fade',
+        duration: 300
+    }
+});</code></pre>
+                            <p class="text-xs text-gray-600 mt-2">
+                                <strong>Note:</strong> Checkboxes support multi-select by nature. Use extended format with <code>multi: true</code> for proper behavior.
+                            </p>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- Product Grid -->
+                <div id="checkbox-item-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <!-- Products will be inserted here by JavaScript -->
+                </div>
+
+                <!-- Pagination -->
+                <div class="checkbox-afs-pagination-container mt-8"></div>
+            </div>
+
+            <!-- Range Filters Tab -->
+            <div id="content-range" class="tab-content hidden">
+                <!-- Filter Mode Controls -->
+                <div class="mb-6 p-4 bg-white border border-gray-200 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4">Filter Configuration</h3>
+                    <div class="flex flex-wrap gap-4 mb-4">
+                        <!-- Filter Mode -->
+                        <div class="flex items-center space-x-2">
+                            <label class="text-sm font-medium text-gray-600">Mode:</label>
+                            <select id="range-filter-mode" class="px-3 py-1 text-sm border border-gray-300 rounded">
+                                <option value="mixed">Mixed (Recommended)</option>
+                                <option value="OR">OR</option>
+                                <option value="AND">AND</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Results Counter -->
+                        <div class="ml-auto">
+                            <span class="range-filter-counter text-sm font-medium px-3 py-1 bg-gray-100 text-gray-800 rounded">All items</span>
+                        </div>
+                    </div>
+
+                    <!-- Info Box -->
+                    <div class="p-3 bg-gray-50 border border-gray-200 rounded mb-4">
+                        <div class="text-sm text-gray-800">
+                            <strong>Range Filtering:</strong><br>
+                            Use sliders and inputs to filter items by numeric ranges (price, rating, sales).<br>
+                            Range filters work independently and can be combined with category filters.
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Filter Controls -->
+                <div class="mb-6 p-4 bg-white border border-gray-200 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4">Range Filter Controls</h3>
+                    
+                    <!-- Main Controls -->
+                    <div class="flex flex-wrap gap-3 mb-6">
+                        <button class="range-btn-filter px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300 rounded-md font-medium" data-filter="*">
+                             Show All
+                        </button>
+                        <button class="range-btn-filter px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-md text-sm" id="clear-ranges">
+                            Clear All Ranges
+                        </button>
+                    </div>
+
+                    <!-- AFS Range Sliders - using built-in RangeFilter with histograms -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+                        <!-- Price Range -->
+                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                            <h4 class="font-medium text-gray-800 mb-3"> Price Range</h4>
+                            <div class="price-range-container"></div>
+                        </div>
+                        
+                        <!-- Rating Range -->
+                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                            <h4 class="font-medium text-gray-800 mb-3"> Rating Range</h4>
+                            <div class="rating-range-container"></div>
+                        </div>
+                        
+                        <!-- Sales Range -->
+                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                            <h4 class="font-medium text-gray-800 mb-3"> Sales Range</h4>
+                            <div class="sales-range-container"></div>
+                        </div>
+
+                        <!-- Date Range -->
+                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                            <h4 class="font-medium text-gray-800 mb-3"> Date Range</h4>
+                            <div class="date-range-container"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category Filters (for combination testing) -->
+                <div class="mb-6 p-4 bg-white border border-gray-200 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4">Combine with Category Filters</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <button class="range-btn-filter px-3 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-300 text-gray-700 rounded transition-colors" data-filter="category:tech">
+                             Technology
+                        </button>
+                        <button class="range-btn-filter px-3 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-300 text-gray-700 rounded transition-colors" data-filter="category:fashion">
+                             Fashion
+                        </button>
+                        <button class="range-btn-filter px-3 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-300 text-gray-700 rounded transition-colors" data-filter="category:food">
+                             Food
+                        </button>
+                        <button class="range-btn-filter px-3 py-2 bg-gray-50 hover:bg-gray-100 border border-gray-300 text-gray-700 rounded transition-colors" data-filter="category:book">
+                             Books
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Configuration Preview -->
+                <div class="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                    <details class="group">
+                        <summary class="text-lg font-semibold cursor-pointer flex items-center gap-2 hover:text-blue-600 transition-colors">
+                            <span class="transform transition-transform group-open:rotate-90">▶</span>
+                            📝 Configuration Example
+                        </summary>
+                        <div class="mt-3">
+                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto text-sm"><code class="language-javascript">// Initialize Range AFS with RangeFilter support
+const rangeAfs = new AFS({
+    containerSelector: '#content-range',
+    itemSelector: '.filter-item',
+    filterButtonSelector: '.range-btn-filter',
+    searchInputSelector: '.range-filter-search',
+    counterSelector: '.range-filter-counter',
+    searchKeys: ['title', 'categories'],
+    debug: true,
+    counter: {
+        template: 'Showing {visible} of {total} items',
+        filteredTemplate: '({filtered} filtered)',
+        noResultsTemplate: 'No items found',
+    },
+    animation: { type: 'fade', duration: 300 }
+});
+
+// Add range slider for price filtering
+const priceContainer = document.querySelector('.price-range-container');
+rangeAfs.rangeFilter.addRangeSlider({
+    key: 'price',
+    type: 'number',
+    container: priceContainer,
+    min: 12,
+    max: 2500,
+    step: 1,
+    ui: { showHistogram: true, bins: 10 }
+});</code></pre>
+                            <p class="text-xs text-gray-600 mt-2">
+                                <strong>Note:</strong> Range filters provide continuous filtering with visual sliders and optional histograms.
+                            </p>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- Product Grid -->
+                <div id="range-item-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <!-- Products will be inserted here by JavaScript -->
+                </div>
+
+                <!-- Pagination -->
+                <div class="range-afs-pagination-container mt-8"></div>
+            </div>
+
+            <!-- Search Tab -->
+            <div id="content-search" class="tab-content hidden">
+                <!-- Filter Mode Controls -->
+                <div class="mb-6 p-4 bg-white border border-gray-200 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4">Search Configuration</h3>
+                    <div class="flex flex-wrap gap-4 mb-4">
+                        <!-- Results Counter -->
+                        <div class="ml-auto">
+                            <span class="search-filter-counter text-sm font-medium px-3 py-1 bg-gray-100 text-gray-800 rounded">All items</span>
+                        </div>
+                    </div>
+
+                    <!-- Info Box -->
+                    <div class="p-3 bg-gray-50 border border-gray-200 rounded mb-4">
+                        <div class="text-sm text-gray-800">
+                            <strong> Advanced Search:</strong><br>
+                            Search across multiple fields simultaneously. You can search by title, category, brand, features, or any combination.<br>
+                            Try searches like: "apple premium", "fashion comfortable", "book classic", "food artisan"
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Controls -->
+                <div class="mb-6 p-4 bg-white border border-gray-200 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4">Search & Sort Controls</h3>
+                    
+                    <!-- Main Search -->
+                    <div class="mb-6">
+                        <div class="relative">
+                            <input type="text" class="search-filter-search w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg placeholder-gray-500 focus:border-gray-500 focus:outline-none" placeholder=" Search products by title, category, brand, features...">
+                            <button id="search-clear" class="absolute right-3 top-1/2 transform -translate-y-1/2 px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm rounded">
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Search Examples -->
+                    <div class="mb-6">
+                        <h4 class="text-sm font-medium text-gray-700 mb-3">Try These Search Examples:</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="search-example px-3 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-300 text-gray-700 rounded text-sm" data-search="apple premium">
+                                "apple premium"
+                            </button>
+                            <button class="search-example px-3 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-300 text-gray-700 rounded text-sm" data-search="fashion comfortable">
+                                "fashion comfortable"
+                            </button>
+                            <button class="search-example px-3 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-300 text-gray-700 rounded text-sm" data-search="book classic">
+                                "book classic"
+                            </button>
+                            <button class="search-example px-3 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-300 text-gray-700 rounded text-sm" data-search="food artisan">
+                                "food artisan"
+                            </button>
+                            <button class="search-example px-3 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-300 text-gray-700 rounded text-sm" data-search="samsung galaxy">
+                                "samsung galaxy"
+                            </button>
+                            <button class="search-example px-3 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-300 text-gray-700 rounded text-sm" data-search="nike sporty">
+                                "nike sporty"
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sort Controls -->
+                    <div class="mb-3">
+                        <p class="text-sm text-gray-600 mb-2">
+                            <strong>Order Results:</strong> Sort or shuffle the search results (does not affect search filtering)
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <button id="search-sort-title" class="px-3 py-2 text-sm border border-gray-300 bg-white rounded hover:bg-gray-50">Sort Title</button>
+                            <button id="search-sort-price" class="px-3 py-2 text-sm border border-gray-300 bg-white rounded hover:bg-gray-50">Sort Price</button>
+                            <button id="search-sort-rating" class="px-3 py-2 text-sm border border-gray-300 bg-white rounded hover:bg-gray-50">Sort Rating</button>
+                            <button id="search-sort-sales" class="px-3 py-2 text-sm border border-gray-300 bg-white rounded hover:bg-gray-50">Sort Sales</button>
+                            <button id="search-sort-shuffle" class="px-3 py-2 text-sm border border-gray-300 bg-white rounded hover:bg-gray-50">Shuffle</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Statistics -->
+                <div class="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">Search Statistics</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div class="text-center">
+                            <div class="font-bold text-lg text-gray-900" id="search-stat-total">16</div>
+                            <div class="text-gray-600">Total Products</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="font-bold text-lg text-gray-600" id="search-stat-visible">16</div>
+                            <div class="text-gray-600">Visible</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="font-bold text-lg text-gray-600" id="search-stat-hidden">0</div>
+                            <div class="text-gray-600">Hidden</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="font-bold text-lg text-gray-600" id="search-stat-matches">-</div>
+                            <div class="text-gray-600">Search Matches</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuration Preview -->
+                <div class="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                    <details class="group">
+                        <summary class="text-lg font-semibold cursor-pointer flex items-center gap-2 hover:text-blue-600 transition-colors">
+                            <span class="transform transition-transform group-open:rotate-90">▶</span>
+                            📝 Configuration Example
+                        </summary>
+                        <div class="mt-3">
+                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto text-sm"><code class="language-javascript">// Initialize Search AFS (Search-focused configuration)
+const searchAfs = new AFS({
+    containerSelector: '#search-item-grid',
+    itemSelector: '.filter-item',
+    searchInputSelector: '.search-filter-search',
+    counterSelector: '.search-filter-counter',
+    searchKeys: ['title', 'categories', 'brand', 'features'],
+    debounceTime: 300,  // Search delay in milliseconds
+    debug: true,
+    counter: {
+        template: 'Found {visible} of {total} items',
+        filteredTemplate: '({filtered} hidden)',
+        noResultsTemplate: 'No items match your search',
+    },
+    animation: {
+        type: 'fade',
+        duration: 200
+    }
+});</code></pre>
+                            <p class="text-xs text-gray-600 mt-2">
+                                <strong>Note:</strong> Search-focused configuration with multiple searchable fields and optimized debounce timing.
+                            </p>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- Product Grid -->
+                <div id="search-item-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <!-- Products will be inserted here by JavaScript -->
+                </div>
+
+                <!-- Pagination -->
+                <div class="search-afs-pagination-container mt-8"></div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { AFS } from './dist/afs.modern.js';
+
+        // Sample product data
+        const products = [
+            // Technology
+            { id: 1, category: 'tech', categoryLabel: 'Smartphone', title: 'iPhone Pro Max', price: 1299, date: '2024-03-15', rating: 4.8, sales: 1250, color: 'blue', brand: 'apple', features: 'premium flagship' },
+            { id: 2, category: 'tech', categoryLabel: 'Smartphone', title: 'Samsung Galaxy Ultra', price: 1199, date: '2024-03-10', rating: 4.7, sales: 980, color: 'blue', brand: 'samsung', features: 'premium flagship' },
+            { id: 3, category: 'tech', categoryLabel: 'Laptop', title: 'MacBook Pro 16"', price: 2499, date: '2024-02-20', rating: 4.9, sales: 890, color: 'blue', brand: 'apple', features: 'premium professional' },
+            { id: 4, category: 'tech', categoryLabel: 'Laptop', title: 'Dell XPS 13', price: 1299, date: '2024-02-25', rating: 4.6, sales: 756, color: 'blue', brand: 'dell', features: 'premium ultrabook' },
+            
+            // Fashion
+            { id: 5, category: 'fashion', categoryLabel: 'Jeans', title: "Levi's 501 Classic", price: 89, date: '2024-03-01', rating: 4.5, sales: 1567, color: 'indigo', brand: 'levis', features: 'classic denim' },
+            { id: 6, category: 'fashion', categoryLabel: 'Sneakers', title: 'Nike Air Max 90', price: 120, date: '2024-03-05', rating: 4.7, sales: 2340, color: 'red', brand: 'nike', features: 'sporty comfortable' },
+            { id: 7, category: 'fashion', categoryLabel: 'T-Shirt', title: 'Adidas Originals Tee', price: 35, date: '2024-03-10', rating: 4.3, sales: 892, color: 'green', brand: 'adidas', features: 'casual sporty' },
+            { id: 8, category: 'fashion', categoryLabel: 'Jacket', title: 'North Face Windbreaker', price: 159, date: '2024-02-28', rating: 4.6, sales: 543, color: 'green', brand: 'northface', features: 'outdoor weather-resistant' },
+            
+            // Food
+            { id: 9, category: 'food', categoryLabel: 'Pizza', title: 'Margherita Wood-Fired', price: 18, date: '2024-03-18', rating: 4.8, sales: 1789, color: 'orange', brand: 'local', features: 'artisan italian' },
+            { id: 10, category: 'food', categoryLabel: 'Burger', title: 'Gourmet Beef Burger', price: 15, date: '2024-03-17', rating: 4.5, sales: 2234, color: 'orange', brand: 'local', features: 'gourmet meat' },
+            { id: 11, category: 'food', categoryLabel: 'Salad', title: 'Organic Caesar Salad', price: 12, date: '2024-03-16', rating: 4.2, sales: 678, color: 'green', brand: 'organic', features: 'healthy fresh organic' },
+            { id: 12, category: 'food', categoryLabel: 'Coffee', title: 'Ethiopian Single Origin', price: 24, date: '2024-03-14', rating: 4.9, sales: 456, color: 'amber', brand: 'specialty', features: 'artisan premium' },
+            
+            // Books
+            { id: 13, category: 'book', categoryLabel: 'Sci-Fi', title: 'Dune: Complete Series', price: 45, date: '2024-03-05', rating: 4.9, sales: 1234, color: 'purple', brand: 'penguin', features: 'classic epic' },
+            { id: 14, category: 'book', categoryLabel: 'Mystery', title: 'Gone Girl', price: 16, date: '2024-03-08', rating: 4.6, sales: 2156, color: 'gray', brand: 'random-house', features: 'thriller bestseller' },
+            { id: 15, category: 'book', categoryLabel: 'Business', title: 'Atomic Habits', price: 22, date: '2024-03-12', rating: 4.7, sales: 3456, color: 'blue', brand: 'penguin', features: 'self-help productivity' },
+            { id: 16, category: 'book', categoryLabel: 'Cooking', title: 'Salt, Fat, Acid, Heat', price: 28, date: '2024-03-09', rating: 4.8, sales: 987, color: 'orange', brand: 'simon-schuster', features: 'cookbook educational' },
+            
+            // Multi-brand collaborations for demonstrating AND logic
+            { id: 17, category: 'tech', categoryLabel: 'Smartphone', title: 'Apple-Samsung Collab Phone', price: 1399, date: '2024-03-20', rating: 4.9, sales: 567, color: 'blue', brand: 'apple samsung', features: 'premium flagship' },
+            { id: 18, category: 'fashion', categoryLabel: 'Sneakers', title: 'Nike-Adidas Sport Fusion', price: 180, date: '2024-03-18', rating: 4.8, sales: 432, color: 'red', brand: 'nike adidas', features: 'sporty comfortable premium' },
+            { id: 19, category: 'food', categoryLabel: 'Coffee', title: 'Local-Specialty Coffee Blend', price: 28, date: '2024-03-19', rating: 4.7, sales: 298, color: 'amber', brand: 'local specialty', features: 'artisan premium organic' },
+            { id: 20, category: 'book', categoryLabel: 'Tech Manual', title: 'Apple-Dell Guide to Computing', price: 35, date: '2024-03-17', rating: 4.4, sales: 156, color: 'blue', brand: 'apple dell', features: 'educational professional' }
+        ];
+
+        // Generate product HTML
+        function createProductCard(product) {
+            const features = product.features.split(' ');
+            const featuresHTML = features.map(feature => 
+                `<span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">${feature}</span>`
+            ).join('');
+
+            return `
+                <div class="filter-item bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                     data-categories="category:${product.category} brand:${product.brand} ${features.map(f => `features:${f}`).join(' ')}" 
+                     data-category="${product.category}" 
+                     data-brand="${product.brand}"
+                     data-features="${product.features}"
+                     data-price="${product.price}"
+                     data-title="${product.title}" 
+                     data-date="${product.date}" 
+                     data-rating="${product.rating}" 
+                     data-sales="${product.sales}">
+                    
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="font-semibold text-gray-700 text-lg leading-tight">${product.title}</h3>
+                        <span class="text-xs text-gray-500 uppercase tracking-wide">${product.brand}</span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <span class="inline-block px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full font-medium">
+                            ${product.categoryLabel}
+                        </span>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-1 mb-3">
+                        ${featuresHTML}
+                    </div>
+                    
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-700 font-bold text-xl">$${product.price}</span>
+                        <div class="flex items-center">
+                            <span class="text-gray-400">${'*'.repeat(Math.floor(product.rating))}</span>
+                            <span class="text-xs text-gray-500 ml-1">(${product.rating})</span>
+                        </div>
+                    </div>
+                    
+                    <div class="text-xs text-gray-500">
+                        ${product.sales.toLocaleString()} sold &bull; ${new Date(product.date).toLocaleDateString()}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Insert products into grid
+        const grid = document.getElementById('item-grid');
+        grid.innerHTML = products.map(createProductCard).join('');
+
+        // Initialize AFS
+        const afs = new AFS({
+            containerSelector: 'main',
+            itemSelector: '.filter-item',
+            filterButtonSelector: '.btn-filter',
+            searchInputSelector: '.filter-search',
+            counterSelector: '.filter-counter',
+            searchKeys: ['title', 'categories'],
+            filterCategoryMode: 'mixed',
+            filterTypeLogic: {
+                category: 'OR',
+                brand: 'OR',
+                features: 'OR'
+            },
+            debug: true,
+            counter: {
+                template: 'Showing {visible} of {total} items',
+                filteredTemplate: '({filtered} filtered)',
+                noResultsTemplate: 'No items found',
+            },
+            animation: {
+                type: 'fade',
+                duration: 300
+            }
+        });
+
+        // Tab functionality
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetId = button.id.replace('tab-', 'content-');
+                const tabName = button.id.replace('tab-', '');
+                
+                // Update button states
+                tabButtons.forEach(btn => {
+                    if (btn === button) {
+                        btn.className = 'tab-button flex-1 py-2 px-4 text-sm font-medium text-center text-gray-900 bg-white rounded-md shadow-sm';
+                    } else {
+                        btn.className = 'tab-button flex-1 py-2 px-4 text-sm font-medium text-center text-gray-500 hover:text-gray-700';
+                    }
+                });
+
+                // Update content visibility
+                tabContents.forEach(content => {
+                    if (content.id === targetId) {
+                        content.classList.remove('hidden');
+                    } else {
+                        content.classList.add('hidden');
+                    }
+                });
+
+                // Initialize tab-specific functionality
+                if (tabName === 'select') {
+                    initializeSelectTab();
+                } else if (tabName === 'radio') {
+                    initializeRadioTab();
+                } else if (tabName === 'checkbox') {
+                    initializeCheckboxTab();
+                } else if (tabName === 'range') {
+                    initializeRangeTab();
+                } else if (tabName === 'search') {
+                    initializeSearchTab();
+                }
+            });
+        });
+
+        // Configuration controls for Button tab
+        const filterModeSelect = document.getElementById('filter-mode');
+        const categoryLogicSelect = document.getElementById('category-logic');
+        const brandLogicSelect = document.getElementById('brand-logic');
+        const featuresLogicSelect = document.getElementById('features-logic');
+        const applyLogicBtn = document.getElementById('apply-logic');
+
+        filterModeSelect.addEventListener('change', () => {
+            afs.options.set('filterCategoryMode', filterModeSelect.value);
+            afs.filter.resetFilters();
+        });
+
+        // Apply logic configuration for Button tab
+        applyLogicBtn.addEventListener('click', () => {
+            const categoryLogic = categoryLogicSelect.value;
+            const brandLogic = brandLogicSelect.value;
+            const featuresLogic = featuresLogicSelect.value;
+
+            // Convert dropdown values to proper configuration
+            const parseLogic = (value) => {
+                if (value === 'OR-multi') {
+                    return { mode: 'OR', multi: true };
+                }
+                return value; // 'OR' or 'AND' as string
+            };
+
+            afs.filter.setFilterTypeLogic({
+                category: parseLogic(categoryLogic),
+                brand: parseLogic(brandLogic),
+                features: parseLogic(featuresLogic)
+            });
+
+            // Update indicators
+            const getIndicatorText = (value) => {
+                if (value === 'OR-multi') return 'OR(M)';
+                return value;
+            };
+            document.getElementById('category-indicator').textContent = getIndicatorText(categoryLogic);
+            document.getElementById('brand-indicator').textContent = getIndicatorText(brandLogic);
+            document.getElementById('features-indicator').textContent = getIndicatorText(featuresLogic);
+
+            console.log('Button tab logic configuration applied:', {
+                category: parseLogic(categoryLogic),
+                brand: parseLogic(brandLogic),
+                features: parseLogic(featuresLogic)
+            });
+        });
+
+        // Sort functionality removed - buttons no longer exist after removing search sections
+
+        // Log events for debugging
+        afs.on('filtersApplied', (data) => {
+            console.log('Filters applied:', data);
+        });
+
+        console.log('Button Demo initialized');
+
+        // Tab variable declarations
+        let selectAfs = null;
+        let radioAfs = null;
+        let checkboxAfs = null;
+        let rangeAfs = null;
+        let searchAfs = null;
+
+        function initializeSelectTab() {
+            if (selectAfs) return; // Already initialized
+
+            // Insert products into select grid
+            const selectGrid = document.getElementById('select-item-grid');
+            selectGrid.innerHTML = products.map(createProductCard).join('');
+
+            // Initialize select AFS
+            selectAfs = new AFS({
+                containerSelector: '#content-select',
+                itemSelector: '.filter-item',
+                filterButtonSelector: '.select-btn-filter:not([data-filter-type])',  // Only buttons, not dropdowns
+                searchInputSelector: null,  // No search input for select tab
+                counterSelector: '.select-filter-counter',
+                searchKeys: ['title', 'categories'],
+                filterCategoryMode: 'mixed',
+                filterTypeLogic: {
+                    category: 'OR',
+                    brand: 'OR',
+                    features: 'OR'
+                },
+                debug: true,
+                counter: {
+                    template: 'Showing {visible} of {total} items',
+                    filteredTemplate: '({filtered} filtered)',
+                    noResultsTemplate: 'No items found',
+                },
+                animation: {
+                    type: 'fade',
+                    duration: 300
+                }
+            });
+
+            // Handle select dropdown changes
+            const selectDropdowns = document.querySelectorAll('.select-btn-filter[data-filter-type]');
+            selectDropdowns.forEach(select => {
+                select.addEventListener('change', function() {
+                    const filterValue = this.value;
+                    if (filterValue) {
+                        selectAfs.filter.toggleFilter(filterValue, this);
+                    } else {
+                        // Clear filters for this type
+                        const filterType = this.getAttribute('data-filter-type');
+                        selectAfs.filter.clearFilterCategory(filterType + ':*');
+                    }
+                });
+            });
+
+            // Configuration controls for select tab
+            const selectFilterModeSelect = document.getElementById('select-filter-mode');
+            const selectCategoryLogicSelect = document.getElementById('select-category-logic');
+            const selectBrandLogicSelect = document.getElementById('select-brand-logic');
+            const selectFeaturesLogicSelect = document.getElementById('select-features-logic');
+            const selectApplyLogicBtn = document.getElementById('select-apply-logic');
+
+            selectFilterModeSelect.addEventListener('change', () => {
+                selectAfs.options.set('filterCategoryMode', selectFilterModeSelect.value);
+                selectAfs.filter.resetFilters();
+            });
+
+            // Apply logic configuration
+            selectApplyLogicBtn.addEventListener('click', () => {
+                const categoryLogic = selectCategoryLogicSelect.value;
+                const brandLogic = selectBrandLogicSelect.value;
+                const featuresLogic = selectFeaturesLogicSelect.value;
+
+                // Convert dropdown values to proper configuration
+                const parseLogic = (value) => {
+                    if (value === 'OR-multi') {
+                        return { mode: 'OR', multi: true };
+                    }
+                    return value; // 'OR' or 'AND' as string
+                };
+
+                selectAfs.filter.setFilterTypeLogic({
+                    category: parseLogic(categoryLogic),
+                    brand: parseLogic(brandLogic),
+                    features: parseLogic(featuresLogic)
+                });
+
+                // Update indicators
+                const getIndicatorText = (value) => {
+                    if (value === 'OR-multi') return 'OR(M)';
+                    return value;
+                };
+                document.getElementById('select-category-indicator').textContent = getIndicatorText(categoryLogic);
+                document.getElementById('select-brand-indicator').textContent = getIndicatorText(brandLogic);
+                document.getElementById('select-features-indicator').textContent = getIndicatorText(featuresLogic);
+
+                console.log('Select tab logic configuration applied:', {
+                    category: parseLogic(categoryLogic),
+                    brand: parseLogic(brandLogic),
+                    features: parseLogic(featuresLogic)
+                });
+            });
+
+            // Sort functionality for select tab removed - buttons no longer exist
+
+            // Log events for debugging
+            selectAfs.on('filtersApplied', (data) => {
+                console.log('Select filters applied:', data);
+            });
+
+            console.log('Select Dropdowns Demo initialized');
+        }
+
+        // Radio Buttons Tab Initialization
+        function initializeRadioTab() {
+            if (radioAfs) return; // Already initialized
+
+            // Insert products into radio grid
+            const radioGrid = document.getElementById('radio-item-grid');
+            radioGrid.innerHTML = products.map(createProductCard).join('');
+
+            // Initialize radio AFS
+            radioAfs = new AFS({
+                containerSelector: '#content-radio',
+                itemSelector: '.filter-item',
+                filterButtonSelector: '.radio-btn-filter',
+                searchInputSelector: '.radio-filter-search',
+                counterSelector: '.radio-filter-counter',
+                searchKeys: ['title', 'categories'],
+                filterCategoryMode: 'mixed',
+                filterTypeLogic: {
+                    category: 'OR',
+                    brand: 'OR',
+                    features: 'OR'
+                },
+                debug: true,
+                counter: {
+                    template: 'Showing {visible} of {total} items',
+                    filteredTemplate: '({filtered} filtered)',
+                    noResultsTemplate: 'No items found',
+                },
+                animation: {
+                    type: 'fade',
+                    duration: 300
+                }
+            });
+
+            // Handle radio button changes
+            const radioInputs = document.querySelectorAll('.radio-btn-filter[type="radio"]');
+            radioInputs.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.checked) {
+                        const filterValue = this.getAttribute('data-filter');
+                        if (filterValue === '*' || filterValue.includes(':*')) {
+                            // Clear category or show all
+                            if (filterValue === '*') {
+                                radioAfs.filter.resetFilters();
+                            } else {
+                                const filterType = filterValue.split(':')[0];
+                                radioAfs.filter.clearFilterCategory(filterType);
+                            }
+                        } else {
+                            radioAfs.filter.toggleFilter(filterValue, this);
+                        }
+                    }
+                });
+            });
+
+            // Configuration controls for radio tab
+            const radioFilterModeSelect = document.getElementById('radio-filter-mode');
+
+            radioFilterModeSelect.addEventListener('change', () => {
+                radioAfs.options.set('filterCategoryMode', radioFilterModeSelect.value);
+                radioAfs.filter.resetFilters();
+            });
+
+            // Sort functionality for radio tab removed - buttons no longer exist
+
+            // Log events for debugging
+            radioAfs.on('filtersApplied', (data) => {
+                console.log('Radio filters applied:', data);
+            });
+
+            console.log(' Radio Buttons Demo initialized');
+        }
+
+        // Checkboxes Tab Initialization
+        function initializeCheckboxTab() {
+            if (checkboxAfs) return; // Already initialized
+
+            // Insert products into checkbox grid
+            const checkboxGrid = document.getElementById('checkbox-item-grid');
+            checkboxGrid.innerHTML = products.map(createProductCard).join('');
+
+            // Initialize checkbox AFS
+            checkboxAfs = new AFS({
+                containerSelector: '#content-checkbox',
+                itemSelector: '.filter-item',
+                filterButtonSelector: '.checkbox-btn-filter',
+                searchInputSelector: '.checkbox-filter-search',
+                counterSelector: '.checkbox-filter-counter',
+                urlStateKey: 'checkboxFilters',
+                searchKeys: ['title', 'categories'],
+                filterCategoryMode: 'mixed',
+                filterTypeLogic: {
+                    category: { mode: 'OR', multi: true },   // Checkboxes: show items that match at least one selected option
+                    brand: { mode: 'OR', multi: true },     // This is the expected behavior for multi-select checkboxes
+                    features: { mode: 'OR', multi: true }
+                },
+                debug: true,
+                counter: {
+                    template: 'Showing {visible} of {total} items',
+                    filteredTemplate: '({filtered} filtered)',
+                    noResultsTemplate: 'No items found',
+                },
+                animation: {
+                    type: 'fade',
+                    duration: 300
+                }
+            });
+
+            // Get checkbox inputs for manual reset operations
+            const checkboxInputs = document.querySelectorAll('.checkbox-btn-filter[type="checkbox"]');
+
+            // Handle button filters (clear buttons)
+            const buttonFilters = document.querySelectorAll('.checkbox-btn-filter:not([type="checkbox"])');
+            buttonFilters.forEach(button => {
+                button.addEventListener('click', function() {
+                    const filterValue = this.getAttribute('data-filter');
+                    if (filterValue === '*') {
+                        // Clear all filters
+                        checkboxAfs.filter.resetFilters();
+                    } else if (filterValue.includes(':*')) {
+                        // Clear category filters
+                        const filterType = filterValue.split(':')[0];
+                        checkboxAfs.filter.clearFilterCategory(filterType);
+                    }
+                });
+            });
+
+            // Configuration controls for checkbox tab
+            const checkboxFilterModeSelect = document.getElementById('checkbox-filter-mode');
+            const checkboxCategoryLogicSelect = document.getElementById('checkbox-category-logic');
+            const checkboxBrandLogicSelect = document.getElementById('checkbox-brand-logic');
+            const checkboxFeaturesLogicSelect = document.getElementById('checkbox-features-logic');
+            const checkboxApplyLogicBtn = document.getElementById('checkbox-apply-logic');
+
+            checkboxFilterModeSelect.addEventListener('change', () => {
+                checkboxAfs.options.set('filterCategoryMode', checkboxFilterModeSelect.value);
+                checkboxAfs.filter.resetFilters();
+            });
+
+            // Apply logic configuration
+            checkboxApplyLogicBtn.addEventListener('click', () => {
+                const categoryLogic = checkboxCategoryLogicSelect.value;
+                const brandLogic = checkboxBrandLogicSelect.value;
+                const featuresLogic = checkboxFeaturesLogicSelect.value;
+
+                // Convert dropdown values to proper configuration
+                const parseLogic = (value) => {
+                    if (value === 'OR-multi') {
+                        return { mode: 'OR', multi: true };
+                    }
+                    return value; // 'OR' or 'AND' as string
+                };
+
+                checkboxAfs.filter.setFilterTypeLogic({
+                    category: parseLogic(categoryLogic),
+                    brand: parseLogic(brandLogic),
+                    features: parseLogic(featuresLogic)
+                });
+
+                // Update indicators
+                const getIndicatorText = (value) => {
+                    if (value === 'OR-multi') return 'OR(M)';
+                    return value;
+                };
+                document.getElementById('checkbox-category-indicator').textContent = getIndicatorText(categoryLogic);
+                document.getElementById('checkbox-brand-indicator').textContent = getIndicatorText(brandLogic);
+                document.getElementById('checkbox-features-indicator').textContent = getIndicatorText(featuresLogic);
+
+                console.log('Checkbox tab logic configuration applied:', {
+                    category: parseLogic(categoryLogic),
+                    brand: parseLogic(brandLogic),
+                    features: parseLogic(featuresLogic)
+                });
+            });
+
+            // Sort functionality for checkbox tab removed - buttons no longer exist
+
+            // Log events for debugging
+            checkboxAfs.on('filtersApplied', (data) => {
+                console.log('Checkbox filters applied:', data);
+            });
+
+            console.log(' Checkboxes Demo initialized');
+        }
+
+        // Range Filters Tab Initialization
+        function initializeRangeTab() {
+            if (rangeAfs) return; // Already initialized
+
+            // Insert products into range grid
+            const rangeGrid = document.getElementById('range-item-grid');
+            rangeGrid.innerHTML = products.map(createProductCard).join('');
+
+            // Initialize range AFS with RangeFilter support
+            rangeAfs = new AFS({
+                containerSelector: '#content-range',
+                itemSelector: '.filter-item',
+                filterButtonSelector: '.range-btn-filter',
+                searchInputSelector: '.range-filter-search',
+                counterSelector: '.range-filter-counter',
+                searchKeys: ['title', 'categories'],
+                filterCategoryMode: 'mixed',
+                filterTypeLogic: {
+                    category: 'OR'
+                },
+                rangeFilters: {
+                    price: { min: 0, max: 2500, step: 1 },
+                    rating: { min: 0, max: 5, step: 0.1 },
+                    sales: { min: 0, max: 4000, step: 1 }
+                },
+                debug: true,
+                counter: {
+                    template: 'Showing {visible} of {total} items',
+                    filteredTemplate: '({filtered} filtered)',
+                    noResultsTemplate: 'No items found',
+                },
+                animation: {
+                    type: 'fade',
+                    duration: 300
+                }
+            });
+
+            // Initialize AFS RangeFilter sliders with histogram support
+            const priceContainer = document.querySelector('.price-range-container');
+            if (priceContainer) {
+                rangeAfs.rangeFilter.addRangeSlider({
+                    key: 'price',
+                    type: 'number', 
+                    container: priceContainer,
+                    min: 12,
+                    max: 2500,
+                    step: 1,
+                    ui: {
+                        showHistogram: true,
+                        bins: 10
+                    }
+                });
+            }
+
+            const ratingContainer = document.querySelector('.rating-range-container');
+            if (ratingContainer) {
+                rangeAfs.rangeFilter.addRangeSlider({
+                    key: 'rating',
+                    type: 'number',
+                    container: ratingContainer,
+                    min: 4.0,
+                    max: 5.0,
+                    step: 0.1,
+                    ui: {
+                        showHistogram: true,
+                        bins: 10
+                    }
+                });
+            }
+
+            const salesContainer = document.querySelector('.sales-range-container');
+            if (salesContainer) {
+                rangeAfs.rangeFilter.addRangeSlider({
+                    key: 'sales',
+                    type: 'number',
+                    container: salesContainer,
+                    min: 150,
+                    max: 3500,
+                    step: 1,
+                    ui: {
+                        showHistogram: true,
+                        bins: 10
+                    }
+                });
+            }
+
+            // Initialize DateFilter for date range
+            const dateContainer = document.querySelector('.date-range-container');
+            if (dateContainer) {
+                rangeAfs.dateFilter.addDateRange({
+                    key: 'date',
+                    container: dateContainer,
+                    minDate: new Date('2024-02-15'),
+                    maxDate: new Date('2024-03-25'),
+                    format: 'YYYY-MM-DD'
+                });
+            }
+
+            // Clear ranges button  
+            document.getElementById('clear-ranges').addEventListener('click', () => {
+                // Reset range filters using AFS methods
+                const ranges = ['price', 'rating', 'sales'];
+                ranges.forEach(range => {
+                    if (rangeAfs.rangeFilter && rangeAfs.rangeFilter.removeRangeSlider) {
+                        rangeAfs.rangeFilter.removeRangeSlider(range);
+                    }
+                });
+                
+                // Reset date filter
+                if (rangeAfs.dateFilter && rangeAfs.dateFilter.removeDateRange) {
+                    rangeAfs.dateFilter.removeDateRange('date');
+                }
+                
+                // Re-initialize all filters to reset them
+                setTimeout(() => {
+                    if (priceContainer) {
+                        rangeAfs.rangeFilter.addRangeSlider({
+                            key: 'price',
+                            type: 'number', 
+                            container: priceContainer,
+                            min: 12,
+                            max: 2500,
+                            step: 1,
+                            ui: { showHistogram: true, bins: 10 }
+                        });
+                    }
+                    if (ratingContainer) {
+                        rangeAfs.rangeFilter.addRangeSlider({
+                            key: 'rating',
+                            type: 'number',
+                            container: ratingContainer,
+                            min: 4.0,
+                            max: 5.0,
+                            step: 0.1,
+                            ui: { showHistogram: true, bins: 10 }
+                        });
+                    }
+                    if (salesContainer) {
+                        rangeAfs.rangeFilter.addRangeSlider({
+                            key: 'sales',
+                            type: 'number',
+                            container: salesContainer,
+                            min: 150,
+                            max: 3500,
+                            step: 1,
+                            ui: { showHistogram: true, bins: 10 }
+                        });
+                    }
+                    if (dateContainer) {
+                        rangeAfs.dateFilter.addDateRange({
+                            key: 'date',
+                            container: dateContainer,
+                            minDate: new Date('2024-02-15'),
+                            maxDate: new Date('2024-03-25'),
+                            format: 'YYYY-MM-DD'
+                        });
+                    }
+                }, 100);
+            });
+
+            // Configuration controls for range tab
+            const rangeFilterModeSelect = document.getElementById('range-filter-mode');
+            rangeFilterModeSelect.addEventListener('change', () => {
+                rangeAfs.options.set('filterCategoryMode', rangeFilterModeSelect.value);
+                rangeAfs.filter.resetFilters();
+            });
+
+            // Sort functionality for range tab removed - buttons no longer exist
+
+            // Log events for debugging
+            rangeAfs.on('filtersApplied', (data) => {
+                console.log('Range filters applied:', data);
+            });
+
+            console.log('Range Filters Demo initialized');
+        }
+
+        // Search Tab Initialization
+        function initializeSearchTab() {
+            if (searchAfs) return; // Already initialized
+
+            console.log('Initializing search tab...');
+            // Insert products into search grid
+            const searchGrid = document.getElementById('search-item-grid');
+            console.log('Search grid element:', searchGrid);
+            console.log('Products array length:', products.length);
+            searchGrid.innerHTML = products.map(createProductCard).join('');
+            console.log('Items inserted:', searchGrid.children.length);
+
+            // Initialize search AFS with a small delay to ensure DOM is ready
+            console.log('Creating AFS instance...');
+            setTimeout(() => {
+                searchAfs = new AFS({
+                containerSelector: '#search-item-grid',
+                itemSelector: '.filter-item',
+                searchInputSelector: '.search-filter-search',
+                counterSelector: '.search-filter-counter',
+                searchKeys: ['title', 'categories', 'brand', 'features'],
+                searchMode: 'fuzzy', // Enable fuzzy search
+                searchMinChars: 1,   // Start searching from first character
+                filterCategoryMode: 'mixed',
+                debug: true,
+                counter: {
+                    template: 'Showing {visible} of {total} items',
+                    filteredTemplate: '({filtered} filtered)',
+                    noResultsTemplate: 'No items found',
+                },
+                animation: {
+                    type: 'fade',
+                    duration: 300
+                }
+            });
+
+                console.log('Search Demo initialized');
+            }, 100);
+
+            const searchInput = document.querySelector('.search-filter-search');
+            const searchExamples = document.querySelectorAll('.search-example');
+            const searchClear = document.getElementById('search-clear');
+
+            // Search statistics update
+            const updateSearchStats = () => {
+                if (!searchAfs) return;
+                const total = products.length;
+                const visible = searchAfs.state.getState().items.visible.size;
+                const hidden = total - visible;
+                const currentSearch = searchInput.value.trim();
+                
+                document.getElementById('search-stat-total').textContent = total;
+                document.getElementById('search-stat-visible').textContent = visible;
+                document.getElementById('search-stat-hidden').textContent = hidden;
+                document.getElementById('search-stat-matches').textContent = currentSearch ? visible : '-';
+            };
+
+            // Search example buttons
+            searchExamples.forEach(button => {
+                button.addEventListener('click', () => {
+                    if (!searchAfs) return;
+                    const searchTerm = button.getAttribute('data-search');
+                    searchInput.value = searchTerm;
+                    searchAfs.search.search(searchTerm);
+                    updateSearchStats();
+                });
+            });
+
+            // Clear search button
+            searchClear.addEventListener('click', () => {
+                if (!searchAfs) return;
+                searchInput.value = '';
+                searchAfs.search.search('');
+                updateSearchStats();
+            });
+
+            // Real-time search with debouncing
+            let searchTimeout;
+            searchInput.addEventListener('input', () => {
+                if (!searchAfs) return;
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    const searchTerm = searchInput.value.trim();
+                    searchAfs.search.search(searchTerm);
+                    updateSearchStats();
+                }, 200); // 200ms debounce
+            });
+
+            // Sort functionality for search tab
+            document.getElementById('search-sort-title').addEventListener('click', () => {
+                if (!searchAfs) return;
+                searchAfs.filter.sortWithOrder('title');
+            });
+
+            document.getElementById('search-sort-price').addEventListener('click', () => {
+                if (!searchAfs) return;
+                searchAfs.filter.sortWithOrder('price');
+            });
+
+            document.getElementById('search-sort-rating').addEventListener('click', () => {
+                if (!searchAfs) return;
+                searchAfs.filter.sortWithOrder('rating');
+            });
+
+            document.getElementById('search-sort-sales').addEventListener('click', () => {
+                if (!searchAfs) return;
+                searchAfs.filter.sortWithOrder('sales');
+            });
+
+            document.getElementById('search-sort-shuffle').addEventListener('click', () => {
+                if (!searchAfs) return;
+                searchAfs.filter.shuffle();
+            });
+
+            // Setup event listeners after AFS is initialized
+            setTimeout(() => {
+                if (!searchAfs) return;
+                
+                // Log events for debugging
+                searchAfs.on('searchApplied', (data) => {
+                    console.log('Search applied:', data);
+                    updateSearchStats();
+                });
+
+                searchAfs.on('filtersApplied', (data) => {
+                    console.log('Search filters applied:', data);
+                    updateSearchStats();
+                });
+
+                // Initialize stats
+                updateSearchStats();
+            }, 200);
+        }
+
+        console.log('Button Demo initialized');
+
+        // Mobile menu functionality (matching home page)
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', () => {
+                const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true';
+                mobileMenuButton.setAttribute('aria-expanded', !isExpanded);
+                mobileMenu.classList.toggle('hidden');
+
+                // Update hamburger icon to X when menu is open
+                const svg = mobileMenuButton.querySelector('svg');
+                if (!isExpanded) {
+                    svg.innerHTML = `<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>`;
+                } else {
+                    svg.innerHTML = `<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"/>`;
+                }
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', (event) => {
+                if (!mobileMenuButton.contains(event.target) && !mobileMenu.contains(event.target)) {
+                    mobileMenu.classList.add('hidden');
+                    mobileMenuButton.setAttribute('aria-expanded', 'false');
+                    const svg = mobileMenuButton.querySelector('svg');
+                    svg.innerHTML = `<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"/>`;
+                }
+            });
+
+            // Close mobile menu when window is resized to desktop size
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 768) { // 768px is Tailwind's md breakpoint
+                    mobileMenu.classList.add('hidden');
+                    mobileMenuButton.setAttribute('aria-expanded', 'false');
+                    const svg = mobileMenuButton.querySelector('svg');
+                    svg.innerHTML = `<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"/>`;
+                }
+            });
+        }
+    </script>
+
+    <footer class="py-12 border-t border-gray-200 bg-white mt-16">
+        <div class="container mx-auto px-6">
+            <div class="text-center text-gray-400">
+                <p>Released under the MIT License.</p>
+                <p class="mt-2">Created by <a href="https://github.com/misits" class="hover:text-gray-600">@misits</a></p>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>
