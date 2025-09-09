@@ -1,14 +1,17 @@
 {
     "name": "advanced-filter-system",
-    "version": "1.5.1",
+    "version": "1.5.2",
     "description": "Advanced filtering system for DOM elements with multiple features",
     "main": "dist/afs.legacy.js",
     "module": "dist/afs.modern.js",
     "browser": "dist/afs.legacy.min.js",
     "private": false,
     "type": "module",
+    "types": "./src/types/index.d.ts",
+    "typings": "./src/types/index.d.ts",
     "exports": {
         ".": {
+            "types": "./src/types/index.d.ts",
             "import": "./dist/afs.modern.js",
             "require": "./dist/afs.legacy.js",
             "browser": "./dist/afs.legacy.min.js"
@@ -35,6 +38,7 @@
     },
     "files": [
         "dist",
+        "src/types",
         "LICENSE",
         "README.md"
     ],
@@ -49,7 +53,9 @@
         "browser",
         "manipulation",
         "element-filter",
-        "web"
+        "web",
+        "typescript",
+        "types"
     ],
     "author": "misits",
     "license": "MIT",

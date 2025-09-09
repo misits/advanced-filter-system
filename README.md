@@ -2,6 +2,8 @@
 
 A powerful and flexible vanilla JavaScript filtering system that provides advanced filtering, searching, sorting, and pagination capabilities for DOM elements. Zero dependencies, lightweight, and highly customizable.
 
+> **✨ NEW in v1.5.1**: Enhanced mixed mode filtering, improved event system, and comprehensive URL state management!
+
 [Live Demo](https://misits.github.io/advanced-filter-system) | [NPM Package](https://www.npmjs.com/package/advanced-filter-system) | [Interactive Examples](examples/demo.html)
 
 ## Table of Contents
@@ -320,25 +322,23 @@ afs.dateFilter.addDateRange({
 ### Search & Filtering
 
 ```javascript
-// Configure search
-afs.search.configure({
-    keys: ['title', 'description', 'categories'],
-    fuzzy: true,
-    minLength: 2,
-    debounce: 300
-});
+// Programmatic search
+afs.search.search('query');
+afs.search.clearSearch();
+afs.search.setValue('new query');
 
 // Programmatic filtering
 afs.filter.addFilter('category:tech');
 afs.filter.removeFilter('category:tech');
 afs.filter.clearAllFilters();
+afs.filter.clearFilterCategory('category:*');
 ```
 
 ### Sorting
 
 ```javascript
 // Sort by single field
-afs.filter.sortWithOrder('price', 'DESC');
+afs.sort.sort('price', 'desc');
 
 // Custom sorting
 afs.sort.sortWithComparator('title', (a, b) => {
@@ -346,19 +346,16 @@ afs.sort.sortWithComparator('title', (a, b) => {
 });
 
 // Shuffle items
-afs.filter.shuffle();
+afs.sort.shuffle();
 ```
 
 ### Pagination
 
 ```javascript
-// Configure pagination
-afs.pagination.configure({
-    itemsPerPage: 12,
-    showControls: true,
-    scrollToTop: true,
-    scrollBehavior: 'smooth'
-});
+// Pagination navigation
+afs.pagination.goToPage(2);
+afs.pagination.nextPage();
+afs.pagination.previousPage();
 
 // Toggle pagination mode
 afs.pagination.setPaginationMode(true); // Enable
@@ -390,8 +387,13 @@ const afs = new AFS({
     }
 });
 
-// Change animation at runtime
-afs.filter.animation.setAnimation('slide');
+// Change animation options at runtime
+afs.updateOptions({
+    animation: {
+        type: 'slide',
+        duration: 400
+    }
+});
 ```
 
 ## Configuration Options
@@ -415,8 +417,6 @@ const afs = new AFS({
     
     // Search configuration
     searchKeys: ['title', 'categories', 'description'],
-    searchMode: 'fuzzy', // 'fuzzy' or 'exact'
-    searchMinChars: 2,
     debounceTime: 300,
     
     // Pagination
@@ -431,9 +431,11 @@ const afs = new AFS({
     
     // Counter display
     counter: {
-        template: 'Showing {visible} of {total} items',
+        template: 'Showing {visible} of {total}',
+        showFiltered: true,
         filteredTemplate: '({filtered} filtered)',
-        noResultsTemplate: 'No items found'
+        noResultsTemplate: 'No items found',
+        formatter: (num) => num.toLocaleString()
     },
     
     // Animations
@@ -445,20 +447,13 @@ const afs = new AFS({
     
     // State management
     preserveState: true,
-    urlStateKey: 'filters',
+    stateExpiry: 86400000, // 24 hours
+    observeDOM: false,
     
-    // Styling
-    styles: {
-        colors: {
-            primary: '#000',
-            background: '#f5f5f5',
-            text: '#333'
-        },
-        button: {
-            borderRadius: '6px',
-            padding: '8px 16px'
-        }
-    },
+    // CSS Classes
+    activeClass: 'active',
+    hiddenClass: 'hidden',
+    activeSortClass: 'sort-active',
     
     // Debug mode
     debug: true
@@ -474,28 +469,50 @@ const afs = new AFS({
 afs.filter.addFilter('category:tech');
 afs.filter.removeFilter('category:tech');
 afs.filter.clearAllFilters();
-afs.filter.setFilterTypeLogic('brand', 'AND');
+afs.filter.clearFilterCategory('category:*');
+afs.filter.setFilterTypeLogic('brand', { mode: 'OR', multi: true });
+afs.filter.toggleFilterExclusive('category:tech');
 
 // Search
 afs.search.search('query');
 afs.search.clearSearch();
+afs.search.setValue('new query');
+const currentQuery = afs.search.getValue();
 
-// Sorting
-afs.filter.sortWithOrder('price', 'DESC');
-afs.filter.shuffle();
+// Sorting  
+afs.sort.sort('price', 'desc');
+afs.sort.sortMultiple([
+    { key: 'category', direction: 'asc' },
+    { key: 'price', direction: 'desc' }
+]);
+afs.sort.shuffle();
+afs.sort.reset();
 
 // Pagination
 afs.pagination.goToPage(2);
 afs.pagination.nextPage();
 afs.pagination.previousPage();
+afs.pagination.setPaginationMode(true);
+
+// Range Filters
+afs.rangeFilter.addRangeSlider({
+    key: 'price',
+    container: '.price-range-container'
+});
+
+// Date Filters
+afs.dateFilter.addDateRange({
+    key: 'date',
+    container: '.date-range-container'
+});
 
 // State
 const state = afs.getState();
 afs.setState(state);
 
 // Events
-afs.on('filter:applied', (data) => {
-    console.log(`Showing ${data.visible} of ${data.total} items`);
+afs.on('filtersApplied', (data) => {
+    console.log(`Showing ${data.visibleItems} of ${data.total} items`);
 });
 ```
 
@@ -503,11 +520,11 @@ afs.on('filter:applied', (data) => {
 
 ```javascript
 // Available events
-afs.on('filter:applied', callback);
-afs.on('search:performed', callback);
-afs.on('sort:applied', callback);
-afs.on('pagination:changed', callback);
-afs.on('state:changed', callback);
+afs.on('filtersApplied', callback);
+afs.on('search', callback);
+afs.on('sort', callback);
+afs.on('pageChanged', callback);
+afs.on('urlStateLoaded', callback);
 ```
 
 ## Examples
