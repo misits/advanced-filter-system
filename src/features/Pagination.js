@@ -65,6 +65,7 @@ export class Pagination {
 
     this.afs.on("filter", () => this.update());
     this.afs.on("search", () => this.update());
+    this.afs.on("searchCleared", () => this.update());
     this.afs.on("sort", () => this.update());
 
     this.container.addEventListener("click", (e) => {
