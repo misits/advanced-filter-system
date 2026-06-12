@@ -46,8 +46,10 @@ const terserConfig = {
 };
 
 // Enhanced babel configuration
+// Helpers are bundled so dist files are self-contained (usable directly
+// from a browser/CDN without a @babel/runtime dependency)
 const babelConfig = {
-  babelHelpers: 'runtime',
+  babelHelpers: 'bundled',
   exclude: 'node_modules/**',
   presets: [
     ['@babel/preset-env', {
@@ -56,9 +58,6 @@ const babelConfig = {
       loose: true,
       bugfixes: true
     }]
-  ],
-  plugins: [
-    '@babel/plugin-transform-runtime'
   ]
 };
 
@@ -107,7 +106,6 @@ export default [
       ...commonPlugins,
       ...productionPlugins
     ],
-    external: [/@babel\/runtime/],
     treeshake: {
       moduleSideEffects: false,
       propertyReadSideEffects: false,
@@ -128,7 +126,6 @@ export default [
       ...commonPlugins,
       ...productionPlugins
     ],
-    external: [/@babel\/runtime/],
     treeshake: {
       moduleSideEffects: false,
       propertyReadSideEffects: false,

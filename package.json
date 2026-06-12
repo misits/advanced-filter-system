@@ -1,6 +1,6 @@
 {
     "name": "advanced-filter-system",
-    "version": "1.5.2",
+    "version": "1.6.0",
     "description": "Advanced filtering system for DOM elements with multiple features",
     "main": "dist/afs.legacy.js",
     "module": "dist/afs.modern.js",
@@ -61,14 +61,12 @@
     "license": "MIT",
     "devDependencies": {
         "@babel/core": "^7.28.4",
-        "@babel/plugin-transform-runtime": "^7.28.3",
         "@babel/preset-env": "^7.28.3",
-        "@babel/runtime": "^7.28.4",
-        "@rollup/plugin-babel": "^6.0.4",
-        "@rollup/plugin-commonjs": "^28.0.6",
+        "@rollup/plugin-babel": "7.1.0",
+        "@rollup/plugin-commonjs": "29.0.3",
         "@rollup/plugin-node-resolve": "^16.0.1",
         "@rollup/plugin-strip": "^3.0.4",
-        "@rollup/plugin-terser": "^0.4.4",
+        "@rollup/plugin-terser": "1.0.0",
         "babel-jest": "^30.1.2",
         "babel-plugin-transform-remove-console": "^6.9.4",
         "core-js": "^3.45.1",
@@ -77,8 +75,8 @@
         "jest-environment-jsdom": "^30.1.2",
         "rollup": "^4.50.1",
         "rollup-plugin-analyzer": "^4.0.0",
-        "rollup-plugin-filesize": "^10.0.0",
-        "rollup-plugin-visualizer": "^6.0.3"
+        "rollup-plugin-filesize": "7.0.0",
+        "rollup-plugin-visualizer": "7.0.1"
     },
     "directories": {
         "example": "examples",
