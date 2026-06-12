@@ -61,8 +61,12 @@ export class Sort {
       const sortData = this.sortButtons.get(button);
       if (!sortData) return;
 
-      // Toggle direction
-      sortData.direction = sortData.direction === "asc" ? "desc" : "asc";
+      // Apply the declared direction on first click,
+      // toggle on subsequent clicks of the same button
+      if (sortData.applied) {
+        sortData.direction = sortData.direction === "asc" ? "desc" : "asc";
+      }
+      sortData.applied = true;
       this.sortButtons.set(button, sortData);
 
       // Update button state

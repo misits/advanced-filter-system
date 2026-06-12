@@ -12,6 +12,8 @@ export class Pagination {
     this.container = null;
     this.animation = new Animation(afs);
     this.options = this.afs.options.get("pagination");
+    // Invalidates queued show-callbacks when a newer update runs
+    this.visibilityToken = 0;
     this.setupPagination();
   }
 
@@ -89,7 +91,12 @@ export class Pagination {
       return;
     }
 
-    const visibleItems = Array.from(this.afs.state.getState().items.visible);
+    // Order by current DOM position so pages follow the active sort order
+    const visibleItems = Array.from(
+      this.afs.state.getState().items.visible
+    ).sort((a, b) =>
+      a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1
+    );
     const itemsPerPage = this.afs.state.getState().pagination.itemsPerPage;
     const totalPages = Math.max(
       1,
@@ -162,8 +169,13 @@ export class Pagination {
       return;
     }
 
-    // Show items with animation
+    // Show items with animation. The token guards against stale
+    // callbacks: if another update runs before this frame fires
+    // (e.g. a filter applied right after setup), it must win.
+    const token = ++this.visibilityToken;
     requestAnimationFrame(() => {
+      if (token !== this.visibilityToken) return;
+
       itemsToShow.forEach((item) => {
         // Remove hidden class and restore display
         item.style.display = "";
@@ -171,6 +183,7 @@ export class Pagination {
 
         // Apply show animation in the next frame
         requestAnimationFrame(() => {
+          if (token !== this.visibilityToken) return;
           this.animation.applyShowAnimation(
             item,
             this.options.animationType || "fade"
@@ -319,9 +332,8 @@ export class Pagination {
     this.update();
 
     // Scroll to top if enabled
-    if (this.options.scrollToTop && window.innerWidth > 768) {
-      //fixed this part where condition to disable scrollTop on mobile is that the innerWidth > 768
-      setTimeout(() => this.scrollToTop(), 100);
+    if (this.options.scrollToTop) {
+      this.scrollToTop();
     }
 
     // Emit page change event
@@ -333,18 +345,104 @@ export class Pagination {
   }
 
   scrollToTop() {
-    const container = document.querySelector(
-      this.afs.options.get("pagination.container")
-    );
-    if (!container) {
-      this.afs.logger.warn("Scroll container not found.");
+    // Scroll back to the top of the filtered items list, not the
+    // pagination controls (which usually sit below the items)
+    const target = this.afs.container;
+    if (!target) {
+      this.afs.logger.warn("Scroll target not found.");
       return;
     }
 
+    const offset = this.options.scrollOffset || 0;
+    const top =
+      target.getBoundingClientRect().top + window.pageYOffset - offset;
+
     window.scrollTo({
-      top: container.offsetTop - this.options.scrollOffset,
-      behavior: "smooth",
+      top: Math.max(0, top),
+      behavior: this.options.scrollBehavior || "smooth",
     });
+  }
+
+  /**
+   * Go to next page
+   * @public
+   */
+  nextPage() {
+    this.goToPage(this.afs.state.getState().pagination.currentPage + 1);
+  }
+
+  /**
+   * Go to previous page
+   * @public
+   */
+  previousPage() {
+    this.goToPage(this.afs.state.getState().pagination.currentPage - 1);
+  }
+
+  /**
+   * Go to first page
+   * @public
+   */
+  firstPage() {
+    this.goToPage(1);
+  }
+
+  /**
+   * Go to last page
+   * @public
+   */
+  lastPage() {
+    this.goToPage(this.afs.state.getState().pagination.totalPages);
+  }
+
+  /**
+   * Set items per page
+   * @public
+   * @param {number} count - Items per page
+   */
+  setItemsPerPage(count) {
+    const itemsPerPage = Math.max(1, parseInt(count, 10) || 1);
+    this.afs.state.setState("pagination.itemsPerPage", itemsPerPage);
+    this.afs.state.setState("pagination.currentPage", 1);
+    this.update();
+  }
+
+  /**
+   * Get current pagination info
+   * @public
+   * @returns {{currentPage: number, itemsPerPage: number, totalPages: number}}
+   */
+  getPageInfo() {
+    const { currentPage, itemsPerPage, totalPages } =
+      this.afs.state.getState().pagination;
+    return { currentPage, itemsPerPage, totalPages };
+  }
+
+  /**
+   * Get current page
+   * @public
+   * @returns {number} Current page
+   */
+  getCurrentPage() {
+    return this.afs.state.getState().pagination.currentPage;
+  }
+
+  /**
+   * Get total pages
+   * @public
+   * @returns {number} Total pages
+   */
+  getTotalPages() {
+    return this.afs.state.getState().pagination.totalPages;
+  }
+
+  /**
+   * Get items per page
+   * @public
+   * @returns {number} Items per page
+   */
+  getItemsPerPage() {
+    return this.afs.state.getState().pagination.itemsPerPage;
   }
 
   /**
@@ -362,7 +460,10 @@ export class Pagination {
       this.setupPagination();
     } else {
       // Disable pagination and show all items
-      this.container.remove();
+      if (this.container) {
+        this.container.remove();
+        this.container = null;
+      }
       this.showAllItems();
     }
 
@@ -381,7 +482,10 @@ export class Pagination {
       // Check if we're on a mobile device
       const isMobile = window.innerWidth <= 768;
 
+      const token = ++this.visibilityToken;
       requestAnimationFrame(() => {
+        if (token !== this.visibilityToken) return;
+
         visibleItems.forEach((item) => {
           item.style.display = "";
           item.classList.remove(this.afs.options.get("hiddenClass"));
@@ -424,5 +528,17 @@ export class Pagination {
         }
       });
     }
+  }
+
+  /**
+   * Destroy instance
+   * @public
+   */
+  destroy() {
+    if (this.container) {
+      this.container.remove();
+      this.container = null;
+    }
+    this.afs.logger.debug("Pagination functionality destroyed");
   }
 }

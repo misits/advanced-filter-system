@@ -9,6 +9,9 @@ export class URLManager {
   constructor(afs) {
     this.afs = afs;
     this.defaultParams = new URLSearchParams();
+    // Block URL writes until the initial URL state has been read,
+    // otherwise feature setup (e.g. pagination) wipes incoming params
+    this.ready = false;
     this.setupPopStateHandler();
   }
 
@@ -19,6 +22,7 @@ export class URLManager {
   initialize() {
     // Load URL state after all features are initialized
     this.loadFromURL();
+    this.ready = true;
   }
 
   /**
@@ -35,39 +39,41 @@ export class URLManager {
    * Update URL with current filter state
    * @public
    */
-  /**
- * Update URL with current filter state
- * @public
- */
-updateURL() {
-  this.afs.logger.debug("Updating URL state");
-  const params = new URLSearchParams();
-  const state = this.afs.state.getState();  // Get current state of filters
+  updateURL() {
+    // Don't rewrite the URL during feature setup — incoming params
+    // haven't been consumed by loadFromURL() yet
+    if (!this.ready) {
+      return;
+    }
 
-  // Get active filters directly from the Filter instance
-  const activeFilters = this.afs.filter.getActiveFilters();
+    this.afs.logger.debug("Updating URL state");
+    const params = new URLSearchParams();
+    const state = this.afs.state.getState();
 
-  // Update the state object with the active filters
-  state.filters.current = activeFilters;
+    // Get active filters directly from the Filter instance
+    const activeFilters = this.afs.filter.getActiveFilters();
 
-  // Add filters to URL
-  this.addFiltersToURL(params, state);
-  
-  // Add ranges (if applicable) to URL
-  this.addRangesToURL(params, state);
-  
-  // Add search query to URL
-  this.addSearchToURL(params, state);
-  
-  // Add sort state to URL
-  this.addSortToURL(params, state);
-  
-  // Add pagination to URL
-  this.addPaginationToURL(params, state);
-  
-  // Push the updated URL
-  this.pushState(params);  // Push the new URL state to the browser
-}
+    // Update the state object with the active filters
+    state.filters.current = activeFilters;
+
+    // Add filters to URL
+    this.addFiltersToURL(params, state);
+
+    // Add ranges (if applicable) to URL
+    this.addRangesToURL(params, state);
+
+    // Add search query to URL
+    this.addSearchToURL(params, state);
+
+    // Add sort state to URL
+    this.addSortToURL(params, state);
+
+    // Add pagination to URL
+    this.addPaginationToURL(params, state);
+
+    // Push the updated URL
+    this.pushState(params);
+  }
 
   /**
    * Add filters to URL parameters
@@ -211,28 +217,44 @@ updateURL() {
   loadFromURL() {
     this.afs.logger.debug('Loading state from URL');
     const params = new URLSearchParams(window.location.search);
-  
+
+    // Skip if no URL parameters to process
+    if (params.toString() === '') {
+      this.afs.logger.debug('No URL parameters found, skipping');
+      return;
+    }
+
     try {
-      // Clear existing filters first
+      // Clear existing filters before applying URL state
       if (this.afs.filter) {
-        this.afs.filter.clearAllFilters();
+        this.afs.filter.activeFilters.clear();
+        this.afs.filter.activeFilters.add("*");
+
+        // Reset button states
+        this.afs.filter.filterButtons.forEach((_, button) => {
+          button.classList.remove(this.afs.options.get("activeClass"));
+        });
+        const allButton = this.afs.filter.findAllButton();
+        if (allButton) {
+          allButton.classList.add(this.afs.options.get("activeClass"));
+        }
       }
-  
+
       // Process filter mode first
       const filterMode = params.get('filterMode');
       if (filterMode && this.afs.filter) {
         this.afs.filter.setFilterMode(filterMode.toUpperCase());
       }
-  
+
       // Get all parameters that are not special parameters
-      const filterParams = Array.from(params.entries()).filter(([key]) => 
+      const filterParams = Array.from(params.entries()).filter(([key]) =>
         this.isRegularFilter(key)
       );
-  
+
       if (filterParams.length > 0 && this.afs.filter) {
         // Remove default '*' filter
         this.afs.filter.activeFilters.clear();
-  
+
         // Process each filter parameter
         filterParams.forEach(([type, value]) => {
           if (value) {
@@ -245,17 +267,20 @@ updateURL() {
           }
         });
       }
-  
+
+      // Process range filters from URL
+      this.processRangesFromURL(params);
+
       // Apply filters before processing other parameters
       if (this.afs.filter) {
         this.afs.filter.applyFilters();
       }
-  
+
       // Process other parameters...
       this.processSearchFromURL(params);
       this.processSortFromURL(params);
       this.processPaginationFromURL(params);
-  
+
       this.afs.emit("urlStateLoaded", { params: Object.fromEntries(params) });
       this.afs.logger.info('State loaded from URL');
     } catch (error) {
@@ -377,13 +402,21 @@ updateURL() {
    */
   processPaginationFromURL(params) {
     const page = parseInt(params.get('page')) || 1;
-    const perPage = parseInt(params.get('perPage')) || 
+    const perPage = parseInt(params.get('perPage')) ||
                    this.afs.options.get('pagination.itemsPerPage');
 
+    const currentState = this.afs.state.getState().pagination || {};
+
     this.afs.state.setState('pagination', {
+      ...currentState,
       currentPage: page,
       itemsPerPage: perPage
     });
+
+    // Re-render pagination so the page from the URL is actually applied
+    if (this.afs.options.get('pagination.enabled') && this.afs.pagination) {
+      this.afs.pagination.update();
+    }
   }
 
   /**

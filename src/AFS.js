@@ -19,7 +19,7 @@ import { DateFilter } from "./features/DateFilter";
 import { debounce } from "./utils";
 
 // Version
-export const VERSION = "1.5.2";
+export const VERSION = "1.6.0";
 
 export class AFS extends EventEmitter {
   /**
@@ -110,6 +110,9 @@ export class AFS extends EventEmitter {
 
     // Initialize URL state after all features are ready
     this.urlManager.initialize();
+
+    // Show the initial count without waiting for a first interaction
+    this.updateCounter();
   }
 
   /**

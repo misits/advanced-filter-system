@@ -125,16 +125,27 @@ export class Search {
 
       // Wait for all animations to complete
       Promise.all(animationPromises).then(() => {
-        // Ensure hidden items are properly hidden with display: none
-        this.afs.items.forEach(item => {
-          const visibleItems = this.afs.state.getState().items.visible;
-          if (!visibleItems.has(item)) {
-            item.style.display = 'none';
-          } else {
-            item.style.display = '';
-            item.style.opacity = '1';
-          }
-        });
+        if (this.afs.options.get("pagination.enabled")) {
+          // Let pagination handle display for matching items
+          this.afs.items.forEach(item => {
+            const visibleItems = this.afs.state.getState().items.visible;
+            if (!visibleItems.has(item)) {
+              item.style.display = 'none';
+            }
+          });
+          this.afs.pagination.update();
+        } else {
+          // Ensure hidden items are properly hidden with display: none
+          this.afs.items.forEach(item => {
+            const visibleItems = this.afs.state.getState().items.visible;
+            if (!visibleItems.has(item)) {
+              item.style.display = 'none';
+            } else {
+              item.style.display = '';
+              item.style.opacity = '1';
+            }
+          });
+        }
 
         // Update URL and emit event
         this.afs.urlManager.updateURL();
@@ -146,7 +157,7 @@ export class Search {
 
         // Update counter
         this.afs.updateCounter();
-        
+
         this.afs.logger.info(`Search complete. Found ${matches} matches`);
       });
     } catch (error) {
@@ -284,11 +295,16 @@ export class Search {
 
     // Wait for all animations to complete
     Promise.all(animationPromises).then(() => {
-      // Ensure all items are visible
-      this.afs.items.forEach(item => {
-        item.style.display = '';
-        item.style.opacity = '1';
-      });
+      if (this.afs.options.get("pagination.enabled")) {
+        // Let pagination handle display
+        this.afs.pagination.update();
+      } else {
+        // Ensure all items are visible
+        this.afs.items.forEach(item => {
+          item.style.display = '';
+          item.style.opacity = '1';
+        });
+      }
 
       // Update URL and emit event
       this.afs.urlManager.updateURL();

@@ -551,4 +551,15 @@ export class RangeFilter {
     this.activeRanges.delete(key);
     this.afs.logger.info(`Range slider removed for ${key}`);
   }
+
+  /**
+   * Destroy instance
+   * @public
+   */
+  destroy() {
+    Array.from(this.activeRanges.keys()).forEach((key) => {
+      this.removeRangeSlider(key);
+    });
+    this.afs.logger.debug("RangeFilter functionality destroyed");
+  }
 }

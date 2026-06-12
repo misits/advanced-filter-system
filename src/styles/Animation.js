@@ -222,6 +222,12 @@ export class Animation {
     // Ensure cleanup after animation completes
     const duration = this.afs.options.get("animation.duration") || 300;
     setTimeout(() => {
+      // Don't override if item was hidden by pagination or other systems
+      const hiddenClass = this.afs.options.get("hiddenClass");
+      if (hiddenClass && item.classList.contains(hiddenClass)) {
+        return;
+      }
+
       // Special handling for mobile - explicitly clean up all transition styles
       if (window.innerWidth <= 768) {
         item.style.transform = "";
