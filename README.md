@@ -1,627 +1,283 @@
 # Advanced Filter System (AFS)
 
-A powerful and flexible vanilla JavaScript filtering system that provides advanced filtering, searching, sorting, and pagination capabilities for DOM elements. Zero dependencies, lightweight, and highly customizable.
+A flexible, dependency-free JavaScript library for filtering DOM elements — with search, sorting, range filters, pagination and URL state built in.
 
-> **✨ NEW in v1.5.1**: Enhanced mixed mode filtering, improved event system, and comprehensive URL state management!
-
-[Live Demo](https://misits.github.io/advanced-filter-system) | [NPM Package](https://www.npmjs.com/package/advanced-filter-system) | [Interactive Examples](examples/demo.html)
-
-## Table of Contents
-
-- [Advanced Filter System (AFS)](#advanced-filter-system-afs)
-  - [Table of Contents](#table-of-contents)
-  - [Features](#features)
-  - [Installation](#installation)
-  - [Quick Start](#quick-start)
-    - [HTML Structure](#html-structure)
-    - [JavaScript Initialization](#javascript-initialization)
-  - [Filter Logic Modes](#filter-logic-modes)
-    - [Mixed Mode (Recommended)](#mixed-mode-recommended)
-    - [Per-Type Logic Configuration](#per-type-logic-configuration)
-    - [Legacy Modes](#legacy-modes)
-  - [Filter Types & UI Components](#filter-types--ui-components)
-    - [Button Filters](#button-filters)
-    - [Select Dropdowns](#select-dropdowns)
-    - [Radio Buttons](#radio-buttons)
-    - [Checkboxes](#checkboxes)
-    - [Range Sliders](#range-sliders)
-    - [Date Range Filters](#date-range-filters)
-  - [Advanced Features](#advanced-features)
-    - [Search & Filtering](#search--filtering)
-    - [Sorting](#sorting)
-    - [Pagination](#pagination)
-    - [URL State Management](#url-state-management)
-    - [Animations](#animations)
-  - [Configuration Options](#configuration-options)
-  - [API Reference](#api-reference)
-  - [Examples](#examples)
-  - [Browser Support](#browser-support)
-  - [TypeScript Support](#typescript-support)
-  - [Contributing](#contributing)
-  - [License](#license)
+[Live Demo](https://misits.github.io/advanced-filter-system) · [NPM](https://www.npmjs.com/package/advanced-filter-system) · [Documentation](docs/README.md)
 
 ## Features
 
-- 🎯 **Advanced Filter Logic**
-  - Mixed mode (OR within categories, AND between)
-  - Per-type logic configuration
-  - Multi-select and toggle modes
-  - Category-specific clearing
-- 🔍 **Multiple Filter Types**
-  - Button filters (toggle/multi-select)
-  - Select dropdowns
-  - Radio buttons (exclusive)
-  - Checkboxes (multi-select)
-  - Range sliders with histograms
-  - Date range filters
-- 🔎 **Smart Search**
-  - Real-time fuzzy search
-  - Multiple searchable fields
-  - Configurable debouncing
-  - Minimum character threshold
-- ↕️ **Flexible Sorting**
-  - Multi-column sorting
-  - Custom sort functions
-  - Auto-detect data types
-  - Sort direction indicators
-- 📄 **Advanced Pagination**
-  - Dynamic page sizes
-  - Smooth transitions
-  - Scroll-to-top option
-  - Custom pagination controls
-- 🎨 **Rich Animations**
-  - 14+ animation types (fade, slide, scale, flip, etc.)
-  - Hardware-accelerated transitions
-  - Customizable duration and easing
-- 🔗 **State Management**
-  - URL state persistence
-  - Browser history support
-  - Shareable filtered URLs
-  - State import/export
-- ⚡ **Performance Optimized**
-  - Debounced updates
-  - Efficient DOM manipulation
-  - Minimal reflows and repaints
-- 🎯 **Event System**
-  - Comprehensive event API
-  - Custom event support
-  - Debug mode with logging
+- **Filtering** — buttons, checkboxes, radios and dropdowns, with OR / AND / mixed logic configurable per filter type
+- **Search** — debounced text search across any data attributes, with optional match highlighting
+- **Sorting** — by any data attribute (numbers, dates, strings auto-detected), multi-criteria, custom comparators, shuffle
+- **Range filters** — draggable sliders (with optional histogram), min/max number inputs, date ranges
+- **Pagination** — page controls, items-per-page, smooth scroll-to-top, fully aware of active filters and sort order
+- **URL state** — the full filter state lives in the URL: shareable links, back/forward navigation, restored on load
+- **Animations** — fade, slide, scale, flip, rotate, zoom, bounce, blur and more
+- **TypeScript** — complete type definitions included
 
 ## Installation
 
 ```bash
-# NPM
 npm install advanced-filter-system
-
-# Yarn
-yarn add advanced-filter-system
-
-# PNPM
-pnpm add advanced-filter-system
 ```
 
-Or include via CDN:
+Or via CDN:
 
 ```html
 <script type="module">
-    import { AFS } from 'https://unpkg.com/advanced-filter-system@latest/dist/afs.modern.js';
+  import { AFS } from 'https://unpkg.com/advanced-filter-system@latest/dist/afs.modern.js';
 </script>
 ```
 
-## Quick Start
+## Quick start
 
-### HTML Structure
+A minimal, complete setup — filter buttons, search, counter and pagination:
 
 ```html
-<!DOCTYPE html>
-<html>
-<head>
-    <title>AFS Demo</title>
-</head>
-<body>
-    <!-- Filter Controls -->
-    <div class="filter-controls">
-        <button class="btn-filter" data-filter="*">All</button>
-        <button class="btn-filter" data-filter="category:tech">Technology</button>
-        <button class="btn-filter" data-filter="category:design">Design</button>
-    </div>
-    
-    <!-- Search Input -->
-    <input type="text" class="filter-search" placeholder="Search...">
-    
-    <!-- Results Counter -->
-    <div class="filter-counter"></div>
-    
-    <!-- Filterable Items -->
-    <div class="items-container">
-        <div class="filter-item" 
-             data-categories="category:tech brand:apple" 
-             data-title="MacBook Pro"
-             data-price="2499"
-             data-date="2024-03-15">
-            <h3>MacBook Pro</h3>
-            <p>$2,499</p>
-        </div>
-        <!-- More items... -->
-    </div>
-    
-    <!-- Pagination Container -->
-    <div class="afs-pagination-container"></div>
-</body>
-</html>
-```
+<!-- Filter controls -->
+<button class="btn-filter" data-filter="*">All</button>
+<button class="btn-filter" data-filter="category:tech">Tech</button>
+<button class="btn-filter" data-filter="category:design">Design</button>
 
-### JavaScript Initialization
+<!-- Search and counter -->
+<input type="text" class="filter-search" placeholder="Search…">
+<div class="filter-counter"></div>
+
+<!-- Items: data-categories holds space-separated "type:value" pairs -->
+<div class="items-container">
+  <div class="filter-item" data-categories="category:tech brand:apple"
+       data-title="MacBook Pro" data-price="2499">
+    MacBook Pro — $2,499
+  </div>
+  <div class="filter-item" data-categories="category:design brand:moleskine"
+       data-title="Sketchbook" data-price="29">
+    Sketchbook — $29
+  </div>
+</div>
+
+<!-- Pagination controls are rendered in here -->
+<div class="afs-pagination-container"></div>
+```
 
 ```javascript
 import { AFS } from 'advanced-filter-system';
 
 const afs = new AFS({
-    // Required selectors
-    containerSelector: '.items-container',
-    itemSelector: '.filter-item',
-    filterButtonSelector: '.btn-filter',
-    searchInputSelector: '.filter-search',
-    counterSelector: '.filter-counter',
-    
-    // Search configuration
-    searchKeys: ['title', 'categories'],
-    
-    // NEW: Advanced filter logic
-    filterCategoryMode: 'mixed', // OR within categories, AND between
-    filterTypeLogic: {
-        category: { mode: 'OR', multi: true },  // Multi-select OR
-        brand: 'OR',                            // Toggle mode
-        price: 'AND'                            // Multi-select AND
-    },
-    
-    // Pagination
-    pagination: {
-        enabled: true,
-        itemsPerPage: 12
-    },
-    
-    // Animations
-    animation: {
-        type: 'fade',
-        duration: 300
-    },
-    
-    // Debug mode
-    debug: true
+  containerSelector: '.items-container',   // required
+  itemSelector: '.filter-item',            // required
+  filterButtonSelector: '.btn-filter',
+  searchInputSelector: '.filter-search',
+  counterSelector: '.filter-counter',
+  searchKeys: ['title', 'categories'],
+  pagination: { enabled: true, itemsPerPage: 12 },
+  animation: { type: 'fade', duration: 300 },
 });
 ```
 
-## Filter Logic Modes
+```css
+/* AFS toggles these two classes — style them however you like */
+.btn-filter.active { background: #000; color: #fff; }
+.filter-item.hidden { display: none !important; }
+```
 
-### Mixed Mode (Recommended)
+That's it. Clicking a filter button, typing in the search box or changing pages all update the items, the counter and the URL.
 
-The most intuitive filtering experience - OR logic within filter categories, AND logic between different categories.
+## How filtering works
+
+Every item declares its facets in `data-categories`, as space-separated `type:value` pairs:
+
+```html
+<div class="filter-item" data-categories="category:tech brand:apple color:silver">
+```
+
+Filter controls target those pairs through `data-filter`:
+
+| `data-filter` value | Meaning |
+|---|---|
+| `category:tech` | Toggle this filter |
+| `*` | Reset — show everything |
+| `category:*` | Clear every active `category:` filter |
+
+By default AFS runs in **mixed mode**: filters of the same type combine with OR, different types combine with AND. Selecting *Tech*, *Design* and *Apple* shows items that are `(tech OR design) AND apple`. Each type's logic is configurable:
 
 ```javascript
 const afs = new AFS({
-    filterCategoryMode: 'mixed',
-    // When user selects: Tech OR Design AND Apple OR Samsung
-    // Shows: (Tech OR Design) AND (Apple OR Samsung)
+  filterCategoryMode: 'mixed',
+  filterTypeLogic: {
+    category: { mode: 'OR', multi: true },  // multi-select (checkbox-style)
+    brand: 'OR',                            // exclusive (one at a time)
+    tags: 'AND',                            // items must match all selected
+  },
 });
 ```
 
-### Per-Type Logic Configuration
+Buttons, checkboxes (`<input type="checkbox" data-filter>`), radios (`<input type="radio" data-filter>`) and dropdowns (`<select data-filter-type>`) are all supported — see the [Filter documentation](docs/filter.md).
 
-Configure each filter type independently for maximum flexibility.
+## Documentation
+
+| Module | Covers |
+|---|---|
+| [Filter](docs/filter.md) | Buttons, checkboxes, radios, dropdowns, logic modes, filter groups |
+| [Search](docs/search.md) | Text search, debouncing, highlighting |
+| [Sort](docs/sort.md) | Sort buttons, multi-criteria, custom comparators, shuffle |
+| [Pagination](docs/pagination.md) | Page controls, items-per-page, scroll-to-top |
+| [Range Filter](docs/range-filter.md) | Slider with optional histogram (numbers or dates) |
+| [Input Range Filter](docs/input-range-filter.md) | Min/max number inputs |
+| [Date Filter](docs/date-filter.md) | Date range pickers |
+| [URL Manager](docs/url-manager.md) | URL parameters, shareable state, history |
+
+## Common options
+
+All options with their defaults live in [`src/core/Options.js`](src/core/Options.js). The ones you'll touch most:
 
 ```javascript
 const afs = new AFS({
-    filterCategoryMode: 'mixed',
-    filterTypeLogic: {
-        category: { mode: 'OR', multi: true },  // Multi-select checkboxes
-        brand: 'OR',                            // Toggle buttons (exclusive)
-        price: 'AND',                           // Multi-select with AND logic
-        features: { mode: 'OR', multi: true }   // Multi-select with OR logic
-    }
-});
+  // Selectors (containerSelector and itemSelector are required)
+  containerSelector: '.afs-filter-container',
+  itemSelector: '.afs-filter-item',
+  filterButtonSelector: '.afs-btn-filter',
+  filterDropdownSelector: '.afs-filter-dropdown',
+  searchInputSelector: '.afs-filter-search',
+  counterSelector: '.afs-filter-counter',
+  sortButtonSelector: '.afs-btn-sort',
 
-// Update logic at runtime
-afs.filter.setFilterTypeLogic('brand', { mode: 'OR', multi: true });
-```
+  // CSS classes AFS toggles
+  activeClass: 'active',
+  hiddenClass: 'hidden',
+  activeSortClass: 'sort-active',
 
-### Legacy Modes
+  // Filter logic
+  filterCategoryMode: 'mixed',   // 'mixed' | 'OR' | 'AND'
+  filterTypeLogic: {},           // per-type config, see above
 
-```javascript
-// Legacy OR mode (all filters use OR logic)
-const afs = new AFS({ filterCategoryMode: 'OR' });
+  // Search
+  searchKeys: ['title'],
+  debounceTime: 300,
 
-// Legacy AND mode (all filters use AND logic)
-const afs = new AFS({ filterCategoryMode: 'AND' });
-```
+  // Pagination (disabled by default)
+  pagination: {
+    enabled: false,
+    itemsPerPage: 10,
+    container: '.afs-pagination-container',
+    showPrevNext: true,
+    scrollToTop: false,          // scrolls back to the top of the items list
+    scrollOffset: 50,
+    scrollBehavior: 'smooth',    // 'smooth' | 'auto'
+  },
 
-## Filter Types & UI Components
+  // Counter
+  counter: {
+    template: 'Showing {visible} of {total}',
+    showFiltered: true,
+    filteredTemplate: '({filtered} filtered)',
+    noResultsTemplate: 'No items found',
+  },
 
-### Button Filters
+  // Animations
+  animation: { type: 'fade', duration: 300 },
 
-```html
-<!-- Toggle mode (exclusive) -->
-<button class="btn-filter" data-filter="category:tech">Technology</button>
-
-<!-- Multi-select mode -->
-<button class="btn-filter" data-filter="brand:apple">Apple</button>
-<button class="btn-filter" data-filter="brand:samsung">Samsung</button>
-
-<!-- Clear specific category -->
-<button class="btn-filter" data-filter="category:*">Clear Categories</button>
-```
-
-### Select Dropdowns
-
-```html
-<select class="afs-filter-dropdown">
-    <option value="*">All Categories</option>
-    <option value="category:tech">Technology</option>
-    <option value="category:design">Design</option>
-</select>
-```
-
-### Radio Buttons
-
-```html
-<label><input type="radio" name="category" class="btn-filter" data-filter="*" checked> All</label>
-<label><input type="radio" name="category" class="btn-filter" data-filter="category:tech"> Tech</label>
-<label><input type="radio" name="category" class="btn-filter" data-filter="category:design"> Design</label>
-```
-
-### Checkboxes
-
-```html
-<label><input type="checkbox" class="btn-filter" data-filter="category:tech"> Technology</label>
-<label><input type="checkbox" class="btn-filter" data-filter="category:design"> Design</label>
-```
-
-### Range Sliders
-
-```javascript
-// Add price range slider with histogram
-afs.rangeFilter.addRangeSlider({
-    key: 'price',
-    type: 'number',
-    container: '.price-range-container',
-    min: 0,
-    max: 3000,
-    step: 50,
-    ui: {
-        showHistogram: true,
-        bins: 10
-    }
-});
-
-// Add rating range slider
-afs.rangeFilter.addRangeSlider({
-    key: 'rating',
-    type: 'number',
-    container: '.rating-range-container',
-    min: 4.0,
-    max: 5.0,
-    step: 0.1
+  // Misc
+  debug: false,                  // log to console
+  preserveState: false,          // persist state in sessionStorage across tab switches
 });
 ```
 
-### Date Range Filters
+## API at a glance
+
+Each feature lives on the instance: `afs.filter`, `afs.search`, `afs.sort`, `afs.pagination`, `afs.rangeFilter`, `afs.inputRangeFilter`, `afs.dateFilter`, `afs.urlManager`.
 
 ```javascript
-// Add date range filter
-afs.dateFilter.addDateRange({
-    key: 'date',
-    container: '.date-range-container',
-    minDate: new Date('2024-01-01'),
-    maxDate: new Date(),
-    format: 'YYYY-MM-DD'
-});
-```
-
-## Advanced Features
-
-### Search & Filtering
-
-```javascript
-// Programmatic search
-afs.search.search('query');
-afs.search.clearSearch();
-afs.search.setValue('new query');
-
-// Programmatic filtering
+// Filtering
 afs.filter.addFilter('category:tech');
 afs.filter.removeFilter('category:tech');
-afs.filter.clearAllFilters();
-afs.filter.clearFilterCategory('category:*');
-```
-
-### Sorting
-
-```javascript
-// Sort by single field
-afs.sort.sort('price', 'desc');
-
-// Custom sorting
-afs.sort.sortWithComparator('title', (a, b) => {
-    return a.localeCompare(b, 'en', { numeric: true });
-});
-
-// Shuffle items
-afs.sort.shuffle();
-```
-
-### Pagination
-
-```javascript
-// Pagination navigation
-afs.pagination.goToPage(2);
-afs.pagination.nextPage();
-afs.pagination.previousPage();
-
-// Toggle pagination mode
-afs.pagination.setPaginationMode(true); // Enable
-afs.pagination.setPaginationMode(false); // Show all
-```
-
-### URL State Management
-
-```javascript
-// Enable URL state persistence
-const afs = new AFS({
-    preserveState: true,
-    urlStateKey: 'filters' // Custom URL parameter name
-});
-
-// Manual state management
-const state = afs.getState();
-afs.setState(state);
-```
-
-### Animations
-
-```javascript
-const afs = new AFS({
-    animation: {
-        type: 'fade', // fade, slide, scale, flip, rotate, zoom, bounce, blur, etc.
-        duration: 400,
-        easing: 'ease-out'
-    }
-});
-
-// Change animation options at runtime
-afs.updateOptions({
-    animation: {
-        type: 'slide',
-        duration: 400
-    }
-});
-```
-
-## Configuration Options
-
-```javascript
-const afs = new AFS({
-    // Required selectors
-    containerSelector: '.items-container',
-    itemSelector: '.filter-item',
-    filterButtonSelector: '.btn-filter',
-    searchInputSelector: '.filter-search',
-    counterSelector: '.filter-counter',
-    
-    // Filter logic (NEW!)
-    filterCategoryMode: 'mixed', // 'mixed', 'OR', 'AND'
-    filterTypeLogic: {
-        category: { mode: 'OR', multi: true },
-        brand: 'OR',
-        price: 'AND'
-    },
-    
-    // Search configuration
-    searchKeys: ['title', 'categories', 'description'],
-    debounceTime: 300,
-    
-    // Pagination
-    pagination: {
-        enabled: true,
-        itemsPerPage: 12,
-        container: '.afs-pagination-container',
-        showPrevNext: true,
-        scrollToTop: true,
-        scrollBehavior: 'smooth'
-    },
-    
-    // Counter display
-    counter: {
-        template: 'Showing {visible} of {total}',
-        showFiltered: true,
-        filteredTemplate: '({filtered} filtered)',
-        noResultsTemplate: 'No items found',
-        formatter: (num) => num.toLocaleString()
-    },
-    
-    // Animations
-    animation: {
-        type: 'fade',
-        duration: 300,
-        easing: 'ease-out'
-    },
-    
-    // State management
-    preserveState: true,
-    stateExpiry: 86400000, // 24 hours
-    observeDOM: false,
-    
-    // CSS Classes
-    activeClass: 'active',
-    hiddenClass: 'hidden',
-    activeSortClass: 'sort-active',
-    
-    // Debug mode
-    debug: true
-});
-```
-
-## API Reference
-
-### Core Methods
-
-```javascript
-// Filter management
-afs.filter.addFilter('category:tech');
-afs.filter.removeFilter('category:tech');
-afs.filter.clearAllFilters();
-afs.filter.clearFilterCategory('category:*');
-afs.filter.setFilterTypeLogic('brand', { mode: 'OR', multi: true });
-afs.filter.toggleFilterExclusive('category:tech');
+afs.filter.clearAllFilters();                 // filters + search + dropdowns + checkboxes
 
 // Search
-afs.search.search('query');
+afs.search.setValue('macbook');
 afs.search.clearSearch();
-afs.search.setValue('new query');
-const currentQuery = afs.search.getValue();
 
-// Sorting  
+// Sorting
 afs.sort.sort('price', 'desc');
-afs.sort.sortMultiple([
-    { key: 'category', direction: 'asc' },
-    { key: 'price', direction: 'desc' }
-]);
 afs.sort.shuffle();
 afs.sort.reset();
 
 // Pagination
 afs.pagination.goToPage(2);
 afs.pagination.nextPage();
-afs.pagination.previousPage();
-afs.pagination.setPaginationMode(true);
+afs.pagination.setItemsPerPage(24);
+afs.pagination.getPageInfo();                 // { currentPage, itemsPerPage, totalPages }
 
-// Range Filters
+// Range widgets (containers are DOM elements)
 afs.rangeFilter.addRangeSlider({
-    key: 'price',
-    container: '.price-range-container'
+  key: 'price', type: 'number',
+  container: document.querySelector('.price-slider'),
+  min: 0, max: 1000, step: 10,
+  ui: { showHistogram: true, bins: 12 },
 });
+afs.inputRangeFilter.addInputRange({ key: 'rating', container: el, min: 0, max: 5, step: 0.5 });
+afs.dateFilter.addDateRange({ key: 'date', container: el });
 
-// Date Filters
-afs.dateFilter.addDateRange({
-    key: 'date',
-    container: '.date-range-container'
-});
-
-// State
-const state = afs.getState();
-afs.setState(state);
-
-// Events
-afs.on('filtersApplied', (data) => {
-    console.log(`Showing ${data.visibleItems} of ${data.total} items`);
-});
+// Lifecycle
+afs.refresh();                                // re-scan items (after DOM changes)
+afs.destroy();
 ```
 
-### Event System
+### Events
 
 ```javascript
-// Available events
-afs.on('filtersApplied', callback);
-afs.on('search', callback);
-afs.on('sort', callback);
-afs.on('pageChanged', callback);
-afs.on('urlStateLoaded', callback);
+afs.on('filtersApplied', ({ activeFilters, visibleItems }) => { /* … */ });
+afs.on('search', ({ query, matches, total }) => { /* … */ });
+afs.on('sort', ({ key, direction }) => { /* … */ });
+afs.on('pageChanged', ({ currentPage, totalPages }) => { /* … */ });
+afs.on('filtersCleared', () => { /* … */ });
+afs.on('urlStateLoaded', ({ params }) => { /* … */ });
 ```
 
-## Examples
+`on`, `once`, `off`, `removeAllListeners` are available. Each module's documentation lists its events and payloads.
 
-The project includes comprehensive examples demonstrating all features:
+## TypeScript
 
-- **[Interactive Demo](examples/demo.html)** - Complete demo with all filter types
-- **[Button Filters](examples/demo.html#buttons)** - Toggle and multi-select buttons  
-- **[Select Dropdowns](examples/demo.html#select)** - Dropdown filter controls
-- **[Radio Buttons](examples/demo.html#radio)** - Exclusive radio button filters
-- **[Checkboxes](examples/demo.html#checkbox)** - Multi-select checkbox filters
-- **[Range Filters](examples/demo.html#range)** - Sliders with histogram support
-- **[Search Functionality](examples/demo.html#search)** - Real-time search examples
-
-### Running Examples Locally
-
-```bash
-# Clone the repository
-git clone https://github.com/misits/advanced-filter-system.git
-cd advanced-filter-system
-
-# Open examples in browser
-open examples/index.html
-```
-
-## Browser Support
-
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
-- Opera (latest)
-
-Modern browser features used:
-- ES6 Modules
-- CSS Custom Properties
-- IntersectionObserver API
-- URLSearchParams API
-
-## TypeScript Support
-
-Full TypeScript support with comprehensive type definitions:
+Type definitions ship with the package:
 
 ```typescript
 import { AFS, AFSOptions, FilterTypeLogic } from 'advanced-filter-system';
 
-interface CustomOptions extends AFSOptions {
-    customProperty: string;
-}
-
-const filterLogic: FilterTypeLogic = {
-    category: { mode: 'OR', multi: true },
-    brand: 'OR'
+const logic: FilterTypeLogic = {
+  category: { mode: 'OR', multi: true },
+  brand: 'OR',
 };
 
 const afs = new AFS({
-    containerSelector: '#items',
-    itemSelector: '.item',
-    filterTypeLogic: filterLogic
-} as CustomOptions);
+  containerSelector: '#items',
+  itemSelector: '.item',
+  filterTypeLogic: logic,
+});
 ```
 
-## Contributing
+## Browser support
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details on:
+Modern evergreen browsers (Chrome, Firefox, Safari, Edge). Uses ES modules, `URLSearchParams` and the History API. `dist/afs.legacy.js` (UMD) is provided for non-module environments.
 
-1. Setting up the development environment
-2. Code style and standards
-3. Testing requirements
-4. Pull request process
-5. Bug reporting guidelines
-6. Feature request templates
-
-### Development Setup
+## Development
 
 ```bash
-# Clone and install
 git clone https://github.com/misits/advanced-filter-system.git
 cd advanced-filter-system
 npm install
 
-# Run development server
-npm run dev
+npm test             # jest test suite
+npm run build        # build dist/ (development)
+npm run build:prod   # minified production build
 
-# Build for production
-npm run build
-
-# Run tests
-npm test
+# Try the demo (imports ../dist/afs.modern.js, so build first)
+npm run build && npx serve .
+# then open http://localhost:3000/examples/demo.html
 ```
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT — see [LICENSE](LICENSE).
 
 ---
 
 Made with ♥ by [misits](https://github.com/misits)
-
-**Star ⭐ this repo if you find it helpful!**
