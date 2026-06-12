@@ -1,360 +1,316 @@
 <!DOCTYPE html>
-<html class="scroll-smooth">
-
+<html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>Advanced Filter System - JavaScript Filtering Library</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css">
-    <link rel="icon" type="image/png" href="./favicon/favicon-48x48.png" sizes="48x48" />
-    <link rel="icon" type="image/svg+xml" href="./favicon/favicon.svg" />
-    <link rel="shortcut icon" href="./favicon/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="./favicon/apple-touch-icon.png" />
-    <meta name="apple-mobile-web-app-title" content="Advanced Filter System" />
-    <link rel="manifest" href="./favicon/site.webmanifest" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced Filter System — JavaScript Filtering Library</title>
+<link rel="icon" type="image/svg+xml" href="./favicon/favicon.svg">
+<link rel="shortcut icon" href="./favicon/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="./favicon/apple-touch-icon.png">
+<link rel="manifest" href="./favicon/site.webmanifest">
+<style>
+  :root {
+    --text: #111111;
+    --text-soft: #6b7280;
+    --border: #e5e7eb;
+    --soft: #f6f7f8;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: #ffffff;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 1.5rem; }
+
+  /* Header — shared with demo.html, keep in sync */
+  header {
+    position: sticky;
+    top: 0;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: .85rem 1.5rem;
+    background: rgb(255 255 255 / .92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    z-index: 10;
+  }
+  header strong { font-size: .95rem; }
+  header nav { margin-left: auto; display: flex; gap: 1.1rem; flex-wrap: wrap; }
+  header a { color: var(--text-soft); text-decoration: none; font-size: .88rem; }
+  header a:hover { color: var(--text); }
+
+  /* Hero */
+  .hero { padding: 5rem 0 3.5rem; }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    line-height: 1.15;
+    margin: 0 0 1rem;
+    letter-spacing: -.02em;
+  }
+  .hero p {
+    font-size: 1.1rem;
+    color: var(--text-soft);
+    max-width: 38rem;
+    margin: 0 0 2rem;
+  }
+  .actions { display: flex; gap: .6rem; flex-wrap: wrap; }
+  .button {
+    display: inline-block;
+    padding: .6rem 1.2rem;
+    border-radius: 8px;
+    border: 1px solid var(--text);
+    font-size: .9rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .button.primary { background: var(--text); color: #fff; }
+  .button:hover { opacity: .8; }
+
+  /* Sections */
+  section { padding: 2.5rem 0; border-top: 1px solid var(--border); }
+  h2 {
+    font-size: 1.3rem;
+    margin: 0 0 1.5rem;
+    letter-spacing: -.01em;
+  }
+  h3 { font-size: .95rem; margin: 0 0 .5rem; }
+
+  /* Features */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+  .feature {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.1rem 1.2rem;
+  }
+  .feature p { margin: 0; font-size: .88rem; color: var(--text-soft); }
+
+  /* Code blocks */
+  pre {
+    background: var(--soft);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    overflow-x: auto;
+    font-size: .82rem;
+    line-height: 1.55;
+    margin: 0 0 1.25rem;
+  }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .label {
+    font-size: .72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-soft);
+    margin: 0 0 .45rem;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
+  .two-col .feature pre { margin: .75rem 0 0; }
+
+  /* CTA */
+  .cta {
+    text-align: center;
+    padding: 3.5rem 0;
+  }
+  .cta p { color: var(--text-soft); margin: 0 0 1.5rem; }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 0;
+    text-align: center;
+    font-size: .85rem;
+    color: var(--text-soft);
+  }
+  footer a { color: inherit; }
+</style>
 </head>
+<body>
 
-<body class="font-mono bg-white text-gray-900 relative">
-    <a href="./demo.html"
-        class="fixed bottom-4 right-4 bg-black text-white py-2 px-4 rounded-full hover:bg-gray-800 z-[1000]">
-        Try Demo
-    </a>
-    
-    <!-- Header with navigation -->
-    <header class="sticky top-0 bg-white border-b border-gray-200 z-[1000]">
-        <div class="container mx-auto px-6 py-4">
-            <nav class="flex justify-between items-center">
-                <div class="text-xl font-bold">AFS</div>
+<header>
+  <strong>AFS</strong>
+  <nav>
+    <a href="./index.html">Home</a>
+    <a href="./index.html#features">Features</a>
+    <a href="./index.html#installation">Installation</a>
+    <a href="./index.html#usage">Usage</a>
+    <a href="./demo.html">Demo</a>
+    <a href="https://github.com/misits/advanced-filter-system" target="_blank" rel="noopener">GitHub</a>
+  </nav>
+</header>
 
-                <!-- Mobile Menu Button (Hamburger) -->
-                <button class="md:hidden flex items-center px-3 py-2 border rounded hover:bg-gray-100"
-                    id="mobile-menu-button" aria-label="Toggle menu">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                            d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
+<main>
 
-                <!-- Desktop Navigation -->
-                <div class="flex-none max-sm:hidden md:flex items-center gap-6">
-                    <a href="#features" class="hover:text-gray-600">Features</a>
-                    <a href="#installation" class="hover:text-gray-600">Installation</a>
-                    <a href="#usage" class="hover:text-gray-600">Usage</a>
-                    <a href="./demo.html" class="hover:text-gray-600">Demo</a>
-                    <a href="https://github.com/misits/advanced-filter-system"
-                        class="text-white flex items-center px-2 py-1.5 bg-black rounded-lg hover:bg-gray-800 transition-colors">
-                        <svg class="mr-2 flex items-center" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                            viewBox="0 0 24 24">
-                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="1.5"
-                                d="M6.517 17.113c.395.578 1.592 1.81 3.225 2.12M9.864 22C8.836 21.83 2 19.606 2 12.093C2 5.063 8.002 2 12 2c4 0 10 3.063 10 10.093c0 7.513-6.836 9.738-7.864 9.907c0 0-.21-3.417-.087-4.003c.122-.586-.294-1.528-.294-1.528c.971-.364 2.45-.884 2.945-2.282c.385-1.084.627-2.658-.45-4.138c0 0 .282-2.39-.25-2.484c-.533-.092-2.1.947-2.1.947c-.457-.13-1.476-.377-1.898-.333c-.423-.044-1.445.203-1.902.333c0 0-1.568-1.04-2.1-.947s-.25 2.484-.25 2.484c-1.077 1.48-.835 3.054-.45 4.138c.496 1.398 1.974 1.918 2.945 2.282c0 0-.416.942-.294 1.528S9.864 22 9.864 22"
-                                color="currentColor" />
-                        </svg>GitHub</a>
-                </div>
+  <div class="hero wrap">
+    <h1>Advanced Filter System</h1>
+    <p>A flexible, dependency-free JavaScript library for filtering DOM elements with search, sorting, ranges, pagination and URL state built in.</p>
+    <div class="actions">
+      <a class="button primary" href="./demo.html">Try the demo</a>
+      <a class="button" href="#installation">Get started</a>
+      <a class="button" href="https://github.com/misits/advanced-filter-system" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
 
-                <!-- Mobile Navigation -->
-                <div class="hidden absolute top-full left-0 right-0 bg-white border-b border-gray-200 md:hidden"
-                    id="mobile-menu">
-                    <div class="container mx-auto px-6 py-4 flex flex-col gap-4">
-                        <a href="#features" class="hover:text-gray-600 py-2">Features</a>
-                        <a href="#installation" class="hover:text-gray-600 py-2">Installation</a>
-                        <a href="#usage" class="hover:text-gray-600 py-2">Usage</a>
-                        <a href="./demo.html" class="hover:text-gray-600 py-2">Demo</a>
-                        <a href="https://github.com/misits/advanced-filter-system"
-                            class="hover:text-gray-600 py-2">GitHub</a>
-                    </div>
-                </div>
-            </nav>
+  <section id="features">
+    <div class="wrap">
+      <h2>Features</h2>
+      <div class="features">
+        <div class="feature">
+          <h3>Flexible filtering</h3>
+          <p>Buttons, checkboxes, radios and dropdowns, with configurable OR / AND / mixed logic per filter type.</p>
         </div>
-    </header>
+        <div class="feature">
+          <h3>Real-time search</h3>
+          <p>Debounced text search across any number of data attributes.</p>
+        </div>
+        <div class="feature">
+          <h3>Range filters</h3>
+          <p>Numeric sliders with optional histogram, min/max inputs and date ranges.</p>
+        </div>
+        <div class="feature">
+          <h3>Pagination</h3>
+          <p>Page controls, items-per-page, smooth scroll-to-top all aware of active filters.</p>
+        </div>
+        <div class="feature">
+          <h3>URL state</h3>
+          <p>The full filter state lives in the URL: shareable, restorable, back-button friendly.</p>
+        </div>
+        <div class="feature">
+          <h3>Animations &amp; TypeScript</h3>
+          <p>Fade, slide, scale, flip and more plus complete TypeScript definitions.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <main class="pt-8">
-        <!-- Hero Section -->
-        <section class="container mx-auto px-6 mb-16">
-            <h1 class="text-6xl font-bold mb-6">Advanced Filter System</h1>
-            <p class="text-xl text-gray-600 mb-8">
-                A flexible and powerful JavaScript library for filtering DOM elements with search, sorting, and range capabilities.
-            </p>
-            <div class="flex gap-4">
-                <a href="#installation"
-                    class="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
-                    Get Started
-                </a>
-                <a href="./demo.html"
-                    class="px-6 py-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                    View Demo
-                </a>
-                <a href="https://github.com/misits/advanced-filter-system"
-                    class="px-6 py-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                    View on GitHub
-                </a>
-            </div>
-        </section>
-
-        <!-- Features -->
-        <section id="features" class="container mx-auto px-6 mb-16">
-            <h2 class="text-3xl font-bold mb-8">Features</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div class="p-6 border border-gray-200 rounded-lg">
-                    <h3 class="text-xl font-bold mb-4">🎯 Flexible Filtering</h3>
-                    <p class="text-gray-600">
-                        Support for buttons, checkboxes, radio buttons, dropdowns, and custom filter types with configurable logic modes.
-                    </p>
-                </div>
-                <div class="p-6 border border-gray-200 rounded-lg">
-                    <h3 class="text-xl font-bold mb-4">🔍 Real-time Search</h3>
-                    <p class="text-gray-600">
-                        Fuzzy search with customizable debouncing, multiple search keys, and instant results.
-                    </p>
-                </div>
-                <div class="p-6 border border-gray-200 rounded-lg">
-                    <h3 class="text-xl font-bold mb-4">📊 Range Filters</h3>
-                    <p class="text-gray-600">
-                        Interactive sliders for numeric ranges, date ranges, and input ranges with histogram support.
-                    </p>
-                </div>
-                <div class="p-6 border border-gray-200 rounded-lg">
-                    <h3 class="text-xl font-bold mb-4">🎨 Smooth Animations</h3>
-                    <p class="text-gray-600">
-                        Multiple animation types including fade, slide, scale, flip, and custom transitions.
-                    </p>
-                </div>
-                <div class="p-6 border border-gray-200 rounded-lg">
-                    <h3 class="text-xl font-bold mb-4">📱 Responsive Design</h3>
-                    <p class="text-gray-600">
-                        Mobile-first design with touch support and adaptive layouts for all screen sizes.
-                    </p>
-                </div>
-                <div class="p-6 border border-gray-200 rounded-lg">
-                    <h3 class="text-xl font-bold mb-4">⚙️ Highly Configurable</h3>
-                    <p class="text-gray-600">
-                        Extensive customization options for styling, behavior, pagination, and advanced filter logic.
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Installation -->
-        <section id="installation" class="container mx-auto px-6 mb-16">
-            <h2 class="text-3xl font-bold mb-8">Installation</h2>
-            <div class="space-y-6">
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Via npm</h3>
-                    <pre
-                        class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-bash">npm install advanced-filter-system</code></pre>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Via yarn</h3>
-                    <pre
-                        class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-bash">yarn add advanced-filter-system</code></pre>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Via CDN</h3>
-                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-html">&lt;script type="module"&gt;
-    import { AFS } from 'https://unpkg.com/advanced-filter-system@latest/dist/afs.modern.js';
+  <section id="installation">
+    <div class="wrap">
+      <h2>Installation</h2>
+      <p class="label">npm</p>
+      <pre><code>npm install advanced-filter-system</code></pre>
+      <p class="label">CDN</p>
+      <pre><code>&lt;script type="module"&gt;
+  import { AFS } from 'https://unpkg.com/advanced-filter-system@latest/dist/afs.modern.js';
 &lt;/script&gt;</code></pre>
-                </div>
-            </div>
-        </section>
+    </div>
+  </section>
 
-        <!-- Quick Start -->
-        <section id="usage" class="container mx-auto px-6 mb-16">
-            <h2 class="text-3xl font-bold mb-8">Quick Start</h2>
-            <div class="space-y-8">
-                <!-- Basic HTML Structure -->
-                <div>
-                    <h3 class="text-2xl font-bold mb-4">1. HTML Structure</h3>
-                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-html">&lt;div class="filter-container"&gt;
-    &lt;!-- Filter Controls --&gt;
-    &lt;button class="btn-filter" data-filter="*"&gt;All&lt;/button&gt;
-    &lt;button class="btn-filter" data-filter="category:tech"&gt;Technology&lt;/button&gt;
-    &lt;button class="btn-filter" data-filter="category:design"&gt;Design&lt;/button&gt;
-    
-    &lt;!-- Search Input --&gt;
-    &lt;input type="text" class="filter-search" placeholder="Search..."&gt;
-    
-    &lt;!-- Results Counter --&gt;
-    &lt;div class="filter-counter"&gt;&lt;/div&gt;
-    
-    &lt;!-- Filterable Items --&gt;
-    &lt;div class="filter-item" 
-         data-categories="category:tech" 
-         data-title="Laptop"&gt;
-        &lt;h3&gt;Premium Laptop&lt;/h3&gt;
-    &lt;/div&gt;
-    
-    &lt;div class="filter-item" 
-         data-categories="category:design" 
-         data-title="Notebook"&gt;
-        &lt;h3&gt;Design Notebook&lt;/h3&gt;
-    &lt;/div&gt;
-    
-    &lt;!-- Pagination --&gt;
-    &lt;div class="afs-pagination-container"&gt;&lt;/div&gt;
-&lt;/div&gt;</code></pre>
-                </div>
+  <section id="usage">
+    <div class="wrap">
+      <h2>Quick start</h2>
 
-                <!-- JavaScript Initialization -->
-                <div>
-                    <h3 class="text-2xl font-bold mb-4">2. JavaScript Initialization</h3>
-                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">import { AFS } from 'advanced-filter-system';
+      <p class="label">1 · HTML</p>
+      <pre><code>&lt;button class="btn-filter" data-filter="*"&gt;All&lt;/button&gt;
+&lt;button class="btn-filter" data-filter="category:tech"&gt;Tech&lt;/button&gt;
+&lt;button class="btn-filter" data-filter="category:design"&gt;Design&lt;/button&gt;
+
+&lt;input type="text" class="filter-search" placeholder="Search…"&gt;
+&lt;div class="filter-counter"&gt;&lt;/div&gt;
+
+&lt;div class="filter-container"&gt;
+  &lt;div class="filter-item" data-categories="category:tech" data-title="Laptop"&gt;Laptop&lt;/div&gt;
+  &lt;div class="filter-item" data-categories="category:design" data-title="Notebook"&gt;Notebook&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="afs-pagination-container"&gt;&lt;/div&gt;</code></pre>
+
+      <p class="label">2 · JavaScript</p>
+      <pre><code>import { AFS } from 'advanced-filter-system';
 
 const afs = new AFS({
-    // Required selectors
-    containerSelector: '.filter-container',
-    itemSelector: '.filter-item',
-    filterButtonSelector: '.btn-filter',
-    searchInputSelector: '.filter-search',
-    counterSelector: '.filter-counter',
-    
-    // Search configuration
-    searchKeys: ['title', 'categories'],
-    
-    // Filter logic (NEW!)
-    filterCategoryMode: 'mixed', // OR within categories, AND between
-    filterTypeLogic: {
-        category: { mode: 'OR', multi: true },  // Multi-select OR
-        brand: 'OR',                            // Toggle mode
-        price: 'AND'                            // Multi-select AND
-    },
-    
-    // Pagination
-    pagination: {
-        enabled: true,
-        itemsPerPage: 6
-    },
-    
-    // Animations
-    animation: {
-        type: 'fade',
-        duration: 300
-    }
-});</code></pre>
-                </div>
+  containerSelector: '.filter-container',
+  itemSelector: '.filter-item',
+  filterButtonSelector: '.btn-filter',
+  searchInputSelector: '.filter-search',
+  counterSelector: '.filter-counter',
+  searchKeys: ['title', 'categories'],
 
-                <!-- Advanced Features -->
-                <div>
-                    <h3 class="text-2xl font-bold mb-4">3. Advanced Features</h3>
-                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="language-javascript">// Add range slider
+  filterCategoryMode: 'mixed',           // OR within a type, AND between types
+  filterTypeLogic: {
+    category: { mode: 'OR', multi: true },
+  },
+
+  pagination: { enabled: true, itemsPerPage: 6 },
+  animation: { type: 'fade', duration: 300 },
+});</code></pre>
+
+      <p class="label">3 · Going further</p>
+      <pre><code>// Range slider
 afs.rangeFilter.addRangeSlider({
-    key: 'price',
-    container: '.price-range',
-    min: 0,
-    max: 1000,
-    ui: { showHistogram: true }
+  key: 'price',
+  type: 'number',
+  container: document.querySelector('.price-range'),
+  min: 0,
+  max: 1000,
 });
 
-// Add date range filter
+// Date range
 afs.dateFilter.addDateRange({
-    key: 'date',
-    container: '.date-range',
-    minDate: new Date('2024-01-01'),
-    maxDate: new Date()
+  key: 'date',
+  container: document.querySelector('.date-range'),
 });
 
-// Custom sorting
-afs.filter.sortWithOrder('price', 'DESC');
+// Sorting
+afs.sort.sort('price', 'desc');
 
-// Event listeners
-afs.on('filter:applied', (data) => {
-    console.log(`Filtered: ${data.visible} of ${data.total} items`);
+// Events
+afs.on('filtersApplied', ({ visibleItems }) =&gt; {
+  console.log(`${visibleItems} items visible`);
 });</code></pre>
-                </div>
-            </div>
-        </section>
+    </div>
+  </section>
 
-        <!-- Filter Logic Examples -->
-        <section class="container mx-auto px-6 mb-16">
-            <h2 class="text-3xl font-bold mb-8">Filter Logic Modes</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="p-6 border border-gray-200 rounded-lg">
-                    <h3 class="text-xl font-bold mb-4">Mixed Mode (Recommended)</h3>
-                    <p class="text-gray-600 mb-4">OR within categories, AND between categories</p>
-                    <pre class="bg-gray-100 p-3 rounded text-sm"><code class="language-javascript">filterCategoryMode: 'mixed'
-// Select: Tech OR Design 
-// AND Premium OR Budget
-// = Show items that are (Tech OR Design) 
-//   AND (Premium OR Budget)</code></pre>
-                </div>
-                <div class="p-6 border border-gray-200 rounded-lg">
-                    <h3 class="text-xl font-bold mb-4">Per-Type Logic</h3>
-                    <p class="text-gray-600 mb-4">Configure each filter type independently</p>
-                    <pre class="bg-gray-100 p-3 rounded text-sm"><code class="language-javascript">filterTypeLogic: {
-  category: { mode: 'OR', multi: true },
-  brand: 'OR',     // Toggle mode
-  price: 'AND'     // Multi-select AND
-}</code></pre>
-                </div>
-            </div>
-        </section>
-
-        <!-- Demo Link -->
-        <section class="container mx-auto px-6 mb-16">
-            <div class="text-center p-8 bg-gray-50 rounded-lg">
-                <h2 class="text-3xl font-bold mb-4">See It In Action</h2>
-                <p class="text-xl text-gray-600 mb-8">
-                    Try our comprehensive demo with all filter types, animations, and configurations.
-                </p>
-                <a href="./demo.html"
-                    class="inline-block px-8 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors text-lg">
-                    Launch Interactive Demo
-                </a>
-            </div>
-        </section>
-    </main>
-
-    <footer class="py-12 border-t border-gray-200">
-        <div class="container mx-auto px-6">
-            <div class="text-center text-gray-400">
-                <p>Released under the MIT License.</p>
-                <p class="mt-2">Created by <a href="https://github.com/misits" class="hover:text-gray-600">@misits</a></p>
-            </div>
+  <section>
+    <div class="wrap">
+      <h2>Filter logic modes</h2>
+      <div class="two-col">
+        <div class="feature">
+          <h3>Mixed mode (recommended)</h3>
+          <p>OR within a filter type, AND between types.</p>
+          <pre><code>filterCategoryMode: 'mixed'
+// (Tech OR Design) AND (Premium OR Budget)</code></pre>
         </div>
-    </footer>
+        <div class="feature">
+          <h3>Per-type logic</h3>
+          <p>Configure each filter type independently.</p>
+          <pre><code>filterTypeLogic: {
+  category: { mode: 'OR', multi: true },
+  brand: 'OR',   // exclusive toggle
+  tags: 'AND',   // must match all
+}</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <script>
-        // Mobile menu functionality
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const mobileMenu = document.getElementById('mobile-menu');
+  <section class="cta">
+    <div class="wrap">
+      <h2>See it in action</h2>
+      <p>One page, every feature: filters, search, ranges, sorting, pagination and URL state.</p>
+      <a class="button primary" href="./demo.html">Launch interactive demo</a>
+    </div>
+  </section>
 
-        mobileMenuButton.addEventListener('click', () => {
-            const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true';
-            mobileMenuButton.setAttribute('aria-expanded', !isExpanded);
-            mobileMenu.classList.toggle('hidden');
+</main>
 
-            // Update hamburger icon to X when menu is open
-            const svg = mobileMenuButton.querySelector('svg');
-            if (!isExpanded) {
-                svg.innerHTML = `<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>`;
-            } else {
-                svg.innerHTML = `<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"/>`;
-            }
-        });
+<footer>
+  <p>Released under the MIT License. Created by <a href="https://github.com/misits" target="_blank" rel="noopener">@misits</a>.</p>
+</footer>
 
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', (event) => {
-            if (!mobileMenuButton.contains(event.target) && !mobileMenu.contains(event.target)) {
-                mobileMenu.classList.add('hidden');
-                mobileMenuButton.setAttribute('aria-expanded', 'false');
-                const svg = mobileMenuButton.querySelector('svg');
-                svg.innerHTML = `<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"/>`;
-            }
-        });
-
-        // Close mobile menu when window is resized to desktop size
-        window.addEventListener('resize', () => {
-            if (window.innerWidth >= 768) { // 768px is Tailwind's md breakpoint
-                mobileMenu.classList.add('hidden');
-                mobileMenuButton.setAttribute('aria-expanded', 'false');
-                const svg = mobileMenuButton.querySelector('svg');
-                svg.innerHTML = `<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"/>`;
-            }
-        });
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-bash.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-javascript.min.js"></script>
 </body>
-
 </html>
