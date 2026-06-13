@@ -83,7 +83,9 @@ export class EventEmitter {
    */
   emit(eventName, ...args) {
     if (this.events.has(eventName)) {
-      this.events.get(eventName).forEach(callback => {
+      // Iterate over a snapshot so a handler that subscribes/unsubscribes
+      // during emit (e.g. once() wrappers) can't mutate the Set mid-iteration.
+      [...this.events.get(eventName)].forEach(callback => {
         try {
           callback.apply(this, args);
         } catch (error) {

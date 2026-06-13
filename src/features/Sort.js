@@ -57,7 +57,7 @@ export class Sort {
   bindSortEvent(button) {
     this.afs.logger.debug("Binding sort event to button:", button);
 
-    button.addEventListener("click", () => {
+    const handler = () => {
       const sortData = this.sortButtons.get(button);
       if (!sortData) return;
 
@@ -74,7 +74,14 @@ export class Sort {
 
       // Perform sort
       this.sort(sortData.key, sortData.direction);
-    });
+    };
+
+    button.addEventListener("click", handler);
+
+    // Remember the exact handler so removeSortButton() can detach it
+    // (an anonymous listener could never be removed).
+    const data = this.sortButtons.get(button);
+    if (data) data.handler = handler;
   }
 
   /**
@@ -563,7 +570,10 @@ export class Sort {
    */
   removeSortButton(button) {
     if (this.sortButtons.has(button)) {
-      button.removeEventListener("click", this.bindSortEvent);
+      const data = this.sortButtons.get(button);
+      if (data?.handler) {
+        button.removeEventListener("click", data.handler);
+      }
       this.sortButtons.delete(button);
       this.afs.logger.debug("Removed sort button");
     }

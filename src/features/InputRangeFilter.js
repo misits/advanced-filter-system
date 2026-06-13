@@ -194,6 +194,9 @@ createInputElements(label) {
 
     minInput.addEventListener('input', handleInputChange);
     maxInput.addEventListener('input', handleInputChange);
+
+    // Keep the handler reference so removeInputRange()/destroy() can detach it.
+    elements.inputHandler = handleInputChange;
   }
 
   /**
@@ -301,8 +304,26 @@ createInputElements(label) {
     const range = this.activeRanges.get(key);
     if (!range) return;
 
+    const { minInput, maxInput, inputHandler } = range.elements;
+    if (inputHandler) {
+      minInput?.removeEventListener('input', inputHandler);
+      maxInput?.removeEventListener('input', inputHandler);
+    }
+
     range.elements.container.remove();
     this.activeRanges.delete(key);
     this.afs.logger.info(`Input range removed for ${key}`);
+  }
+
+  /**
+   * Destroy all input ranges and detach their listeners
+   * @public
+   */
+  destroy() {
+    Array.from(this.activeRanges.keys()).forEach((key) => {
+      this.removeInputRange(key);
+    });
+    this.activeRanges.clear();
+    this.afs.logger.debug("Input range filter destroyed");
   }
 }

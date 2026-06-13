@@ -12,7 +12,8 @@ export class Filter {
     this.afs = afs;
     this.animation = new Animation(afs);
     this.filterButtons = new Map();
-    this.filterHandlers = new Map(); // Store event handlers for cleanup
+    this.filterHandlers = new Map(); // Store button event handlers for cleanup
+    this.dropdownHandlers = new Map(); // Store dropdown event handlers for cleanup
     this.activeFilters = new Set(["*"]);
     this.currentFilters = new Set(["*"]);
     this.filterGroups = new Map();
@@ -104,7 +105,7 @@ export class Filter {
   bindDropdownEvent(dropdown) {
     this.afs.logger.debug("Binding filter event to dropdown:", dropdown);
 
-    dropdown.addEventListener("change", () => {
+    const handler = () => {
       const selectedValue = dropdown.value;
       const filterType = dropdown.getAttribute("data-filter-type") || selectedValue.split(":")[0];
 
@@ -144,7 +145,11 @@ export class Filter {
         value: selectedValue,
         activeFilters: Array.from(this.activeFilters),
       });
-    });
+    };
+
+    dropdown.addEventListener("change", handler);
+    // Track the handler so destroy() can detach it.
+    this.dropdownHandlers.set(dropdown, handler);
   }
 
   /**
@@ -592,20 +597,23 @@ export class Filter {
       `${this.afs.options.get("filterButtonSelector")}[type="checkbox"]`
     );
 
+    // Hoist the option lookup out of the loop (constant per call)
+    const activeClass = this.afs.options.get("activeClass");
+
     checkboxes.forEach((checkbox) => {
       const filterValue = checkbox.getAttribute('data-filter');
       if (filterValue) {
         // Check if this filter is active
         const isActive = this.activeFilters.has(filterValue);
-        
+
         // Update checkbox state
         checkbox.checked = isActive;
-        
+
         // Update visual classes
         if (isActive) {
-          checkbox.classList.add(this.afs.options.get("activeClass"));
+          checkbox.classList.add(activeClass);
         } else {
-          checkbox.classList.remove(this.afs.options.get("activeClass"));
+          checkbox.classList.remove(activeClass);
         }
       }
     });
@@ -1458,10 +1466,16 @@ export class Filter {
     this.filterButtons.forEach((_, button) => {
       this.removeFilterButton(button);
     });
+    // Detach dropdown change handlers
+    this.dropdownHandlers.forEach((handler, dropdown) => {
+      dropdown.removeEventListener("change", handler);
+    });
     this.filterButtons.clear();
     this.filterHandlers.clear();
+    this.dropdownHandlers.clear();
     this.activeFilters.clear();
     this.filterGroups.clear();
+    this.itemDisplayTypes.clear(); // Release DOM element references
     this.afs.logger.debug("Filter functionality destroyed");
   }
 

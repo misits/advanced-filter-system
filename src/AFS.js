@@ -120,14 +120,19 @@ export class AFS extends EventEmitter {
    * @private
    */
   setupLifecycle() {
+    // Bind once and keep the reference so removeEventListener() can match it
+    // in destroy(). handleResize is already a stable debounced arrow field, so
+    // it needs no binding; handleVisibilityChange is a normal method.
+    this.boundHandleVisibilityChange = this.handleVisibilityChange.bind(this);
+
     if (this.options.get("responsive")) {
-      window.addEventListener("resize", this.handleResize.bind(this));
+      window.addEventListener("resize", this.handleResize);
     }
 
     if (this.options.get("preserveState")) {
       document.addEventListener(
         "visibilitychange",
-        this.handleVisibilityChange.bind(this)
+        this.boundHandleVisibilityChange
       );
     }
 
@@ -243,6 +248,8 @@ export class AFS extends EventEmitter {
     this.items = this.container.querySelectorAll(
       this.options.get("itemSelector")
     );
+    // Keep state.items.total in sync with the live DOM
+    this.state.setState("items.total", this.items.length);
     this.filter.applyFilters();
   }
 
@@ -264,6 +271,8 @@ export class AFS extends EventEmitter {
     this.items = this.container.querySelectorAll(
       this.options.get("itemSelector")
     );
+    // Keep state.items.total in sync with the live DOM
+    this.state.setState("items.total", this.items.length);
     this.updateCounter();
   }
 
@@ -461,13 +470,14 @@ export class AFS extends EventEmitter {
    * @private
    */
   setupMutationObserver() {
-    const observer = new MutationObserver((mutations) => {
+    // Keep the reference so it can be disconnected in destroy().
+    this.mutationObserver = new MutationObserver((mutations) => {
       if (mutations.some((mutation) => mutation.type === "childList")) {
         this.refresh();
       }
     });
 
-    observer.observe(this.container, {
+    this.mutationObserver.observe(this.container, {
       childList: true,
       subtree: true,
     });
@@ -514,28 +524,35 @@ export class AFS extends EventEmitter {
   destroy() {
     this.logger.debug("Destroying AFS instance");
 
-    // Remove event listeners
+    // Remove lifecycle listeners using the same references they were added with
     window.removeEventListener("resize", this.handleResize);
     document.removeEventListener(
       "visibilitychange",
-      this.handleVisibilityChange
+      this.boundHandleVisibilityChange
     );
 
-    // Destroy features
-    this.filter.destroy();
-    this.search.destroy();
-    this.sort.destroy();
-    this.pagination.destroy();
-    this.rangeFilter.destroy();
+    // Disconnect the DOM observer (if any)
+    this.mutationObserver?.disconnect();
+    this.mutationObserver = null;
+
+    // Destroy features (optional chaining: some modules add destroy() in later steps)
+    this.filter?.destroy?.();
+    this.search?.destroy?.();
+    this.sort?.destroy?.();
+    this.pagination?.destroy?.();
+    this.rangeFilter?.destroy?.();
+    this.dateFilter?.destroy?.();
+    this.inputRangeFilter?.destroy?.();
+    this.urlManager?.destroy?.();
 
     // Cleanup
     this.styleManager.removeStyles();
     this.state.reset();
     sessionStorage.removeItem("afs_state");
 
-    // Reset items
+    // Reset items (element.style is read-only; clear the attribute instead)
     this.items.forEach((item) => {
-      item.style = "";
+      item.removeAttribute("style");
       item.classList.remove(
         this.options.get("hiddenClass"),
         this.options.get("activeClass")
@@ -543,5 +560,8 @@ export class AFS extends EventEmitter {
     });
 
     this.emit("destroyed");
+
+    // Clear the internal event bus last so the "destroyed" event is still delivered
+    this.removeAllListeners();
   }
 }

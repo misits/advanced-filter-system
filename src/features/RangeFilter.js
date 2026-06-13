@@ -84,7 +84,14 @@ export class RangeFilter {
 
     // Setup histogram highlight updates only if enabled
     if (sliderUiOptions.showHistogram) {
-      this.setupHistogramHighlight(elements, state, histogramData.binEdges);
+      // Store the unsubscribe so removeRangeSlider()/destroy() can detach the
+      // per-slider "rangeFilter" subscription (otherwise it leaks each time).
+      const unsubscribe = this.setupHistogramHighlight(
+        elements,
+        state,
+        histogramData.binEdges
+      );
+      this.activeRanges.get(key).histogramUnsubscribe = unsubscribe;
     }
 
     this.afs.logger.info(`Range slider added for ${key}`);
@@ -271,11 +278,15 @@ export class RangeFilter {
       });
     };
 
-    // Update histogram on range changes using AFS instance
-    this.afs.on("rangeFilter", () => updateHistogram());
+    // Update histogram on range changes using AFS instance.
+    // on() returns an unsubscribe function — return it so the caller can
+    // detach this subscription when the slider is removed.
+    const unsubscribe = this.afs.on("rangeFilter", () => updateHistogram());
 
     // Initial update
     updateHistogram();
+
+    return unsubscribe;
   }
 
   /**
@@ -347,29 +358,39 @@ export class RangeFilter {
     const handleStart = (isMin) => (e) => {
       e.preventDefault(); // Prevent scrolling while dragging on mobile
       state.isDragging = true;
-      
+
       // Get the correct event coordinates whether mouse or touch
       const getEventXY = (event) => {
         return event.touches ? event.touches[0] : event;
       };
 
+      // Capture the track geometry once and build the throttled move handler
+      // once per drag (so the debounce actually throttles and we avoid a
+      // forced reflow on every move event).
+      const rect = elements.track.getBoundingClientRect();
+      const move = this.createMoveHandler(elements, state, key, isMin, rect);
+
       const moveHandler = (moveEvent) => {
-        const evt = getEventXY(moveEvent);
-        this.createMoveHandler(elements, state, key, isMin)(evt);
+        move(getEventXY(moveEvent));
       };
 
       const stopHandler = () => {
         state.isDragging = false;
-        
+        state.activeStopHandler = null;
+
         // Remove both mouse and touch event listeners
         window.removeEventListener('mousemove', moveHandler);
         window.removeEventListener('mouseup', stopHandler);
         window.removeEventListener('touchmove', moveHandler);
         window.removeEventListener('touchend', stopHandler);
         window.removeEventListener('touchcancel', stopHandler);
-        
+
         this.applyFilter(key);
       };
+
+      // Expose the active stop handler so teardown mid-drag can clean up
+      // the window listeners even if the drag never ends normally.
+      state.activeStopHandler = stopHandler;
 
       // Add both mouse and touch event listeners
       window.addEventListener('mousemove', moveHandler);
@@ -379,11 +400,16 @@ export class RangeFilter {
       window.addEventListener('touchcancel', stopHandler);
     };
 
+    // Store the thumb handlers so removeRangeSlider()/destroy() can detach them.
+    const minHandler = handleStart(true);
+    const maxHandler = handleStart(false);
+    elements.thumbHandlers = { minHandler, maxHandler };
+
     // Add both mouse and touch event listeners to thumbs
-    minThumb.addEventListener('mousedown', handleStart(true));
-    minThumb.addEventListener('touchstart', handleStart(true), { passive: false });
-    maxThumb.addEventListener('mousedown', handleStart(false));
-    maxThumb.addEventListener('touchstart', handleStart(false), { passive: false });
+    minThumb.addEventListener('mousedown', minHandler);
+    minThumb.addEventListener('touchstart', minHandler, { passive: false });
+    maxThumb.addEventListener('mousedown', maxHandler);
+    maxThumb.addEventListener('touchstart', maxHandler, { passive: false });
   }
 
   /**
@@ -443,16 +469,17 @@ export class RangeFilter {
     }
   }
 
-  // Also update the createMoveHandler to respect the padding
-  createMoveHandler(elements, state, key, isMin) {
+  // Build the (throttled) move handler. The track geometry (rect) is captured
+  // once at drag start and passed in — calling getBoundingClientRect() on every
+  // move event forces a layout reflow each frame, and the track does not resize
+  // mid-drag. This handler is also created ONCE per drag so the debounce works.
+  createMoveHandler(elements, state, key, isMin, rect) {
     this.afs.logger.debug(`Creating move handler for ${key}`);
 
-    const { track } = elements;
     const PADDING = 5;
 
     return debounce((e) => {
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const rect = track.getBoundingClientRect();
       const totalWidth = rect.width;
       const paddingPixels = (PADDING / 100) * totalWidth;
 
@@ -547,7 +574,24 @@ export class RangeFilter {
     const range = this.activeRanges.get(key);
     if (!range) return;
 
-    range.elements.slider.remove();
+    const { state, elements } = range;
+
+    // Detach the per-slider "rangeFilter" subscription (histogram highlight).
+    range.histogramUnsubscribe?.();
+
+    // If a drag is still in progress, clean up its window listeners.
+    state?.activeStopHandler?.();
+
+    // Detach the thumb drag-start listeners.
+    const { minThumb, maxThumb, thumbHandlers } = elements;
+    if (thumbHandlers) {
+      minThumb?.removeEventListener('mousedown', thumbHandlers.minHandler);
+      minThumb?.removeEventListener('touchstart', thumbHandlers.minHandler);
+      maxThumb?.removeEventListener('mousedown', thumbHandlers.maxHandler);
+      maxThumb?.removeEventListener('touchstart', thumbHandlers.maxHandler);
+    }
+
+    elements.slider.remove();
     this.activeRanges.delete(key);
     this.afs.logger.info(`Range slider removed for ${key}`);
   }
