@@ -14,6 +14,10 @@ export class Pagination {
     this.options = this.afs.options.get("pagination");
     // Invalidates queued show-callbacks when a newer update runs
     this.visibilityToken = 0;
+    // Ensures the filter/search/sort listeners are only registered once
+    this.globalEventsBound = false;
+    // Unsubscribe fns for the bus subscriptions, detached in destroy()
+    this.busUnsubscribers = [];
     this.setupPagination();
   }
 
@@ -23,6 +27,18 @@ export class Pagination {
    */
   setupPagination() {
     this.afs.logger.debug("Setting up pagination");
+
+    // Idempotent: if a controls container already exists (e.g. setupPagination
+    // is re-run by setPaginationMode(true) when already enabled), tear the old
+    // one down first so we never end up with two pagination bars.
+    if (this.container) {
+      if (this.containerClickHandler) {
+        this.container.removeEventListener("click", this.containerClickHandler);
+      }
+      this.container.remove();
+      this.container = null;
+    }
+
     if (!this.afs.options.get("pagination.enabled")) {
       // Make sure we initialize the state even if pagination is disabled
       this.afs.state.setState("pagination", {
@@ -65,11 +81,23 @@ export class Pagination {
     // Only bind events if pagination is enabled
     if (!this.afs.options.get("pagination.enabled") || !this.container) return;
 
-    this.afs.on("filter", () => this.update());
-    this.afs.on("search", () => this.update());
-    this.afs.on("sort", () => this.update());
+    // The filter/search/sort subscriptions live for the whole instance
+    // lifetime, so they must only be registered once. Re-running
+    // setupPagination() (e.g. when toggling pagination back on) would
+    // otherwise stack duplicate listeners and fire update() many times.
+    if (!this.globalEventsBound) {
+      // Keep the unsubscribe fns so destroy() can detach these from the bus.
+      this.busUnsubscribers = [
+        this.afs.on("filter", () => this.update()),
+        this.afs.on("search", () => this.update()),
+        this.afs.on("sort", () => this.update()),
+      ];
+      this.globalEventsBound = true;
+    }
 
-    this.container.addEventListener("click", (e) => {
+    // Store the handler so it can be detached in destroy() (the container is
+    // recreated on each enable, so this is the current container's listener).
+    this.containerClickHandler = (e) => {
       const button = e.target.closest("button");
       if (!button) return;
 
@@ -77,7 +105,8 @@ export class Pagination {
       if (page) {
         this.goToPage(parseInt(page, 10));
       }
-    });
+    };
+    this.container.addEventListener("click", this.containerClickHandler);
   }
 
   /**
@@ -186,7 +215,7 @@ export class Pagination {
           if (token !== this.visibilityToken) return;
           this.animation.applyShowAnimation(
             item,
-            this.options.animationType || "fade"
+            this.afs.options.get("animation.type") || "fade"
           );
         });
       });
@@ -499,7 +528,7 @@ export class Pagination {
             requestAnimationFrame(() => {
               this.animation.applyShowAnimation(
                 item,
-                this.options?.animationType || "fade"
+                this.afs.options.get("animation.type") || "fade"
               );
             });
           }
@@ -535,7 +564,15 @@ export class Pagination {
    * @public
    */
   destroy() {
+    // Detach bus subscriptions (filter/search/sort)
+    this.busUnsubscribers?.forEach((off) => off?.());
+    this.busUnsubscribers = [];
+    this.globalEventsBound = false;
+
     if (this.container) {
+      if (this.containerClickHandler) {
+        this.container.removeEventListener("click", this.containerClickHandler);
+      }
       this.container.remove();
       this.container = null;
     }
