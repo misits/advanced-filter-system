@@ -12,6 +12,24 @@ export class StyleManager {
   }
 
   /**
+   * Normalize an animation duration into a valid CSS <time> value.
+   * Accepts numbers (250 -> "250ms"), unitless strings ("250" -> "250ms"),
+   * and already-valid strings ("250ms"/"0.3s") which are returned as-is.
+   * @param {number|string} duration
+   * @returns {string}
+   * @private
+   */
+  normalizeDuration(duration) {
+    if (duration == null || duration === "") return "300ms";
+    if (typeof duration === "number") return `${duration}ms`;
+    // String already carrying a time unit (ms or s) is valid CSS.
+    if (/m?s$/.test(duration.trim())) return duration.trim();
+    // Bare numeric string -> assume milliseconds.
+    const n = parseFloat(duration);
+    return Number.isFinite(n) ? `${n}ms` : "300ms";
+  }
+
+  /**
    * Create base styles with option colors
    * @private
    * @returns {string} CSS styles
@@ -22,7 +40,9 @@ export class StyleManager {
     const filterButtonSelector =
       this.options.get("filterButtonSelector") || ".afs-btn-filter";
     const activeClass = this.options.get("activeClass") || "active";
-    const animationDuration = this.options.get("animation.duration") || "300ms";
+    const animationDuration = this.normalizeDuration(
+      this.options.get("animation.duration")
+    );
     const animationEasing = this.options.get("animation.easing") || "ease-out";
     const filterDropdownSelector =
       this.options.get("filterDropdownSelector") || ".afs-filter-dropdown";
@@ -307,23 +327,29 @@ export class StyleManager {
   }
 
   /**
-   * Add global transition styles
+   * Global transition styles
    * @private
+   * @returns {string} CSS styles
    */
   addTransitionStyles() {
-    const style = document.createElement("style");
-    style.textContent = `
+    const duration = this.normalizeDuration(
+      this.options.get("animation.duration")
+    );
+    const easing = this.options.get("animation.easing") || "ease-in-out";
+    // Return the CSS so it is included in the single managed style element
+    // (createBaseStyles/applyStyles), instead of appending a separate,
+    // untracked <style> that removeStyles() could never clean up.
+    return `
       .afs-transition {
-          transition: opacity 300ms ease-in-out,
-                      transform 300ms ease-in-out,
-                      filter 300ms ease-in-out !important;
+          transition: opacity ${duration} ${easing},
+                      transform ${duration} ${easing},
+                      filter ${duration} ${easing} !important;
       }
       .afs-hidden {
           opacity: 0;
           pointer-events: none;
       }
   `;
-    document.head.appendChild(style);
   }
 
   /**

@@ -184,41 +184,43 @@ export class Animation {
    * @param {string} animationType - Type of animation
    */
   applyShowAnimation(item, animationType = "fade") {
-    const animation =
-      this.animations[animationType]?.in || this.animations.fade.in;
+    const def = this.animations[animationType] || this.animations.fade;
+    const fromState = def.out; // the "hidden" visual state to start from
+    const toState = def.in; // the "shown" visual state to end on
 
-    // Ensure item has transition class
-    item.classList.add("afs-transition");
-
-    // Set initial state
+    // Make the item part of the layout.
     item.style.display = this.afs.filter.getItemDisplayType(item);
     item.style.visibility = "visible";
-    
-    // Special handling for mobile - immediately remove any blur
-    if (window.innerWidth <= 768) {
-      item.style.filter = "none";
-    }
 
-    // Force reflow
+    // 1. Commit the start state with NO transition so it applies instantly.
+    //    If the transition were active here, setting opacity to 0 would
+    //    *animate* towards hidden, and the reverse on the next frame would
+    //    cancel it — leaving the item pinned at opacity 1 (no visible fade).
+    //    Each property is set explicitly (falling back to its neutral value)
+    //    so switching animation types never leaves a stale transform/filter.
+    const isMobile = window.innerWidth <= 768;
+    item.classList.remove("afs-transition");
+    item.style.transition = "none";
+    item.style.opacity = fromState.opacity;
+    item.style.transform = fromState.transform || "none";
+    // On mobile blur is skipped (perf / rendering artifacts).
+    item.style.filter = isMobile ? "none" : fromState.filter || "none";
+
+    // Force the start state to be committed before enabling the transition.
     void item.offsetHeight;
 
-    // Add animation properties
+    // 2. Re-enable the transition and animate to the shown state.
     requestAnimationFrame(() => {
-      Object.assign(item.style, {
-        opacity: "0",
-        transform: "scale(0.95)",
-        display: this.afs.filter.getItemDisplayType(item),
-      });
-
-      // Force reflow
-      void item.offsetHeight;
-
-      // Apply final state
-      requestAnimationFrame(() => {
-        Object.assign(item.style, animation);
-      });
+      item.style.transition = "";
+      item.classList.add("afs-transition");
+      item.style.opacity = toState.opacity;
+      item.style.transform = toState.transform || "none";
+      item.style.filter = isMobile ? "none" : toState.filter || "none";
+      if (toState.transitionTimingFunction) {
+        item.style.transitionTimingFunction = toState.transitionTimingFunction;
+      }
     });
-    
+
     // Ensure cleanup after animation completes
     const duration = this.afs.options.get("animation.duration") || 300;
     setTimeout(() => {
