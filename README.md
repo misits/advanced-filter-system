@@ -11,7 +11,7 @@ A flexible, dependency-free JavaScript library for filtering DOM elements — wi
 - **Sorting** — by any data attribute (numbers, dates, strings auto-detected), multi-criteria, custom comparators, shuffle
 - **Range filters** — draggable sliders (with optional histogram), min/max number inputs, date ranges
 - **Pagination** — page controls, items-per-page, smooth scroll-to-top, fully aware of active filters and sort order
-- **URL state** — the full filter state lives in the URL: shareable links, back/forward navigation, restored on load
+- **URL state** — the full filter state lives in the URL: shareable links, restored on load, updated via `replaceState` so it never floods browser history
 - **Animations** — fade, slide, scale, flip, rotate, zoom, bounce, blur and more
 - **TypeScript** — complete type definitions included
 

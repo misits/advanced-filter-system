@@ -14,6 +14,7 @@ New here? Start with the [README quick start](../README.md#quick-start), then op
 | [Input Range Filter](input-range-filter.md) | `afs.inputRangeFilter` | Min/max number inputs |
 | [Date Filter](date-filter.md) | `afs.dateFilter` | Date range pickers |
 | [URL Manager](url-manager.md) | `afs.urlManager` | URL parameters, shareable state, history |
+| [State](state.md) | `afs.state` | Reading state, subscribing to changes, visible-set mutators |
 
 ## The mental model
 

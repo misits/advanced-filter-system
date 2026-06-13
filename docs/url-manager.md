@@ -7,7 +7,7 @@ https://example.com/products?category=tech,design&brand=apple&search=pro&sort=pr
 ```
 
 - **Shareable** — copy the URL, get the same filtered view
-- **History-aware** — back/forward navigate through filter states (`popstate` is handled)
+- **No history spam** — updates use `replaceState`, so filtering, typing in search or dragging a slider does not push a new history entry (the Back button stays usable). `popstate` is still handled, so external navigation (Back/Forward to a different page, or a manually edited URL) re-applies the state.
 - **Restored on load** — `loadFromURL()` runs once all features are initialized
 
 ## URL parameters
@@ -33,7 +33,7 @@ Most apps never call these — everything is automatic. They're useful for custo
 
 | Method | Description |
 |---|---|
-| `updateURL()` | Serialize the current state into the URL (`pushState`) |
+| `updateURL()` | Serialize the current state into the URL (`replaceState`) |
 | `loadFromURL()` | Read the URL and apply the state |
 | `clearURL()` | Remove all params and reset filters |
 | `getURLParams()` | Current `URLSearchParams` |
@@ -55,7 +55,7 @@ afs.on('urlStateLoaded', ({ params }) => {
 ## Behavior notes
 
 - **Initialization is protected**: URL writes are blocked until the incoming URL has been read, so feature setup can't wipe the parameters of a shared link.
-- The URL only updates when it actually changes — no redundant history entries.
+- The URL only updates when it actually changes, and via `replaceState` — so there are no redundant entries and no history pollution from rapid changes.
 - Filter-type names become parameter names; avoid types that collide with the reserved params above (`search`, `sort`, `page`, `perPage`, `filterMode`, `groupMode`, `group_*`, `range_*`, `dateRange_*`).
 
 ## URL state vs `preserveState`

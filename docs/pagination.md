@@ -50,7 +50,8 @@ const afs = new AFS({
 | `pagination.scrollToTop` | `false` | Scroll back to the top of the items list on page change |
 | `pagination.scrollOffset` | `50` | Pixels subtracted from the scroll target |
 | `pagination.scrollBehavior` | `smooth` | `'smooth'` \| `'auto'` |
-| `pagination.animationType` | `fade` | Animation applied to page items |
+
+> Page items animate using the global **`animation.type`** / `animation.duration` options (see the [main config](../README.md#configuration)), not a pagination-specific option.
 
 ## Generated markup
 
@@ -120,6 +121,5 @@ interface PaginationOptions {
   scrollToTop?: boolean;
   scrollOffset?: number;
   scrollBehavior?: 'smooth' | 'auto';
-  animationType?: string;
 }
 ```
