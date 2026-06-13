@@ -1,6 +1,6 @@
 /**
  * Advanced Filter System (AFS) - TypeScript Definitions
- * @version 1.5.2
+ * @version 1.7.0
  */
 
 // Core Types
@@ -13,7 +13,7 @@ export type EventCallback = (data?: AFSEventData) => void;
 export type FilterMode = 'OR' | 'AND';
 export type FilterCategoryMode = 'mixed' | 'OR' | 'AND';
 export type SortDirection = 'asc' | 'desc';
-export type AnimationType = 'fade' | 'slide' | 'scale' | 'flip' | 'rotate' | 'zoom' | 'bounce' | 'blur' | 'slideUp' | 'slideDown' | 'slideLeft' | 'slideRight' | 'zoomIn' | 'zoomOut' | 'fadeIn' | 'fadeOut';
+export type AnimationType = 'fade' | 'slide' | 'scale' | 'rotate' | 'flip' | 'zoom' | 'bounce' | 'blur' | 'skew' | 'slideInLeft' | 'slideInRight' | 'fadeInUp' | 'fadeInDown' | 'bounceIn';
 export type DateFormat = 'YYYY-MM-DD' | 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'DD-MM-YYYY' | 'MM-DD-YYYY';
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -141,6 +141,16 @@ export interface DateFilterOptions {
   defaultEnd?: Date;
 }
 
+// Input Range (min/max number inputs) Configuration
+export interface InputRangeOptions {
+  key: string;
+  container: HTMLElement;
+  min?: number;
+  max?: number;
+  step?: number;
+  label?: string;
+}
+
 // Main AFS Options Interface
 export interface AFSOptions {
   // Required selectors
@@ -158,8 +168,7 @@ export interface AFSOptions {
   activeClass?: string;
   hiddenClass?: string;
   activeSortClass?: string;
-  transitionClass?: string;
-  
+
   // Filter Configuration
   filterMode?: FilterMode;
   groupMode?: FilterMode;
@@ -247,15 +256,37 @@ export interface PageInfo {
   currentPage: number;
   totalPages: number;
   itemsPerPage: number;
-  totalItems: number;
 }
 
 // Feature Classes
 export declare class EventEmitter {
-  on(event: string, callback: EventCallback): void;
+  /** @returns an unsubscribe function */
+  on(event: string, callback: EventCallback): () => void;
   off(event: string, callback?: EventCallback): void;
   emit(event: string, data?: AFSEventData): void;
-  once(event: string, callback: EventCallback): void;
+  /** @returns an unsubscribe function */
+  once(event: string, callback: EventCallback): () => void;
+  removeAllListeners(event?: string): void;
+}
+
+// Central state store (afs.state)
+export declare class State {
+  /** Live, read-only view. Write via setState() or the mutators. */
+  getState(): any;
+  setState(path: string, value: any): void;
+  /**
+   * Subscribe to writes at `path` or any descendant of it
+   * (a listener on "items" also hears "items.visible").
+   * @returns an unsubscribe function
+   */
+  subscribe(path: string, callback: (value: any, path: string) => void): () => void;
+  setVisibleItems(set: Set<HTMLElement>): void;
+  addVisibleItem(item: HTMLElement): void;
+  removeVisibleItem(item: HTMLElement): void;
+  clearVisibleItems(): void;
+  export(): any;
+  import(state: any): void;
+  reset(): void;
 }
 
 export declare class Filter {
@@ -266,9 +297,19 @@ export declare class Filter {
   toggleFilterExclusive(filter: string): void;
   clearAllFilters(): void;
   clearFilterCategory(category: string): void;
+  resetFilters(): void;
   getActiveFilters(): Set<string>;
+  setFilterMode(mode: FilterMode): void;
+  setGroupMode(mode: FilterMode): void;
   setFilterTypeLogic(type: string, logic: FilterMode | FilterTypeConfig): void;
+  setFilterTypeExclusive(types: string | string[], exclusive?: boolean): void;
+  addFilterGroup(id: string, filters: string[], operator?: FilterMode): void;
+  removeFilterGroup(id: string): void;
+  getFilterGroups(): Map<string, any>;
+  addFilterButton(button: HTMLElement, filter: string): void;
+  removeFilterButton(button: HTMLElement): void;
   applyFilters(): void;
+  refresh(): void;
   destroy(): void;
 }
 
@@ -278,7 +319,12 @@ export declare class Search {
   clearSearch(): void;
   setValue(value: string): void;
   getValue(): string;
-  getMatches(): HTMLElement[];
+  updateConfig(config: {
+    searchKeys?: string[];
+    minSearchLength?: number;
+    highlightClass?: string;
+    debounceTime?: number;
+  }): void;
   destroy(): void;
 }
 
@@ -290,6 +336,8 @@ export declare class Sort {
   shuffle(): void;
   reset(): void;
   getCurrentSort(): SortCriteria | null;
+  addSortButton(button: HTMLElement, key: string, direction?: SortDirection): void;
+  removeSortButton(button: HTMLElement): void;
   destroy(): void;
 }
 
@@ -298,8 +346,14 @@ export declare class Pagination {
   goToPage(page: number): void;
   nextPage(): void;
   previousPage(): void;
+  firstPage(): void;
+  lastPage(): void;
   setPaginationMode(enabled: boolean): void;
+  setItemsPerPage(count: number): void;
   getPageInfo(): PageInfo;
+  getCurrentPage(): number;
+  getTotalPages(): number;
+  getItemsPerPage(): number;
   update(): void;
   destroy(): void;
 }
@@ -308,8 +362,8 @@ export declare class RangeFilter {
   constructor(afs: AFS);
   addRangeSlider(options: RangeSliderOptions): void;
   removeRangeSlider(key: string): void;
-  getRangeValue(key: string): { min: number; max: number } | null;
-  setRangeValue(key: string, min: number, max: number): void;
+  getRangeValues(key: string): { min: number; max: number; type: 'number' | 'date' } | null;
+  setRangeValues(key: string, min: number, max: number): void;
   destroy(): void;
 }
 
@@ -317,8 +371,17 @@ export declare class DateFilter {
   constructor(afs: AFS);
   addDateRange(options: DateFilterOptions): void;
   removeDateRange(key: string): void;
-  getDateRange(key: string): { start: Date; end: Date } | null;
-  setDateRange(key: string, start: Date, end: Date): void;
+  getDateRange(key: string): { startDate: Date; endDate: Date } | null;
+  setDateRange(key: string, startDate: Date, endDate: Date): void;
+  destroy(): void;
+}
+
+export declare class InputRangeFilter {
+  constructor(afs: AFS);
+  addInputRange(options: InputRangeOptions): void;
+  removeInputRange(key: string): void;
+  getRange(key: string): { min: number; max: number } | null;
+  setRange(key: string, min: number, max: number): void;
   destroy(): void;
 }
 
@@ -331,6 +394,7 @@ export declare class URLManager {
   getURLParams(): URLSearchParams;
   hasParams(): boolean;
   getParam(param: string): string | null;
+  destroy(): void;
 }
 
 // Main AFS Class
@@ -339,11 +403,11 @@ export declare class AFS extends EventEmitter {
   readonly VERSION: string;
   readonly options: any;
   readonly logger: any;
-  readonly state: any;
+  readonly state: State;
   readonly styleManager: any;
   readonly container: HTMLElement;
   readonly items: NodeListOf<HTMLElement>;
-  
+
   // Features
   readonly filter: Filter;
   readonly search: Search;
@@ -352,7 +416,7 @@ export declare class AFS extends EventEmitter {
   readonly rangeFilter: RangeFilter;
   readonly dateFilter: DateFilter;
   readonly urlManager: URLManager;
-  readonly inputRangeFilter: any;
+  readonly inputRangeFilter: InputRangeFilter;
   
   constructor(options?: AFSOptions);
   
@@ -379,9 +443,9 @@ export declare class AFS extends EventEmitter {
   destroy(): void;
 }
 
-// Events Map
+// Events Map — keys are the exact event names emitted by AFS
 export interface AFSEventMap {
-  // Core events
+  // Core / lifecycle
   initialized: { itemCount: number; options: AFSOptions };
   destroyed: void;
   refreshed: { itemCount: number };
@@ -389,37 +453,43 @@ export interface AFSEventMap {
   resize: void;
   hidden: void;
   visible: void;
-  
-  // Filter events
-  filtersApplied: FiltersAppliedData;
-  filtersCleared: { clearedCount: number };
-  filterAdded: { filter: string; activeFilters: Set<string> };
-  filterRemoved: { filter: string; activeFilters: Set<string> };
-  filterToggled: { filter: string; isActive: boolean };
-  
-  // Search events
-  search: SearchData;
+
+  // Filter
+  filter: { activeFilters: string[]; visibleItems: number; added: number; removed: number };
+  filtersApplied: { activeFilters: string[]; visibleItems: number };
+  filtersCleared: void;
+  filtersReset: void;
+  filterChanged: { type: string; value: string; activeFilters: string[] };
+  filterRemoved: { filter: string; activeFilters: string[] };
+  filterToggled: { filter: string; activeFilters: string[] };
+  filterToggledExclusive: { filter: string; activeFilters: string[] };
+  filterCategoryCleared: { category: string; activeFilters: string[] };
+  itemsShown: { items: Set<HTMLElement> };
+  itemsHidden: { items: Set<HTMLElement> };
+
+  // Search
+  search: { query: string; matches: number; total: number };
   searchCleared: void;
-  
-  // Sort events
-  sort: SortData;
-  sortMultiple: { criteria: SortCriteria[]; itemCount: number };
-  sortCustom: { key: string; comparatorName?: string };
-  sortShuffled: { itemCount: number };
-  sortCleared: { buttonCount: number };
-  
-  // Pagination events
+
+  // Sort
+  sort: { key: string; order: SortDirection };
+  sortMultiple: { criteria: SortCriteria[]; itemCount?: number };
+  sortCustom: { key: string };
+  sortShuffled: { itemCount?: number };
+  sortCleared: void;
+
+  // Pagination
+  pagination: { currentPage: number; totalPages: number; itemsPerPage: number; visibleItems: number };
   pageChanged: PageChangedData;
-  paginationToggled: { enabled: boolean };
-  
-  // URL events
+  paginationModeChanged: { enabled: boolean };
+
+  // URL
   urlStateLoaded: { params: Record<string, string> };
-  
-  // Range filter events
-  rangeChanged: { key: string; min: number; max: number };
-  
-  // Date filter events
-  dateRangeChanged: { key: string; start: Date; end: Date };
+
+  // Range / input-range / date filters
+  rangeFilter: { key: string; min: number; max: number };
+  inputRangeFilter: { key: string; min: number; max: number };
+  dateFilter: { key: string; startDate: Date; endDate: Date };
 }
 
 // Global exports

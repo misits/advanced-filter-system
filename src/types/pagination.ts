@@ -24,11 +24,6 @@ export interface PageInfo {
     currentPage: number;
     itemsPerPage: number;
     totalPages: number;
-    totalItems: number;
-    startIndex: number;
-    endIndex: number;
-    hasNextPage: boolean;
-    hasPrevPage: boolean;
 }
 export interface PaginationEvent {
     currentPage: number;

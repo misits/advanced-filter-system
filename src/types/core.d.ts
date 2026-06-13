@@ -3,7 +3,7 @@
  * @fileoverview TypeScript definitions for core classes
  */
 
-import { AFSOptions, AFSEventData, EventCallback, FilterMode, FilterCategoryMode } from './index';
+import { AFSOptions, AFSEventData, EventCallback } from './index';
 
 // Options Class
 export declare class Options {
@@ -22,10 +22,23 @@ export declare class Options {
 // State Class
 export declare class State {
   constructor();
-  
+
+  /** Live, read-only view of the state. Write via setState() or the mutators. */
   getState(): any;
   setState(path: string, value: any): void;
-  resetState(): void;
+  /**
+   * Subscribe to writes at `path` or any descendant of it
+   * (a listener on "items" also hears "items.visible").
+   * @returns an unsubscribe function
+   */
+  subscribe(path: string, callback: (value: any, path: string) => void): () => void;
+
+  // Encapsulated mutators for the visible-items set (write + notify)
+  setVisibleItems(set: Set<HTMLElement>): void;
+  addVisibleItem(item: HTMLElement): void;
+  removeVisibleItem(item: HTMLElement): void;
+  clearVisibleItems(): void;
+
   export(): any;
   import(state: any): void;
   reset(): void;
@@ -46,10 +59,12 @@ export declare class Logger {
 export declare class EventEmitter {
   constructor();
   
-  on(event: string, callback: EventCallback): void;
+  /** @returns an unsubscribe function */
+  on(event: string, callback: EventCallback): () => void;
   off(event: string, callback?: EventCallback): void;
   emit(event: string, data?: AFSEventData): void;
-  once(event: string, callback: EventCallback): void;
+  /** @returns an unsubscribe function */
+  once(event: string, callback: EventCallback): () => void;
   removeAllListeners(event?: string): void;
 }
 
