@@ -1,6 +1,6 @@
 /**
  * Advanced Filter System (AFS) - TypeScript Definitions
- * @version 1.7.0
+ * @version 1.8.0
  */
 
 // Core Types
