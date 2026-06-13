@@ -4,6 +4,10 @@
 
 export class State {
   constructor() {
+    // path -> Set<callback>. Opt-in: subscribers react to setState() writes.
+    // Internal modules do NOT subscribe here (they use the AFS event bus); this
+    // is a public hook for consumers. An empty registry makes notify() ~free.
+    this.subscribers = new Map();
     this.state = {
       filters: {
         current: new Set(['*']),
@@ -34,11 +38,58 @@ export class State {
   }
 
   /**
-   * Get current state
+   * Get current state.
+   * NOTE: this is a live, read-only view. Never mutate the returned object or
+   * its Set/Map collections directly — write through setState() or the
+   * dedicated mutators (setVisibleItems/addVisibleItem/...), which are the only
+   * code paths that notify subscribers.
    * @returns {Object} Current state
    */
   getState() {
     return this.state;
+  }
+
+  /**
+   * Subscribe to state changes at a given path (or any descendant of it).
+   * @param {string} path - Dot notation path, e.g. "items.visible" or "items"
+   * @param {Function} callback - Called with (value, path) after a matching write
+   * @returns {Function} Unsubscribe function
+   */
+  subscribe(path, callback) {
+    if (!this.subscribers.has(path)) {
+      this.subscribers.set(path, new Set());
+    }
+    this.subscribers.get(path).add(callback);
+    return () => {
+      const set = this.subscribers.get(path);
+      if (!set) return;
+      set.delete(callback);
+      if (set.size === 0) this.subscribers.delete(path);
+    };
+  }
+
+  /**
+   * Notify subscribers of `path` and of each of its ancestor paths, so a
+   * listener on "items" also hears a write to "items.visible".
+   * @private
+   */
+  notify(path, value) {
+    if (this.subscribers.size === 0) return;
+    const parts = path.split('.');
+    for (let i = parts.length; i > 0; i--) {
+      const ancestor = parts.slice(0, i).join('.');
+      const set = this.subscribers.get(ancestor);
+      if (!set) continue;
+      [...set].forEach((cb) => {
+        try {
+          cb(value, path);
+        } catch (error) {
+          // A bad subscriber must not break the write or other subscribers
+          // eslint-disable-next-line no-console
+          console.error(`Error in state subscriber for ${ancestor}:`, error);
+        }
+      });
+    }
   }
 
   /**
@@ -49,15 +100,50 @@ export class State {
   setState(path, value) {
     const parts = path.split('.');
     let current = this.state;
-    
+
     for (let i = 0; i < parts.length - 1; i++) {
       if (!(parts[i] in current)) {
         current[parts[i]] = {};
       }
       current = current[parts[i]];
     }
-    
+
     current[parts[parts.length - 1]] = value;
+    this.notify(path, value);
+  }
+
+  /**
+   * Replace the set of visible items.
+   * @param {Set<HTMLElement>} set
+   */
+  setVisibleItems(set) {
+    this.setState('items.visible', set);
+  }
+
+  /**
+   * Add one item to the visible set (encapsulated O(1) write + notify).
+   * @param {HTMLElement} item
+   */
+  addVisibleItem(item) {
+    this.state.items.visible.add(item);
+    this.notify('items.visible', this.state.items.visible);
+  }
+
+  /**
+   * Remove one item from the visible set (encapsulated O(1) write + notify).
+   * @param {HTMLElement} item
+   */
+  removeVisibleItem(item) {
+    this.state.items.visible.delete(item);
+    this.notify('items.visible', this.state.items.visible);
+  }
+
+  /**
+   * Clear the visible set.
+   */
+  clearVisibleItems() {
+    this.state.items.visible.clear();
+    this.notify('items.visible', this.state.items.visible);
   }
 
   /**

@@ -1,3 +1,4 @@
+import { State } from "../src/core/State";
 import { createBasicAFS, cleanupEnv } from "./helpers";
 
 describe("AFS — State save / restore / export / import", () => {
@@ -66,5 +67,69 @@ describe("AFS — State save / restore / export / import", () => {
     expect(visibleItems.length).toBe(1);
     expect(visibleItems[0].dataset.title).toBe("Apple");
     expect(filterInstance.filter.activeFilters.has("category:fruit")).toBe(true);
+  });
+});
+
+describe("State — subscription & encapsulated mutators", () => {
+  let state;
+
+  beforeEach(() => {
+    state = new State();
+  });
+
+  test("subscribe() fires on a matching setState write and returns an unsubscribe", () => {
+    const cb = jest.fn();
+    const off = state.subscribe("search.query", cb);
+
+    state.setState("search.query", "hello");
+    expect(cb).toHaveBeenCalledTimes(1);
+    expect(cb).toHaveBeenLastCalledWith("hello", "search.query");
+
+    off();
+    state.setState("search.query", "world");
+    expect(cb).toHaveBeenCalledTimes(1); // no further calls after unsubscribe
+  });
+
+  test("ancestor subscribers are notified for descendant writes", () => {
+    const onItems = jest.fn();
+    state.subscribe("items", onItems);
+
+    const set = new Set([{}, {}]);
+    state.setVisibleItems(set);
+
+    expect(onItems).toHaveBeenCalledWith(set, "items.visible");
+  });
+
+  test("visible-item mutators update the set and notify", () => {
+    const cb = jest.fn();
+    state.subscribe("items.visible", cb);
+
+    const a = {};
+    const b = {};
+    state.addVisibleItem(a);
+    state.addVisibleItem(b);
+    expect(state.getState().items.visible.has(a)).toBe(true);
+    expect(state.getState().items.visible.size).toBe(2);
+
+    state.removeVisibleItem(a);
+    expect(state.getState().items.visible.has(a)).toBe(false);
+    expect(state.getState().items.visible.size).toBe(1);
+
+    state.clearVisibleItems();
+    expect(state.getState().items.visible.size).toBe(0);
+
+    expect(cb).toHaveBeenCalledTimes(4); // 2 adds + 1 remove + 1 clear
+  });
+
+  test("a throwing subscriber does not break the write or other subscribers", () => {
+    const good = jest.fn();
+    state.subscribe("items.visible", () => {
+      throw new Error("boom");
+    });
+    state.subscribe("items.visible", good);
+
+    expect(() => state.addVisibleItem({})).not.toThrow();
+    expect(good).toHaveBeenCalled();
+    expect(state.getState().items.visible.size).toBe(1);
   });
 });

@@ -5,6 +5,7 @@ import { Logger } from "./core/Logger";
 import { Options } from "./core/Options";
 import { State } from "./core/State";
 import { StyleManager } from "./styles/StyleManager";
+import { Animation } from "./styles/Animation";
 import { EventEmitter } from "./core/EventEmitter";
 
 import { Filter } from "./features/Filter";
@@ -95,6 +96,9 @@ export class AFS extends EventEmitter {
   initializeFeatures() {
     this.logger.debug("Initializing features");
 
+    // Single shared animation engine (features reference afs.animation)
+    this.animation = new Animation(this);
+
     // Initialize all features first
     this.filter = new Filter(this);
     this.search = new Search(this);
@@ -153,46 +157,12 @@ export class AFS extends EventEmitter {
    * @param {HTMLElement} item - Item to show
    */
   showItem(item) {
-    // Update state first
-    const visibleItems = this.state.getState().items.visible;
-    visibleItems.add(item);
-    this.state.setState("items.visible", visibleItems);
-
-    // Remove hidden class but keep opacity 0 initially
+    // Single source of truth: update state via the encapsulated mutator, then
+    // delegate the visual transition to the shared Animation engine (which
+    // honours animation.type). No bespoke inline animation here anymore.
+    this.state.addVisibleItem(item);
     item.classList.remove(this.options.get("hiddenClass"));
-
-    // Set initial animation state
-    item.style.opacity = "0";
-    item.style.transform = "scale(0.95)";
-    item.style.display = ""; // Ensure item is not display: none
-
-    // Force reflow before starting animation
-    item.offsetHeight;
-
-    // Add transition class if not present
-    const transitionClass = this.options.get("transitionClass");
-    if (!item.classList.contains(transitionClass)) {
-      item.classList.add(transitionClass);
-    }
-
-    // Start animation in next frame
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        // Double RAF for reliable animation
-        item.style.opacity = "1";
-        item.style.transform = "scale(1)";
-      });
-    });
-
-    // Clean up after animation
-    const duration = this.options.get("animation.duration") || 300;
-    setTimeout(() => {
-      // Only clean up if item is still meant to be visible
-      if (visibleItems.has(item)) {
-        item.style.transform = "";
-        item.style.opacity = "";
-      }
-    }, duration);
+    this.animation.applyShowAnimation(item, this.options.get("animation.type"));
   }
 
   /**
@@ -201,34 +171,8 @@ export class AFS extends EventEmitter {
    * @param {HTMLElement} item - Item to hide
    */
   hideItem(item) {
-    // Update state first
-    const visibleItems = this.state.getState().items.visible;
-    visibleItems.delete(item);
-    this.state.setState("items.visible", visibleItems);
-
-    // Add transition class if not present
-    const transitionClass = this.options.get("transitionClass");
-    if (!item.classList.contains(transitionClass)) {
-      item.classList.add(transitionClass);
-    }
-
-    // Start hide animation
-    requestAnimationFrame(() => {
-      item.style.opacity = "0";
-      item.style.transform = "scale(0.95)";
-    });
-
-    // Add hidden class and clean up after animation
-    const duration = this.options.get("animation.duration") || 300;
-    setTimeout(() => {
-      // Only hide if the item is still meant to be hidden
-      if (!visibleItems.has(item)) {
-        item.classList.add(this.options.get("hiddenClass"));
-        // Clean up styles
-        item.style.transform = "";
-        item.style.opacity = "";
-      }
-    }, duration);
+    this.state.removeVisibleItem(item);
+    this.animation.applyHideAnimation(item, this.options.get("animation.type"));
   }
 
   /**
@@ -241,7 +185,7 @@ export class AFS extends EventEmitter {
 
     items.forEach((item) => {
       fragment.appendChild(item);
-      this.state.getState().items.visible.add(item);
+      this.state.addVisibleItem(item);
     });
 
     this.container.appendChild(fragment);
@@ -261,10 +205,8 @@ export class AFS extends EventEmitter {
     const items = Array.isArray(itemsToRemove)
       ? itemsToRemove
       : [itemsToRemove];
-    const visibleItems = this.state.getState().items.visible;
-
     items.forEach((item) => {
-      visibleItems.delete(item);
+      this.state.removeVisibleItem(item);
       item.remove();
     });
 

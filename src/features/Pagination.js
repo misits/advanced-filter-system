@@ -1,7 +1,6 @@
 /**
  * @fileoverview Pagination functionality for AFS
  */
-import { Animation } from "../styles/Animation.js";
 
 export class Pagination {
   /**
@@ -10,7 +9,7 @@ export class Pagination {
   constructor(afs) {
     this.afs = afs;
     this.container = null;
-    this.animation = new Animation(afs);
+    this.animation = afs.animation;
     this.options = this.afs.options.get("pagination");
     // Invalidates queued show-callbacks when a newer update runs
     this.visibilityToken = 0;

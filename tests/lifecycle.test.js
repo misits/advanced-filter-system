@@ -164,6 +164,30 @@ describe("AFS — Lifecycle & cleanup", () => {
     expect(sm.normalizeDuration("")).toBe("300ms");
   });
 
+  test("A single Animation engine is shared across AFS, Filter and Pagination", () => {
+    const afs = createBasicAFS();
+    expect(afs.animation).toBeTruthy();
+    expect(afs.filter.animation).toBe(afs.animation);
+    expect(afs.pagination.animation).toBe(afs.animation);
+  });
+
+  test("afs.hideItem() routes through the shared pipeline and adds hiddenClass", () => {
+    jest.useFakeTimers();
+    const afs = createBasicAFS();
+    const item = document.querySelector(".filter-item");
+
+    afs.hideItem(item);
+    jest.runAllTimers();
+    expect(item.classList.contains("hidden")).toBe(true);
+    // Item removed from the visible set via the encapsulated mutator
+    expect(afs.state.getState().items.visible.has(item)).toBe(false);
+
+    afs.showItem(item);
+    jest.runAllTimers();
+    expect(item.classList.contains("hidden")).toBe(false);
+    expect(afs.state.getState().items.visible.has(item)).toBe(true);
+  });
+
   test("DateFilter and InputRangeFilter expose destroy(); AFS.destroy() is clean", () => {
     const afs = createBasicAFS();
     expect(typeof afs.dateFilter.destroy).toBe("function");

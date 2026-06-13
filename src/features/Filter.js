@@ -2,7 +2,6 @@
  * @fileoverview Filter functionality for AFS
  */
 
-import { Animation } from "../styles/Animation.js";
 
 export class Filter {
   /**
@@ -10,7 +9,7 @@ export class Filter {
    */
   constructor(afs) {
     this.afs = afs;
-    this.animation = new Animation(afs);
+    this.animation = afs.animation;
     this.filterButtons = new Map();
     this.filterHandlers = new Map(); // Store button event handlers for cleanup
     this.dropdownHandlers = new Map(); // Store dropdown event handlers for cleanup
@@ -560,9 +559,13 @@ export class Filter {
         // Ensure visible items remain visible and hidden items stay hidden
         this.afs.items.forEach((item) => {
           if (visibleItems.has(item)) {
-            this.showItem(item);
+            // Settle the final visible state (no separate showItem variant)
+            item.classList.remove(this.afs.options.get("hiddenClass"));
             item.style.display = this.getItemDisplayType(item);
             item.style.opacity = "1";
+            item.style.visibility = "visible";
+            item.style.filter = "none";
+            item.style.transform = "";
           } else {
             item.style.display = "none";
             item.classList.add(this.afs.options.get("hiddenClass"));
@@ -1487,35 +1490,5 @@ export class Filter {
    */
   getItemDisplayType(item) {
     return this.itemDisplayTypes.get(item) || "block";
-  }
-
-  /**
-   * Show an item with its original display value
-   * @private
-   * @param {HTMLElement} item - DOM element to show
-   */
-  showItem(item) {
-    // Remove hidden class
-    item.classList.remove(this.afs.options.get("hiddenClass"));
-    
-    // Get the original display type and restore it
-    const originalDisplay = this.getItemDisplayType(item);
-    
-    // Only set display if it was previously hidden
-    if (item.style.display === 'none') {
-      // If we have a stored original display type, use it
-      // Otherwise, remove the inline style to let CSS take over
-      if (originalDisplay && originalDisplay !== 'none') {
-        item.style.display = originalDisplay;
-      } else {
-        item.style.display = '';
-      }
-    }
-    
-    // Reset other hiding properties
-    item.style.opacity = "1";
-    item.style.visibility = "visible";
-    item.style.filter = "none";
-    item.style.transform = "";
   }
 }

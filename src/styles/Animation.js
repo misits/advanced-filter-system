@@ -276,6 +276,10 @@ export class Animation {
     const duration = this.afs.options.get("animation.duration") || 300;
     setTimeout(() => {
       if (!this.afs.state.getState().items.visible.has(item)) {
+        // Add the hidden class too, so hiding through any path (afs.hideItem,
+        // search, range, date) leaves the same DOM state as Filter.applyFilters.
+        const hiddenClass = this.afs.options.get("hiddenClass");
+        if (hiddenClass) item.classList.add(hiddenClass);
         item.style.display = "none";
         item.style.visibility = "hidden";
         item.style.opacity = "0";
@@ -286,33 +290,4 @@ export class Animation {
     }, duration + 50);
   }
 
-  /**
-   * Update animation settings
-   * @param {Object} options - Animation options
-   */
-  updateOptions(options) {
-    const duration = options.duration || 300;
-    const timing = options.timing || "ease-in-out";
-
-    const style = document.querySelector(".afs-transition");
-    if (style) {
-      style.textContent = `
-              .afs-transition {
-                  transition: opacity ${duration}ms ${timing},
-                              transform ${duration}ms ${timing},
-                              filter ${duration}ms ${timing} !important;
-              }
-          `;
-    }
-  }
-
-  /**
-   * Set animation type
-   * @param {string} animationType - Animation type to set
-   */
-  setAnimation(animationType) {
-    if (this.animations[animationType]) {
-      this.afs.options.set("animation.type", animationType);
-    }
-  }
 }
