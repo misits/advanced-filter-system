@@ -396,6 +396,10 @@
         </select>
       </div>
       <div class="settings-row">
+        <span>Pagination</span>
+        <input type="checkbox" id="pagination-toggle" checked>
+      </div>
+      <div class="settings-row">
         <span>Per page</span>
         <select id="per-page">
           <option value="6">6</option>
@@ -408,7 +412,7 @@
         <span>Scroll to top on page change</span>
         <input type="checkbox" id="scroll-top" checked>
       </div>
-      <p class="hint">options.set() · pagination.setItemsPerPage()</p>
+      <p class="hint">pagination.setPaginationMode() · setItemsPerPage()</p>
     </div>
 
     <button class="btn danger" id="clear-all">Clear all filters</button>
@@ -576,6 +580,17 @@
     afs.options.set('animation.type', e.target.value);
   });
 
+  // Enable / disable pagination at runtime
+  document.getElementById('pagination-toggle').addEventListener('change', (e) => {
+    const enabled = e.target.checked;
+    afs.pagination.setPaginationMode(enabled);
+    // Per-page only makes sense while paginating
+    document.getElementById('per-page').disabled = !enabled;
+    document.getElementById('scroll-top').disabled = !enabled;
+    // Re-run the active filters so the grid reflects the new mode immediately
+    afs.filter.applyFilters();
+  });
+
   // Items per page
   document.getElementById('per-page').addEventListener('change', (e) => {
     afs.pagination.setItemsPerPage(parseInt(e.target.value, 10));
@@ -585,6 +600,38 @@
   document.getElementById('scroll-top').addEventListener('change', (e) => {
     afs.options.set('pagination.scrollToTop', e.target.checked);
   });
+
+  /* ---------------------------------------------------------------
+   * 4b. Remember UI settings for the tab session (sessionStorage).
+   *     Filters/search/sort already persist in the URL; the settings
+   *     panel below is not part of that URL state, so we store it here.
+   * ------------------------------------------------------------- */
+  const SETTINGS_KEY = 'afs-demo-settings';
+  const SETTING_IDS = ['animation-type', 'per-page', 'pagination-toggle', 'scroll-top', 'brand-logic'];
+  const readControl = (el) => (el.type === 'checkbox' ? el.checked : el.value);
+  const writeControl = (el, v) => { if (el.type === 'checkbox') el.checked = v; else el.value = v; };
+
+  const saveSettings = () => {
+    const data = {};
+    SETTING_IDS.forEach((id) => { const el = document.getElementById(id); if (el) data[id] = readControl(el); });
+    try { sessionStorage.setItem(SETTINGS_KEY, JSON.stringify(data)); } catch { /* storage unavailable */ }
+  };
+
+  // Persist on any change to a tracked control.
+  SETTING_IDS.forEach((id) => document.getElementById(id)?.addEventListener('change', saveSettings));
+
+  // Restore saved values, then replay each control's change handler so AFS applies them.
+  (() => {
+    let saved = {};
+    try { saved = JSON.parse(sessionStorage.getItem(SETTINGS_KEY) || '{}'); } catch { saved = {}; }
+    SETTING_IDS.forEach((id) => {
+      if (!(id in saved)) return;
+      const el = document.getElementById(id);
+      if (!el) return;
+      writeControl(el, saved[id]);
+      el.dispatchEvent(new Event('change'));
+    });
+  })();
 
   // Shuffle / reset sort
   document.getElementById('shuffle').addEventListener('click', () => afs.sort.shuffle());
