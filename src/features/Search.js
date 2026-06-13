@@ -47,28 +47,33 @@ export class Search {
   bindSearchEvents() {
     if (!this.searchInput) return;
 
-    // Create debounced search function
-    const debouncedSearch = debounce((e) => {
+    // Store handler references on the instance so destroy() can remove the
+    // exact same functions (anonymous handlers could never be removed).
+    this.debouncedSearch = debounce((e) => {
       this.search(e.target.value);
     }, this.afs.options.get('debounceTime') || 300);
 
-    // Bind input event
-    this.searchInput.addEventListener('input', debouncedSearch);
-
-    // Bind clear event
-    this.searchInput.addEventListener('search', (e) => {
+    this.handleClear = (e) => {
       if (!e.target.value) {
         this.clearSearch();
       }
-    });
+    };
 
-    // Handle Enter key
-    this.searchInput.addEventListener('keypress', (e) => {
+    this.handleEnter = (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
         this.search(e.target.value);
       }
-    });
+    };
+
+    // Bind input event
+    this.searchInput.addEventListener('input', this.debouncedSearch);
+
+    // Bind clear event
+    this.searchInput.addEventListener('search', this.handleClear);
+
+    // Handle Enter key
+    this.searchInput.addEventListener('keypress', this.handleEnter);
   }
 
   /**
@@ -100,31 +105,28 @@ export class Search {
       // Create search regex
       const regex = this.createSearchRegex(normalizedQuery);
 
-      // Track animation promises
-      const animationPromises = [];
-
-      // Search through items
+      // Search through items — show/hide synchronously (the actual animation
+      // is driven by CSS transitions, not by these calls).
       this.afs.items.forEach(item => {
         const searchText = this.getItemSearchText(item);
         const matchesSearch = regex.test(searchText);
 
-        const promise = new Promise(resolve => {
-          if (matchesSearch) {
-            this.afs.showItem(item);
-            this.highlightMatches(item, regex);
-            matches++;
-          } else {
-            this.afs.hideItem(item);
-            this.removeHighlights(item);
-          }
-          // Resolve after animation duration
-          setTimeout(resolve, this.afs.options.get('animation.duration') || 300);
-        });
-        animationPromises.push(promise);
+        if (matchesSearch) {
+          this.afs.showItem(item);
+          this.highlightMatches(item, regex);
+          matches++;
+        } else {
+          this.afs.hideItem(item);
+          this.removeHighlights(item);
+        }
       });
 
-      // Wait for all animations to complete
-      Promise.all(animationPromises).then(() => {
+      // Run the post-animation cleanup once, after the transition duration,
+      // with a single timer (previously one Promise + timer per item).
+      const duration =
+        parseFloat(this.afs.options.get('animation.duration')) || 300;
+      clearTimeout(this.searchCleanupTimer);
+      this.searchCleanupTimer = setTimeout(() => {
         if (this.afs.options.get("pagination.enabled")) {
           // Let pagination handle display for matching items
           this.afs.items.forEach(item => {
@@ -159,7 +161,7 @@ export class Search {
         this.afs.updateCounter();
 
         this.afs.logger.info(`Search complete. Found ${matches} matches`);
-      });
+      }, duration);
     } catch (error) {
       this.afs.logger.error('Search error:', error);
     }
@@ -360,6 +362,7 @@ export class Search {
    * @public
    */
   destroy() {
+    clearTimeout(this.searchCleanupTimer);
     if (this.searchInput) {
       this.searchInput.removeEventListener('input', this.debouncedSearch);
       this.searchInput.removeEventListener('search', this.handleClear);

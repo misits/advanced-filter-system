@@ -239,12 +239,20 @@ export class Options {
       }
     }
 
-    // Animation duration
-    if (
-      typeof this.options.animation?.duration !== "number" ||
-      this.options.animation?.duration < 0
-    ) {
-      throw new Error("animation.duration must be a positive number");
+    // Animation duration: accept a non-negative number (ms) or a valid CSS
+    // time string ("300ms", "0.3s") / bare numeric string — matching what
+    // StyleManager.normalizeDuration() accepts.
+    const duration = this.options.animation?.duration;
+    const validDuration =
+      (typeof duration === "number" && duration >= 0) ||
+      (typeof duration === "string" &&
+        duration.trim() !== "" &&
+        (/^\d*\.?\d+\s*m?s$/.test(duration.trim()) ||
+          (Number.isFinite(parseFloat(duration)) && parseFloat(duration) >= 0)));
+    if (!validDuration) {
+      throw new Error(
+        "animation.duration must be a non-negative number or a valid time string (e.g. 300 or \"300ms\")"
+      );
     }
 
     // Filter mode
@@ -308,8 +316,21 @@ export class Options {
       return obj[key];
     }, this.options);
 
+    // Validate against the new value but roll back if it is rejected, so a
+    // failed set() never leaves the options in an inconsistent state.
+    const had = last in target;
+    const prev = target[last];
     target[last] = value;
-    this.validate();
+    try {
+      this.validate();
+    } catch (error) {
+      if (had) {
+        target[last] = prev;
+      } else {
+        delete target[last];
+      }
+      throw error;
+    }
   }
 
   /**

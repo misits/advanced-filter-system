@@ -12,6 +12,28 @@ export class DateFilter {
   }
 
   /**
+   * Parse a date value as a LOCAL calendar date.
+   * A bare "YYYY-MM-DD" string is parsed by the Date constructor as UTC
+   * midnight, which then shifts by a day once compared in local time (the
+   * cause of off-by-one date filtering in negative-offset timezones). For
+   * date-only strings we build a local-midnight Date explicitly; anything
+   * else (full datetime, Date object, timestamp) falls back to new Date().
+   * @param {string|number|Date} value
+   * @returns {Date} Parsed date (Invalid Date if unparseable)
+   * @private
+   */
+  parseLocalDate(value) {
+    if (value instanceof Date) return value;
+    if (typeof value === "string") {
+      const m = value.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (m) {
+        return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+      }
+    }
+    return new Date(value);
+  }
+
+  /**
    * @typedef {Object} DateRangeOptions
    * @property {string} key - Data attribute key
    * @property {HTMLElement} container - Container element
@@ -67,7 +89,7 @@ export class DateFilter {
           if (!item || !item.dataset || !item.dataset[key]) {
             return null;
           }
-          const date = new Date(item.dataset[key]);
+          const date = this.parseLocalDate(item.dataset[key]);
           return isNaN(date.getTime()) ? null : date;
         })
         .filter(date => date !== null);
@@ -173,8 +195,8 @@ export class DateFilter {
     const { startInput, endInput } = elements;
 
     const handleDateChange = debounce(() => {
-      const startDate = new Date(startInput.value);
-      const endDate = new Date(endInput.value);
+      const startDate = this.parseLocalDate(startInput.value);
+      const endDate = this.parseLocalDate(endInput.value);
 
       if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
         state.currentStartDate = startDate;
@@ -185,6 +207,9 @@ export class DateFilter {
 
     startInput.addEventListener('change', handleDateChange);
     endInput.addEventListener('change', handleDateChange);
+
+    // Keep the handler reference so removeDateRange()/destroy() can detach it.
+    elements.changeHandler = handleDateChange;
   }
 
   /**
@@ -240,8 +265,8 @@ export class DateFilter {
           return;
         }
   
-        const itemDate = new Date(item.dataset[key]);
-        
+        const itemDate = this.parseLocalDate(item.dataset[key]);
+
         // Check if date is valid
         if (isNaN(itemDate.getTime())) {
           this.afs.hideItem(item);
@@ -317,8 +342,26 @@ export class DateFilter {
     const range = this.activeDateRanges.get(key);
     if (!range) return;
 
+    const { startInput, endInput, changeHandler } = range.elements;
+    if (changeHandler) {
+      startInput?.removeEventListener('change', changeHandler);
+      endInput?.removeEventListener('change', changeHandler);
+    }
+
     range.elements.container.remove();
     this.activeDateRanges.delete(key);
     this.afs.logger.info(`Date range removed for ${key}`);
+  }
+
+  /**
+   * Destroy all date ranges and detach their listeners
+   * @public
+   */
+  destroy() {
+    Array.from(this.activeDateRanges.keys()).forEach((key) => {
+      this.removeDateRange(key);
+    });
+    this.activeDateRanges.clear();
+    this.afs.logger.debug("Date filter destroyed");
   }
 }

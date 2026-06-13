@@ -30,9 +30,23 @@ export class URLManager {
    * @private
    */
   setupPopStateHandler() {
-    window.addEventListener('popstate', () => {
+    // Keep the reference so destroy() can remove this exact listener.
+    this.popStateHandler = () => {
       this.loadFromURL();
-    });
+    };
+    window.addEventListener('popstate', this.popStateHandler);
+  }
+
+  /**
+   * Remove the popstate listener
+   * @public
+   */
+  destroy() {
+    if (this.popStateHandler) {
+      window.removeEventListener('popstate', this.popStateHandler);
+      this.popStateHandler = null;
+    }
+    this.afs.logger?.debug?.("URL manager destroyed");
   }
 
   /**
@@ -195,17 +209,22 @@ export class URLManager {
   }
 
   /**
-   * Update browser URL
+   * Update browser URL.
+   * Uses replaceState (not pushState) so that filtering, typing in search or
+   * dragging a slider does not create a history entry per change — which would
+   * make the browser Back button unusable. The URL still reflects the current
+   * state and stays shareable.
    * @private
    * @param {URLSearchParams} params
    */
   pushState(params) {
     const queryString = params.toString();
     const newURL = `${window.location.pathname}${queryString ? '?' + queryString : ''}`;
-    
-    // Only update if URL actually changed
-    if (newURL !== window.location.href) {
-      window.history.pushState({}, '', newURL);
+
+    // Compare against the current path+query (not href, which includes origin)
+    const currentURL = `${window.location.pathname}${window.location.search}`;
+    if (newURL !== currentURL) {
+      window.history.replaceState({}, '', newURL);
       this.afs.logger.debug('URL updated:', newURL);
     }
   }
@@ -441,7 +460,7 @@ export class URLManager {
    * @public
    */
   clearURL() {
-    window.history.pushState({}, '', window.location.pathname);
+    window.history.replaceState({}, '', window.location.pathname);
     this.afs.state.reset();
     if (this.afs.filter) {
       this.afs.filter.clearAllFilters();
