@@ -15,7 +15,6 @@ export class Options {
    * @property {string} activeClass - Active state class
    * @property {string} hiddenClass - Hidden state class
    * @property {string} activeSortClass - Active sort button class
-   * @property {string} transitionClass - Transition animation class
    * @property {number} animationDuration - Animation duration in ms
    * @property {string} filterMode - Filter mode ('OR' or 'AND')
    * @property {string} groupMode - Group filter mode ('OR' or 'AND')
@@ -49,7 +48,6 @@ export class Options {
     activeClass: "active",
     hiddenClass: "hidden",
     activeSortClass: "sort-active",
-    transitionClass: "afs-transition",
 
     // Filtering
     filterMode: "OR",
