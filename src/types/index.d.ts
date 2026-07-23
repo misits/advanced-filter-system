@@ -1,6 +1,6 @@
 /**
  * Advanced Filter System (AFS) - TypeScript Definitions
- * @version 1.8.0
+ * @version 1.8.1
  */
 
 // Core Types
@@ -343,7 +343,7 @@ export declare class Sort {
 
 export declare class Pagination {
   constructor(afs: AFS);
-  goToPage(page: number): void;
+  goToPage(page: number, force?: boolean): void;
   nextPage(): void;
   previousPage(): void;
   firstPage(): void;
