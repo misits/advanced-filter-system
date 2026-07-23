@@ -81,7 +81,7 @@ export declare class Sort {
 export declare class Pagination {
   constructor(afs: AFS);
 
-  goToPage(page: number): void;
+  goToPage(page: number, force?: boolean): void;
   nextPage(): void;
   previousPage(): void;
   firstPage(): void;

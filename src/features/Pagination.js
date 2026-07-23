@@ -86,10 +86,18 @@ export class Pagination {
     // otherwise stack duplicate listeners and fire update() many times.
     if (!this.globalEventsBound) {
       // Keep the unsubscribe fns so destroy() can detach these from the bus.
+      // Every sort variant emits its own event name (sort/sortMultiple/
+      // sortCustom/sortShuffled/sortCleared) — the pagination must react to
+      // all of them, otherwise a sort only reorders the DOM while the stale
+      // page stays displayed, so the sort looks like it applied per page.
       this.busUnsubscribers = [
         this.afs.on("filter", () => this.update()),
         this.afs.on("search", () => this.update()),
-        this.afs.on("sort", () => this.update()),
+        this.afs.on("sort", () => this.handleSortEvent()),
+        this.afs.on("sortMultiple", () => this.handleSortEvent()),
+        this.afs.on("sortCustom", () => this.handleSortEvent()),
+        this.afs.on("sortShuffled", () => this.handleSortEvent()),
+        this.afs.on("sortCleared", () => this.handleSortEvent()),
       ];
       this.globalEventsBound = true;
     }
@@ -106,6 +114,17 @@ export class Pagination {
       }
     };
     this.container.addEventListener("click", this.containerClickHandler);
+  }
+
+  /**
+   * React to any sort event: a fresh order means the user expects to see the
+   * start of it, so jump back to page 1 before re-paginating.
+   * @private
+   */
+  handleSortEvent() {
+    if (!this.afs.options.get("pagination.enabled")) return;
+    this.afs.state.setState("pagination.currentPage", 1);
+    this.update();
   }
 
   /**
@@ -197,26 +216,25 @@ export class Pagination {
       return;
     }
 
-    // Show items with animation. The token guards against stale
-    // callbacks: if another update runs before this frame fires
-    // (e.g. a filter applied right after setup), it must win.
+    // Reveal the current page's items synchronously so the correct state is in
+    // the DOM immediately — even at construction time, before any
+    // requestAnimationFrame fires. Previously the reveal itself was deferred to
+    // a rAF, so on initial load (no user interaction yet) the first paint could
+    // happen before the frame ran and every item stayed visible. The token
+    // still guards the (cosmetic) animation against stale updates.
     const token = ++this.visibilityToken;
-    requestAnimationFrame(() => {
-      if (token !== this.visibilityToken) return;
+    const hiddenClass = this.afs.options.get("hiddenClass");
+    const animationType = this.afs.options.get("animation.type") || "fade";
 
-      itemsToShow.forEach((item) => {
-        // Remove hidden class and restore display
-        item.style.display = "";
-        item.classList.remove(this.afs.options.get("hiddenClass"));
+    itemsToShow.forEach((item) => {
+      item.style.display = "";
+      item.classList.remove(hiddenClass);
 
-        // Apply show animation in the next frame
-        requestAnimationFrame(() => {
-          if (token !== this.visibilityToken) return;
-          this.animation.applyShowAnimation(
-            item,
-            this.afs.options.get("animation.type") || "fade"
-          );
-        });
+      // Apply the show animation on the next frame; skip if a newer update
+      // has since superseded this one.
+      requestAnimationFrame(() => {
+        if (token !== this.visibilityToken) return;
+        this.animation.applyShowAnimation(item, animationType);
       });
     });
   }
@@ -344,11 +362,13 @@ export class Pagination {
    * Go to specific page
    * @public
    */
-  goToPage(page) {
+  goToPage(page, force = false) {
     const state = this.afs.state.getState().pagination;
     const targetPage = Math.max(1, Math.min(page, state.totalPages));
 
-    if (targetPage === state.currentPage) return;
+    // `force` lets callers re-apply the current page's visibility (e.g. to
+    // recover from an inconsistent initial render) instead of no-opping.
+    if (targetPage === state.currentPage && !force) return;
 
     // Update state
     this.afs.state.setState("pagination.currentPage", targetPage);

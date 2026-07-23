@@ -251,4 +251,138 @@ describe("AFS — Pagination", () => {
     expect(filterInstance.state.getState().items.visible.size).toBe(2);
     expect(window.location.search).toContain("category=fruit");
   });
+
+  // Regression: sorting a paginated list must sort the WHOLE collection and
+  // re-paginate, not just reorder the items already on the current page.
+  // See GitHub issue #16.
+  test("#16 — sortMultiple on a paginated list sorts globally and returns to page 1", () => {
+    const data = [
+      ["Banana", 5], ["Lemon", 3], ["Apple", 1],
+      ["Pear", 6], ["Grape", 4], ["Citron", 2],
+    ];
+    const itemsHTML = data
+      .map(([title, price]) =>
+        `<div class="filter-item" data-title="${title}" data-price="${price}"></div>`
+      )
+      .join("\n");
+
+    document.body.innerHTML = `
+      <div class="filter-container">${itemsHTML}</div>
+      <div class="pagination-container"></div>
+    `;
+
+    filterInstance = new AFS({
+      containerSelector: ".filter-container",
+      itemSelector: ".filter-item",
+      hiddenClass: "hidden",
+      animation: { duration: 0 },
+      pagination: {
+        enabled: true,
+        itemsPerPage: 3,
+        container: ".pagination-container",
+        showPrevNext: false,
+      },
+    });
+
+    jest.runAllTimers();
+
+    // Navigate away from page 1 so a stale page state would be visible.
+    filterInstance.pagination.goToPage(2);
+    jest.runAllTimers();
+    expect(filterInstance.pagination.getCurrentPage()).toBe(2);
+
+    // Sort the whole collection by price ascending.
+    filterInstance.sort.sortMultiple([{ key: "price", direction: "asc" }]);
+    jest.runAllTimers();
+
+    // Must be back on page 1 showing the first slice of the GLOBAL order.
+    expect(filterInstance.pagination.getCurrentPage()).toBe(1);
+    const visibleTitles = Array.from(
+      document.querySelectorAll(".filter-item")
+    )
+      .filter((el) => !el.classList.contains("hidden"))
+      .map((el) => el.dataset.title);
+    expect(visibleTitles).toEqual(["Apple", "Citron", "Lemon"]);
+  });
+
+  // Regression: shuffle() emits "sortShuffled", which the pagination must also
+  // react to — otherwise only the previously visible page stays shown. #16.
+  test("#16 — shuffle on a paginated list re-paginates to itemsPerPage on page 1", () => {
+    const itemsHTML = Array.from({ length: 6 }, (_, i) =>
+      `<div class="filter-item" data-title="Item ${i + 1}"></div>`
+    ).join("\n");
+
+    document.body.innerHTML = `
+      <div class="filter-container">${itemsHTML}</div>
+      <div class="pagination-container"></div>
+    `;
+
+    filterInstance = new AFS({
+      containerSelector: ".filter-container",
+      itemSelector: ".filter-item",
+      hiddenClass: "hidden",
+      animation: { duration: 0 },
+      pagination: {
+        enabled: true,
+        itemsPerPage: 3,
+        container: ".pagination-container",
+        showPrevNext: false,
+      },
+    });
+
+    jest.runAllTimers();
+
+    filterInstance.pagination.goToPage(2);
+    jest.runAllTimers();
+
+    filterInstance.sort.shuffle();
+    jest.runAllTimers();
+
+    expect(filterInstance.pagination.getCurrentPage()).toBe(1);
+
+    const allInDom = Array.from(document.querySelectorAll(".filter-item"));
+    const visible = allInDom.filter((el) => !el.classList.contains("hidden"));
+
+    // Exactly the page-1 slice of the current (shuffled) DOM order is shown.
+    expect(visible.length).toBe(3);
+    expect(visible).toEqual(allInDom.slice(0, 3));
+  });
+
+  // Regression: the initial page visibility must be applied synchronously at
+  // construction, without relying on a requestAnimationFrame firing. In a real
+  // browser the deferred first paint left every item visible. #15.
+  test("#15 — initial page visibility is applied synchronously (no rAF needed)", () => {
+    const itemsHTML = Array.from({ length: 14 }, (_, i) =>
+      `<div class="filter-item" data-title="Item ${i + 1}"></div>`
+    ).join("\n");
+
+    document.body.innerHTML = `
+      <div class="filter-container">${itemsHTML}</div>
+      <div class="pagination-container"></div>
+    `;
+
+    filterInstance = new AFS({
+      containerSelector: ".filter-container",
+      itemSelector: ".filter-item",
+      hiddenClass: "hidden",
+      animation: { duration: 0 },
+      pagination: {
+        enabled: true,
+        itemsPerPage: 6,
+        container: ".pagination-container",
+        showPrevNext: false,
+      },
+    });
+
+    // Intentionally NOT calling jest.runAllTimers(): the first page must be
+    // correct before any requestAnimationFrame callback runs.
+    const items = Array.from(document.querySelectorAll(".filter-item"));
+
+    for (let i = 0; i < 6; i++) {
+      expect(items[i].classList.contains("hidden")).toBe(false);
+    }
+    for (let i = 6; i < 14; i++) {
+      expect(items[i].classList.contains("hidden")).toBe(true);
+    }
+  });
 });
