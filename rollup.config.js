@@ -3,7 +3,6 @@ import commonjs from '@rollup/plugin-commonjs';
 import babel from '@rollup/plugin-babel';
 import terser from '@rollup/plugin-terser';
 import analyze from 'rollup-plugin-analyzer';
-import filesize from 'rollup-plugin-filesize';
 import { visualizer } from 'rollup-plugin-visualizer';
 import strip from '@rollup/plugin-strip';
 
@@ -86,7 +85,6 @@ const productionPlugins = process.env.NODE_ENV === 'production' ? [
     limit: 10,
     outFile: 'examples/bundle-analysis.txt'
   }),
-  filesize(),
   visualizer({
     filename: 'examples/bundle-analysis.html',
     gzipSize: true

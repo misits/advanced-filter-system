@@ -75,7 +75,6 @@
         "jest-environment-jsdom": "^30.1.2",
         "rollup": "^4.50.1",
         "rollup-plugin-analyzer": "^4.0.0",
-        "rollup-plugin-filesize": "7.0.0",
         "rollup-plugin-visualizer": "7.0.1"
     },
     "directories": {
@@ -89,5 +88,10 @@
         "> 0.25%",
         "not dead",
         "not ie 11"
-    ]
+    ],
+    "overrides": {
+        "@istanbuljs/load-nyc-config": {
+            "js-yaml": "^4.1.1"
+        }
+    }
 }
